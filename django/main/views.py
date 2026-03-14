@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from django.contrib.auth import login, authenticate
+from django.contrib.auth import login, authenticate, logout
 from .models import User
 
 def home(request):
@@ -47,4 +47,11 @@ def login_page(request):
 
 
 def profile_page(request):
+    if not request.user.is_authenticated:
+        return redirect('home')
     return render(request, 'main/profile.html')
+
+
+def logout_page(request):
+    logout(request)
+    return redirect('home')
