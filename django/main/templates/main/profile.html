@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Helvetica, Arial, sans-serif;
+            background-color: #FFFFFF;
+            color: #232D4B;
+        }
+
+        nav {
+            background-color: #232D4B;
+            padding: 0 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        nav .logo {
+            color: #FFFFFF;
+            font-size: 1.4rem;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            gap: 32px;
+        }
+
+        nav ul li a {
+            color: #FFFFFF;
+            text-decoration: none;
+            font-size: 1rem;
+            padding: 20px 0;
+            display: block;
+            border-bottom: 3px solid transparent;
+            transition: border-color 0.2s;
+        }
+
+        nav ul li a:hover {
+            border-bottom: 3px solid #E57200;
+        }
+
+        .welcome {
+            padding: 60px 40px;
+        }
+
+        .welcome h1 {
+            font-size: 2rem;
+        }
+
+        .welcome h1 span {
+            color: #E57200;
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <span class="logo">HoosLinked</span>
+        <ul>
+            <li><a href="{% url 'home' %}">Home</a></li>
+            <li><a href="#">Get Involved</a></li>
+            <li><a href="#">FAQ</a></li>
+            <li><a href="{% url 'profile' %}">Profile</a></li>
+        </ul>
+    </nav>
+
+    <div class="welcome">
+        <h1>Welcome, <span>{{ user.first_name }}</span></h1>
+    </div>
+
+</body>
+</html>

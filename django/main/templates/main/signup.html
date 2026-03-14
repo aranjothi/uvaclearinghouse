@@ -185,6 +185,8 @@
             <h1>Hoos<span>Linked</span></h1>
             <p>Sign up for an account</p>
             <form method="post">
+                {% csrf_token %}
+                {% if error %}<p style="color:red;margin-bottom:16px;">{{ error }}</p>{% endif %}
                 <div class="membership-options">
                     <input type="radio" id="executive" name="membership" value="executive">
                     <label for="executive">Executive Member</label>
@@ -209,7 +211,7 @@
                     <label for="password">Password</label>
                     <input type="password" id="password" name="password" placeholder="Enter your password">
                 </div>
-                <button type="submit" class="login-btn">Login</button>
+                <button type="submit" class="login-btn">Sign up</button>
             </form>
         </div>
     </div>

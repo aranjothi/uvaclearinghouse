@@ -145,6 +145,8 @@
             <h1>Hoos<span>Linked</span></h1>
             <p>Sign in to your account</p>
             <form method="post">
+                {% csrf_token %}
+                {% if error %}<p style="color:red;margin-bottom:16px;">{{ error }}</p>{% endif %}
                 <div class="form-group">
                     <label for="email">Email</label>
                     <input type="email" id="email" name="email" placeholder="Enter your email">

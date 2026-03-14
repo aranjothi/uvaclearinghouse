@@ -1,2 +1,5 @@
 django/*/__pycache__/*
 django/*/__pycache__/
+django/venv
+venv/
+django/db.sqlite3
