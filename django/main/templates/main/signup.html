@@ -166,6 +166,43 @@
             border-color: #E57200;
         }
 
+        .role-tooltip-wrapper { position: relative; display: inline-flex; align-items: center; }
+        .role-tooltip { display: none; position: absolute; left: 24px; top: 50%; transform: translateY(-50%); background: #232D4B; color: #fff; font-size: 0.8rem; font-weight: normal; padding: 8px 12px; border-radius: 6px; width: 220px; line-height: 1.4; z-index: 10; pointer-events: none; }
+        .role-tooltip-wrapper:hover .role-tooltip { display: block; }
+
+        .no-club-option {
+            margin-top: -8px;
+            margin-bottom: 20px;
+        }
+
+        .no-club-option input[type="radio"] {
+            display: none;
+        }
+
+        .no-club-option label {
+            display: block;
+            width: 100%;
+            text-align: center;
+            padding: 10px;
+            border: 2px solid #aaa;
+            border-radius: 5px;
+            font-size: 0.9rem;
+            color: #666;
+            cursor: pointer;
+            transition: background-color 0.2s, border-color 0.2s;
+        }
+
+        .no-club-option label:hover {
+            border-color: #888;
+            background-color: #f5f5f5;
+        }
+
+        .no-club-option input[type="radio"]:checked + label {
+            background-color: #888;
+            color: #FFFFFF;
+            border-color: #888;
+        }
+
         .name-row {
             display: flex;
             gap: 12px;
@@ -173,6 +210,49 @@
 
         .name-row .form-group {
             flex: 1;
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 16px 0;
+            color: #999;
+            font-size: 0.85rem;
+        }
+
+        .divider::before, .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: #ddd;
+        }
+
+        .google-btn {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 11px;
+            border: 1.5px solid #232D4B;
+            border-radius: 4px;
+            background: #FFFFFF;
+            font-size: 1rem;
+            cursor: pointer;
+            color: #232D4B;
+            text-decoration: none;
+            transition: background-color 0.2s, opacity 0.2s;
+        }
+
+        .google-btn:hover:not([disabled]) {
+            background-color: #f0f0f0;
+        }
+
+        .google-btn.disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            pointer-events: none;
         }
     </style>
 </head>
@@ -209,11 +289,24 @@
             <form method="post">
                 {% csrf_token %}
                 {% if error %}<p style="color:red;margin-bottom:16px;">{{ error }}</p>{% endif %}
+                <label style="display:flex;align-items:center;gap:6px;font-size:0.9rem;margin-bottom:12px;font-weight:bold;color:#232D4B;">
+                    Select your current role in your club
+                    <span class="role-tooltip-wrapper">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width:18px;height:18px;flex-shrink:0;cursor:default;">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />
+                        </svg>
+                        <span class="role-tooltip">If you are an executive member of one or more clubs, select "Executive Member". Choosing the other options does not prevent you from becoming an executive member later.</span>
+                    </span>
+                </label>
                 <div class="membership-options">
                     <input type="radio" id="executive" name="membership" value="executive">
                     <label for="executive">Executive Member</label>
                     <input type="radio" id="general" name="membership" value="general">
                     <label for="general">General Member</label>
+                </div>
+                <div class="no-club-option">
+                    <input type="radio" id="no_club" name="membership" value="general">
+                    <label for="no_club">I'm currently not in a club</label>
                 </div>
                 <div class="name-row">
                     <div class="form-group">
@@ -235,6 +328,16 @@
                 </div>
                 <button type="submit" class="login-btn">Sign up</button>
             </form>
+            <div class="divider">or</div>
+            <a id="googleBtn" href="#" class="google-btn disabled">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="20px" height="20px">
+                    <path fill="#EA4335" d="M24 9.5c3.15 0 5.64 1.08 7.56 2.85l5.64-5.64C33.6 3.6 29.1 1.5 24 1.5 14.82 1.5 7.08 7.14 3.9 15.06l6.57 5.1C12.12 13.98 17.58 9.5 24 9.5z"/>
+                    <path fill="#4285F4" d="M46.5 24c0-1.56-.15-3.06-.42-4.5H24v8.52h12.72c-.57 2.97-2.22 5.46-4.68 7.14l7.14 5.55C43.38 36.9 46.5 30.9 46.5 24z"/>
+                    <path fill="#FBBC05" d="M10.47 28.16A14.6 14.6 0 0 1 9.5 24c0-1.44.24-2.82.6-4.14l-6.57-5.1A22.44 22.44 0 0 0 1.5 24c0 3.66.87 7.11 2.4 10.2l6.57-6.04z"/>
+                    <path fill="#34A853" d="M24 46.5c5.1 0 9.42-1.68 12.54-4.56l-7.14-5.55c-1.74 1.17-3.99 1.86-5.4 1.86-6.42 0-11.88-4.32-13.53-10.14l-6.57 6.04C7.08 40.86 14.82 46.5 24 46.5z"/>
+                </svg>
+                Sign up with Google
+            </a>
         </div>
     </div>
 
@@ -245,6 +348,14 @@
         document.addEventListener('click', function(e) {
             const nav = document.getElementById('navIcon');
             if (!nav.contains(e.target)) nav.classList.remove('open');
+        });
+
+        document.querySelectorAll('input[name="membership"]').forEach(function(radio) {
+            radio.addEventListener('change', function() {
+                const btn = document.getElementById('googleBtn');
+                btn.href = "{% url 'google_signup' %}?role=" + this.value;
+                btn.classList.remove('disabled');
+            });
         });
     </script>
 </body>

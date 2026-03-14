@@ -55,3 +55,9 @@ def profile_page(request):
 def logout_page(request):
     logout(request)
     return redirect('home')
+
+
+def google_signup(request):
+    role = request.GET.get('role', 'member')
+    request.session['signup_role'] = role
+    return redirect('google_login')
