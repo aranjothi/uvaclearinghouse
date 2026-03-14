@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HoosLinked</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Helvetica, Arial, sans-serif;
+            background-color: #FFFFFF;
+            color: #232D4B;
+        }
+
+        /* navigation */
+        nav {
+            background-color: #232D4B;
+            padding: 0 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        nav .logo {
+            color: #FFFFFF;
+            font-size: 1.4rem;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            gap: 32px;
+        }
+
+        nav ul li a {
+            color: #FFFFFF;
+            text-decoration: none;
+            font-size: 1rem;
+            padding: 20px 0;
+            display: block;
+            border-bottom: 3px solid transparent;
+            transition: border-color 0.2s;
+        }
+
+        nav ul li a:hover {
+            border-bottom: 3px solid #E57200;
+        }
+
+        /* Hero */
+        .hero {
+            background-color: #232D4B;
+            color: #FFFFFF;
+            text-align: center;
+            padding: 80px 20px;
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            margin-bottom: 16px;
+            letter-spacing: 2px;
+        }
+
+        .hero h1 span {
+            color: #E57200;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            max-width: 560px;
+            margin: 0 auto 32px;
+            opacity: 0.9;
+        }
+
+        .hero a {
+            background-color: #E57200;
+            color: #FFFFFF;
+            padding: 14px 36px;
+            text-decoration: none;
+            font-size: 1rem;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+        }
+
+        .hero a:hover {
+            background-color: #c96200;
+        }
+
+        /* cards */
+        .cards {
+            display: flex;
+            justify-content: center;
+            gap: 32px;
+            padding: 60px 40px;
+            flex-wrap: wrap;
+        }
+
+        .card {
+            border: 2px solid #232D4B;
+            border-radius: 8px;
+            padding: 32px 28px;
+            max-width: 280px;
+            text-align: center;
+        }
+
+        .card h2 {
+            color: #E57200;
+            margin-bottom: 12px;
+            font-size: 1.2rem;
+        }
+
+        .card p {
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        /* footer */
+        footer {
+            background-color: #232D4B;
+            color: #FFFFFF;
+            text-align: center;
+            padding: 20px;
+            font-size: 0.85rem;
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <span class="logo">HoosLinked</span>
+        <ul>
+            <li><a href="#">Home</a></li>
+            <li><a href="#">Get Involved</a></li>
+            <li><a href="#">FAQ</a></li>
+            <li><a href="{% url 'login' %}">Login</a></li>
+        </ul>
+    </nav>
+
+    <div class="hero">
+        <h1>Hoos<span>Linked</span></h1>
+        <p>Connecting Hoos with CIOs and helping the community advertise their organizations.</p>
+    </div>
+
+    <div class="cards">
+        <div class="card">
+            <h2>For Students</h2>
+            <p>Browse organizations across UVA and discover communities with your interests!</p>
+        </div>
+        <div class="card">
+            <h2>For Executives</h2>
+            <p>Advertise your organization and connect with students who are looking to get involved!</p>
+        </div>
+    </div>
+
+</body>
+</html>

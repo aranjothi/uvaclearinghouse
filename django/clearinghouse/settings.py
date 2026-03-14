@@ -31,6 +31,7 @@ ALLOWED_HOSTS = ["clearinghouse-b05-48721624d34f.herokuapp.com", "127.0.0.1"]
 # Application definition
 
 INSTALLED_APPS = [
+    'main',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
