@@ -4,7 +4,15 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="00a4688b-7249-4d35-9273-226e29aacd18" name="Changes" comment="Make the get_involved.html" />
+    <list default="true" id="00a4688b-7249-4d35-9273-226e29aacd18" name="Changes" comment="Make the get_involved.html">
+      <change afterPath="$PROJECT_DIR$/django/main/templates/main/my_clubs.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/django/db.sqlite3" beforeDir="false" afterPath="$PROJECT_DIR$/django/db.sqlite3" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/django/main/templates/main/get_involved.html" beforeDir="false" afterPath="$PROJECT_DIR$/django/main/templates/main/get_involved.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/django/main/templates/main/home.html" beforeDir="false" afterPath="$PROJECT_DIR$/django/main/templates/main/home.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/django/main/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/django/main/urls.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/django/main/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/django/main/views.py" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -20,30 +28,30 @@
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="Features" />
+        <entry key="$PROJECT_DIR$" value="main" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
-  "lastFilter": {
-    "state": "OPEN",
-    "assignee": "niyoyo2005"
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;niyoyo2005&quot;
   }
-}]]></component>
-  <component name="GithubPullRequestsUISettings"><![CDATA[{
-  "selectedUrlAndAccountId": {
-    "url": "https://github.com/uva-cs3240-s26/project-b-05.git",
-    "accountId": "c87614f8-7274-47af-bbed-f21019889ecf"
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/uva-cs3240-s26/project-b-05.git&quot;,
+    &quot;accountId&quot;: &quot;c87614f8-7274-47af-bbed-f21019889ecf&quot;
   }
-}]]></component>
+}</component>
   <component name="McpProjectServerCommands">
     <commands />
     <urls />
   </component>
-  <component name="ProjectColorInfo"><![CDATA[{
-  "associatedIndex": 3
-}]]></component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 3
+}</component>
   <component name="ProjectId" id="3Axfg33LuqHHTGymvZvoN24MRuF" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
@@ -62,6 +70,7 @@
     "ai.playground.ignore.import.keys.banner.in.settings": "true",
     "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
     "django.template.preview.state": "SHOW_EDITOR_AND_PREVIEW",
+    "git-widget-placeholder": "main",
     "ignore.virus.scanning.warn.message": "true",
     "junie.onboarding.icon.badge.shown": "true",
     "node.js.detected.package.eslint": "true",

@@ -116,6 +116,21 @@ font-size: 0.9rem;
 width: fit-content;
 }
 
+.club-btn-secondary {
+    background-color: #232D4B;
+    color: #FFFFFF;
+    text-decoration: none;
+    padding: 10px 16px;
+    border-radius: 6px;
+    font-weight: bold;
+    font-size: 0.9rem;
+    width: fit-content;
+}
+
+.club-btn-secondary:hover {
+    background-color: #1a2238;
+}
+
 .club-btn:hover {
 background-color: #c86100;
 }
@@ -152,15 +167,12 @@ color: #555;
 {% for club in clubs %}
 
 <div class="club-card">
-
 <h3>{{ club.name }}</h3>
-
-<p>
-{{ club.description|default:"No description available." }}
-</p>
-
-<a href="#" class="club-btn">View Club</a>
-
+<p>{{ club.description|default:"No description available." }}</p>
+<div style="display: flex; gap: 10px;">
+    <a href="#" class="club-btn">View Club</a>
+    <a href="#" class="club-btn-secondary">Join Club</a>
+</div>
 </div>
 
 {% empty %}

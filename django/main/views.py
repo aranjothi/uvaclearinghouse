@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, authenticate, logout
-from .models import User
+from .models import User, Membership
 from .models import Club
 
 def home(request):
@@ -86,3 +86,7 @@ def get_involved_page(request):
     return render(request, 'main/get_involved.html', {
         'clubs': clubs #pass clubs queryset to template
     })
+
+def my_clubs_page(request):
+    memberships = Membership.objects.filter(user=request.user)
+    return render(request, 'main/my_clubs.html', {'memberships': memberships})
