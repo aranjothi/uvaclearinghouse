@@ -1,7 +1,9 @@
+from django.views.generic import DetailView
+from django.db.models import Q
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, authenticate, logout
-from .models import User
-from .models import Club
+from .models import User, Club, Membership
+
 
 def home(request):
     return render(request, 'main/home.html')
@@ -66,9 +68,13 @@ def create_profile_page(request):
 
 
 def profile_page(request):
+    #based on database
+    memberships = request.user.memberships.all()
     if not request.user.is_authenticated:
         return redirect('home')
-    return render(request, 'main/profile.html')
+    return render(request, 'main/profile.html',{
+        "memberships": memberships,
+    })
 
 
 def logout_page(request):
@@ -82,7 +88,20 @@ def google_signup(request):
     return redirect('google_login')
 
 def get_involved_page(request):
+    query = request.GET.get('q', '').strip()
     clubs = Club.objects.all() #fetch all the club records from db
+    if query:
+        clubs = clubs.filter(
+            Q(name__icontains=query) | Q(description__icontains=query)
+        )
     return render(request, 'main/get_involved.html', {
-        'clubs': clubs #pass clubs queryset to template
+        'clubs': clubs, #pass clubs queryset to template
+        'query': query,
     })
+
+class ClubDetailView(DetailView):
+    model = Club
+    template_name = "main/club_detail.html"
+    context_object_name = "club"
+    slug_field = "slug"
+    slug_url_kwarg = "slug"

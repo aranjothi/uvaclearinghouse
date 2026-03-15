@@ -70,6 +70,55 @@ font-size: 2rem;
 color: #E57200;
 }
 
+/* SEARCH BAR */
+.search-bar-wrap {
+    padding: 0 40px 30px 40px;
+}
+
+.search-form {
+    display: flex;
+    gap: 12px;
+    max-width: 700px;
+}
+
+.search-input {
+    flex: 1;
+    padding: 12px 14px;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-family: inherit;
+}
+
+.search-btn {
+    background-color: #E57200;
+    color: #FFFFFF;
+    border: none;
+    padding: 12px 18px;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+.search-btn:hover {
+    background-color: #c86100;
+}
+
+.reset-btn {
+    background-color: #ccc;
+    color: black;
+    padding: 12px 18px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.reset-btn:hover {
+    background-color: #b5b5b5;
+}
+
+
 /* CLUB GRID */
 
 .club-container {
@@ -147,6 +196,24 @@ color: #555;
 <h1>Get <span>Involved</span></h1>
 </div>
 
+
+<div class="search-bar-wrap">
+    <form method="get" class="search-form">
+        <input
+            type="text"
+            name="q"
+            placeholder="Search for clubs..."
+            value="{{ query }}"
+            class="search-input"
+        >
+        <button type="submit" class="search-btn">Search</button>
+
+        <a href="{% url 'get_involved' %}" class="reset-btn">
+            Reset
+        </a>
+    </form>
+</div>
+
 <div class="club-container">
 
 {% for club in clubs %}
@@ -159,7 +226,9 @@ color: #555;
 {{ club.description|default:"No description available." }}
 </p>
 
-<a href="#" class="club-btn">View Club</a>
+<a href="{% url 'club_detail' club.slug %}" class="club-btn">
+    View Club
+</a>
 
 </div>
 

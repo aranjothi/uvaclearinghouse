@@ -120,6 +120,12 @@
             line-height: 1.6;
         }
 
+        .card-link {
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+
         .nav-icon { position: relative; padding: 11px 0px;}
         .icon-btn { background: none; border: none; cursor: pointer; color: #FFFFFF; padding: 4px; display: flex; align-items: center; }
         .icon-btn svg { width: 28px; height: 28px; }
@@ -172,8 +178,10 @@
 
     <div class="cards">
         <div class="card">
-            <h2>For Students</h2>
-            <p>Browse organizations across UVA and discover communities with your interests!</p>
+            <a href="{% url 'get_involved' %}" class="card-link">
+                <h2>For Students</h2>
+                <p>Browse organizations across UVA and discover communities with your interests!</p>
+            </a>
         </div>
         <div class="card">
             <h2>For Executives</h2>
