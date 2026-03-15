@@ -268,8 +268,8 @@ M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
     {% if memberships %}
         {% for membership in memberships %}
         <div>
-            <span>{{ membership.club.name }}</span> :
-            <span>
+            <span><strong>{{ membership.club.name }}</strong></span> :
+        
             {% if membership.role == "executive" %}
                 Executive Member
             {% else %}

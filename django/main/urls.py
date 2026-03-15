@@ -11,5 +11,7 @@ urlpatterns = [
     path('create-profile/', views.create_profile_page, name='create_profile'),
     path('get-involved/', views.get_involved_page, name='get_involved'),
     #creates the urls for each club's page
-    path('clubs/<slug:slug>/', views.ClubDetailView.as_view(), name='club_detail'),
+   path('clubs/<slug:slug>/', views.ClubDetailView.as_view(), name='club_detail'),
+   path('clubs/<slug:slug>/join/', views.join_club, name='join_club'),
+   path('clubs/<slug:slug>/verify/', views.verify_exec, name='verify_exec'),
 ]

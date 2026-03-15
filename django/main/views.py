@@ -1,9 +1,16 @@
 from django.views.generic import DetailView
 from django.db.models import Q
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, authenticate, logout
+from django.contrib.auth.decorators import login_required
 from .models import User, Club, Membership
 
+class ClubDetailView(DetailView):
+    model = Club
+    template_name = "main/club_detail.html"
+    context_object_name = "club"
+    slug_field = "slug"
+    slug_url_kwarg = "slug"
 
 def home(request):
     return render(request, 'main/home.html')
@@ -69,7 +76,7 @@ def create_profile_page(request):
 
 def profile_page(request):
     #based on database
-    memberships = request.user.memberships.all()
+    memberships = request.user.memberships.select_related("club")
     if not request.user.is_authenticated:
         return redirect('home')
     return render(request, 'main/profile.html',{
@@ -99,9 +106,48 @@ def get_involved_page(request):
         'query': query,
     })
 
-class ClubDetailView(DetailView):
-    model = Club
-    template_name = "main/club_detail.html"
-    context_object_name = "club"
-    slug_field = "slug"
-    slug_url_kwarg = "slug"
+@login_required
+def join_club(request, slug):
+    if request.method == "POST":
+
+        club = get_object_or_404(Club, slug=slug)
+
+        Membership.objects.get_or_create(
+            user=request.user,
+            club=club,
+            defaults={"role": Membership.MEMBER}
+        )
+
+    return redirect("club_detail", slug=slug)
+
+@login_required
+def verify_exec(request, slug):
+    if request.method == "POST":
+
+        club = get_object_or_404(Club, slug=slug)
+        membership, created = Membership.objects.get_or_create(
+            user=request.user,
+            club=club
+        )
+
+        #update instead of new entry
+        membership.role = Membership.EXECUTIVE
+        membership.save()
+
+    return redirect("club_detail", slug=slug)
+
+def get_context_data(self, **kwargs):
+
+        context = super().get_context_data(**kwargs)
+
+        is_member = False
+
+        if self.request.user.is_authenticated:
+            is_member = Membership.objects.filter(
+                user=self.request.user,
+                club=self.object
+            ).exists()
+
+        context["is_member"] = is_member
+
+        return context
