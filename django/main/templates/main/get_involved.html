@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Get Involved</title>
+
+<style>
+
+* {
+margin: 0;
+padding: 0;
+box-sizing: border-box;
+}
+
+body {
+font-family: Helvetica, Arial, sans-serif;
+background-color: #FFFFFF;
+color: #232D4B;
+}
+
+/* NAVBAR */
+
+nav {
+background-color: #232D4B;
+padding: 0 40px;
+display: flex;
+align-items: center;
+justify-content: space-between;
+}
+
+nav .logo {
+color: #FFFFFF;
+font-size: 1.4rem;
+font-weight: bold;
+letter-spacing: 1px;
+}
+
+nav ul {
+list-style: none;
+display: flex;
+gap: 32px;
+}
+
+nav ul li a {
+color: #FFFFFF;
+text-decoration: none;
+font-size: 1rem;
+padding: 20px 0;
+display: block;
+border-bottom: 3px solid transparent;
+transition: border-color 0.2s;
+}
+
+nav ul li a:hover {
+border-bottom: 3px solid #E57200;
+}
+
+/* PAGE HEADER */
+
+.page-header {
+padding: 60px 40px 30px 40px;
+}
+
+.page-header h1 {
+font-size: 2rem;
+}
+
+.page-header span {
+color: #E57200;
+}
+
+/* CLUB GRID */
+
+.club-container {
+padding: 0 40px 60px 40px;
+display: grid;
+grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+gap: 25px;
+}
+
+/* CLUB CARD */
+
+.club-card {
+background-color: #f7f7f7;
+border-radius: 10px;
+padding: 22px;
+box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+display: flex;
+flex-direction: column;
+justify-content: space-between;
+}
+
+.club-card h3 {
+margin-bottom: 10px;
+font-size: 1.3rem;
+}
+
+.club-card p {
+font-size: 0.95rem;
+line-height: 1.5;
+color: #444;
+margin-bottom: 18px;
+}
+
+/* BUTTON */
+
+.club-btn {
+background-color: #E57200;
+color: #FFFFFF;
+text-decoration: none;
+padding: 10px 16px;
+border-radius: 6px;
+font-weight: bold;
+font-size: 0.9rem;
+width: fit-content;
+}
+
+.club-btn:hover {
+background-color: #c86100;
+}
+
+.no-clubs {
+padding: 40px;
+font-size: 1rem;
+color: #555;
+}
+
+</style>
+</head>
+
+<body>
+
+<nav>
+
+<span class="logo">HoosLinked</span>
+
+<ul>
+<li><a href="{% url 'home' %}">Home</a></li>
+<li><a href="{% url 'get_involved' %}">Get Involved</a></li>
+<li><a href="#">FAQ</a></li>
+</ul>
+
+</nav>
+
+<div class="page-header">
+<h1>Get <span>Involved</span></h1>
+</div>
+
+<div class="club-container">
+
+{% for club in clubs %}
+
+<div class="club-card">
+
+<h3>{{ club.name }}</h3>
+
+<p>
+{{ club.description|default:"No description available." }}
+</p>
+
+<a href="#" class="club-btn">View Club</a>
+
+</div>
+
+{% empty %}
+
+<p class="no-clubs">No clubs available yet.</p>
+
+{% endfor %}
+
+</div>
+
+</body>
+</html>

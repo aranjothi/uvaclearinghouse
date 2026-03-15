@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, authenticate, logout
 from .models import User
+from .models import Club
 
 def home(request):
     return render(request, 'main/home.html')
@@ -79,3 +80,9 @@ def google_signup(request):
     role = request.GET.get('role', 'member')
     request.session['signup_role'] = role
     return redirect('google_login')
+
+def get_involved_page(request):
+    clubs = Club.objects.all() #fetch all the club records from db
+    return render(request, 'main/get_involved.html', {
+        'clubs': clubs #pass clubs queryset to template
+    })
