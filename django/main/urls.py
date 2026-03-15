@@ -14,4 +14,7 @@ urlpatterns = [
    path('clubs/<slug:slug>/', views.ClubDetailView.as_view(), name='club_detail'),
    path('clubs/<slug:slug>/join/', views.join_club, name='join_club'),
    path('clubs/<slug:slug>/verify/', views.verify_exec, name='verify_exec'),
+   path("clubs/<slug:slug>/create-event/", views.create_event, name="create_event"),
+   path('executives/', views.executive_page, name='executive_page'),
+   path('clubs/<slug:slug>/create-event/', views.create_event, name='create_event'),
 ]

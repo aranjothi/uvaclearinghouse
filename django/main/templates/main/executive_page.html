@@ -1,0 +1,25 @@
+<h1>Executive Dashboard</h1>
+
+{% if executive_memberships %}
+
+    <h2>Your Organizations</h2>
+
+    {% for membership in executive_memberships %}
+
+        <div>
+            <h3>{{ membership.club.name }}</h3>
+            <p>{{ membership.club.description }}</p>
+
+            <a href="{% url 'create_event' membership.club.slug %}">
+                Create Event
+            </a>
+
+        </div>
+
+    {% endfor %}
+
+{% else %}
+
+    <p>You are not currently an executive member of any organizations.</p>
+
+{% endif %}

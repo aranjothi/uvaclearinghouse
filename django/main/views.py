@@ -3,7 +3,8 @@ from django.db.models import Q
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.decorators import login_required
-from .models import User, Club, Membership
+from .models import User, Club, Membership, Event
+from .forms import EventForm
 
 class ClubDetailView(DetailView):
     model = Club
@@ -11,6 +12,29 @@ class ClubDetailView(DetailView):
     context_object_name = "club"
     slug_field = "slug"
     slug_url_kwarg = "slug"
+
+    def get_context_data(self, **kwargs):
+
+        context = super().get_context_data(**kwargs)
+
+        is_member = False
+        is_exec = False
+
+        if self.request.user.is_authenticated:
+
+            membership = Membership.objects.filter(
+                user=self.request.user,
+                club=self.object
+            ).first()
+
+            if membership:
+                is_member = True
+                is_exec = membership.role == Membership.EXECUTIVE
+
+        context["is_member"] = is_member
+        context["is_exec"] = is_exec
+
+        return context
 
 def home(request):
     return render(request, 'main/home.html')
@@ -151,3 +175,50 @@ def get_context_data(self, **kwargs):
         context["is_member"] = is_member
 
         return context
+
+@login_required
+def executive_page(request):
+
+    executive_memberships = request.user.memberships.filter(
+        role=Membership.EXECUTIVE
+    ).select_related("club")
+
+    return render(request, "main/executive_page.html", {
+        "executive_memberships": executive_memberships
+    })
+
+@login_required
+def create_event(request, slug):
+
+    club = get_object_or_404(Club, slug=slug)
+
+    is_exec = Membership.objects.filter(
+        user=request.user,
+        club=club,
+        role=Membership.EXECUTIVE
+    ).exists()
+
+    if not is_exec:
+        return redirect("executive_page")
+
+    if request.method == "POST":
+
+        form = EventForm(request.POST)
+
+        if form.is_valid():
+            event = form.save(commit=False)
+
+            event.club = club
+            event.created_by = request.user
+
+            event.save()
+
+            return redirect("executive_page")
+
+    else:
+        form = EventForm()
+
+    return render(request, "main/create_event.html", {
+        "club": club,
+        "form": form
+    })

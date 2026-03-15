@@ -244,6 +244,12 @@ nav ul li a:hover {
                     </button>
                 </form>
 
+                {% if is_exec %}
+                <a href="{% url 'create_event' club.slug %}" class="club-btn">
+                    Create Event
+                </a>
+                {% endif %}
+
             {% else %}
                 <button type="button" class="club-btn" disabled>
                     Become Member
