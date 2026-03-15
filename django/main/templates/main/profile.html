@@ -1,117 +1,287 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Profile</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Profile</title>
 
-        body {
-            font-family: Helvetica, Arial, sans-serif;
-            background-color: #FFFFFF;
-            color: #232D4B;
-        }
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
 
-        nav {
-            background-color: #232D4B;
-            padding: 0 40px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
+body {
+    font-family: Helvetica, Arial, sans-serif;
+    background-color: #FFFFFF;
+    color: #232D4B;
+}
 
-        nav .logo {
-            color: #FFFFFF;
-            font-size: 1.4rem;
-            font-weight: bold;
-            letter-spacing: 1px;
-        }
+/* NAVBAR */
 
-        nav ul {
-            list-style: none;
-            display: flex;
-            gap: 32px;
-        }
+nav {
+    background-color: #232D4B;
+    padding: 0 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
 
-        nav ul li a {
-            color: #FFFFFF;
-            text-decoration: none;
-            font-size: 1rem;
-            padding: 20px 0;
-            display: block;
-            border-bottom: 3px solid transparent;
-            transition: border-color 0.2s;
-        }
+nav .logo {
+    color: #FFFFFF;
+    font-size: 1.4rem;
+    font-weight: bold;
+    letter-spacing: 1px;
+}
 
-        nav ul li a:hover {
-            border-bottom: 3px solid #E57200;
-        }
+nav ul {
+    list-style: none;
+    display: flex;
+    gap: 32px;
+}
 
-        .nav-icon { position: relative; padding: 11px 0px;}
-        .icon-btn { background: none; border: none; cursor: pointer; color: #FFFFFF; padding: 4px; display: flex; align-items: center; }
-        .icon-btn svg { width: 28px; height: 28px; }
-        .dropdown { display: none; position: absolute; right: 0; top: calc(100% + 8px); background: #FFFFFF; border: 1.5px solid #232D4B; border-radius: 6px; min-width: 130px; z-index: 100; overflow: hidden; }
-        .dropdown a, .dropdown button { display: block; width: 100%; text-align: left; padding: 10px 16px; font-size: 0.95rem; color: #232D4B; text-decoration: none; background: none; border: none; cursor: pointer; font-family: inherit; }
-        .dropdown a:hover, .dropdown button:hover { background-color: #f0f0f0; }
-        .nav-icon.open .dropdown { display: block; }
+nav ul li a {
+    color: #FFFFFF;
+    text-decoration: none;
+    font-size: 1rem;
+    padding: 20px 0;
+    display: block;
+    border-bottom: 3px solid transparent;
+    transition: border-color 0.2s;
+}
 
-        .welcome {
-            padding: 60px 40px;
-        }
+nav ul li a:hover {
+    border-bottom: 3px solid #E57200;
+}
 
-        .welcome h1 {
-            font-size: 2rem;
-        }
+/* NAV ICON */
 
-        .welcome h1 span {
-            color: #E57200;
-        }
-    </style>
+.nav-icon {
+    position: relative;
+    padding: 11px 0px;
+}
+
+.icon-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #FFFFFF;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+}
+
+.icon-btn svg {
+    width: 28px;
+    height: 28px;
+}
+
+.dropdown {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: calc(100% + 8px);
+    background: #FFFFFF;
+    border: 1.5px solid #232D4B;
+    border-radius: 6px;
+    min-width: 130px;
+    z-index: 100;
+    overflow: hidden;
+}
+
+.dropdown a,
+.dropdown button {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 10px 16px;
+    font-size: 0.95rem;
+    color: #232D4B;
+    text-decoration: none;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+.dropdown a:hover,
+.dropdown button:hover {
+    background-color: #f0f0f0;
+}
+
+.nav-icon.open .dropdown {
+    display: block;
+}
+
+/* PAGE CONTENT */
+
+.welcome {
+    padding: 60px 40px;
+}
+
+.welcome h1 {
+    font-size: 2rem;
+}
+
+.welcome h1 span {
+    color: #E57200;
+}
+
+/* PROFILE CARD */
+
+.profile-card {
+    margin-top: 30px;
+    background-color: #f7f7f7;
+    padding: 25px 30px;
+    border-radius: 10px;
+    max-width: 520px;
+}
+
+.profile-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 12px 0;
+    border-bottom: 1px solid #ddd;
+}
+
+.profile-row:last-child {
+    border-bottom: none;
+}
+
+.profile-label {
+    font-weight: bold;
+    color: #232D4B;
+}
+
+.profile-value {
+    color: #444;
+}
+
+/* EDIT BUTTON */
+
+.edit-btn {
+    display: inline-block;
+    margin-top: 25px;
+    background-color: #E57200;
+    color: #FFFFFF;
+    padding: 12px 20px;
+    text-decoration: none;
+    font-size: 1rem;
+    border-radius: 6px;
+    font-weight: bold;
+}
+
+.edit-btn:hover {
+    background-color: #c86100;
+}
+
+</style>
 </head>
+
 <body>
 
-    <nav>
-        <span class="logo">HoosLinked</span>
-        <ul>
-            <li><a href="{% url 'home' %}">Home</a></li>
-            <li><a href="#">Get Involved</a></li>
-            <li><a href="#">FAQ</a></li>
-            <li class="nav-icon" id="navIcon">
-                <button class="icon-btn" onclick="toggleNav()">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
-                    </svg>
-                </button>
-                <div class="dropdown">
-                    {% if user.is_authenticated %}
-                        <a href="{% url 'profile' %}">Profile</a>
-                        <a href="{% url 'logout' %}">Logout</a>
-                    {% else %}
-                        <a href="{% url 'login' %}">Login</a>
-                    {% endif %}
-                </div>
-            </li>
-        </ul>
-    </nav>
+<nav>
+<span class="logo">HoosLinked</span>
 
-    <div class="welcome"> 
-        <!-- first_name from django user model -->
-        <h1>Welcome, <span>{{ user.first_name }}</span></h1>
-    </div>
+<ul>
+<li><a href="{% url 'home' %}">Home</a></li>
+<li><a href="#">Get Involved</a></li>
+<li><a href="#">FAQ</a></li>
 
-    <script>
-        function toggleNav() {
-            document.getElementById('navIcon').classList.toggle('open');
-        }
-        document.addEventListener('click', function(e) {
-            const nav = document.getElementById('navIcon');
-            if (!nav.contains(e.target)) nav.classList.remove('open');
-        });
-    </script>
+<li class="nav-icon" id="navIcon">
+
+<button class="icon-btn" onclick="toggleNav()">
+
+<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+
+<path stroke-linecap="round" stroke-linejoin="round"
+d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975
+m11.963 0a9 9 0 1 0-11.963 0
+m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275
+M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+
+</svg>
+
+</button>
+
+<div class="dropdown">
+
+{% if user.is_authenticated %}
+
+<a href="{% url 'profile' %}">Profile</a>
+<a href="{% url 'logout' %}">Logout</a>
+
+{% else %}
+
+<a href="{% url 'login' %}">Login</a>
+
+{% endif %}
+
+</div>
+
+</li>
+
+</ul>
+
+</nav>
+
+
+<div class="welcome">
+
+<h1>Welcome, <span>{{ user.first_name|upper }}</span></h1>
+
+<div class="profile-card">
+
+<div class="profile-row">
+<span class="profile-label">Last Name</span>
+<span class="profile-value">{{ user.last_name }}</span>
+</div>
+
+<div class="profile-row">
+<span class="profile-label">Email</span>
+<span class="profile-value">{{ user.email }}</span>
+</div>
+
+<div class="profile-row">
+<span class="profile-label">Age</span>
+<span class="profile-value">{{ user.age }}</span>
+</div>
+
+<div class="profile-row">
+<span class="profile-label">Birthday</span>
+<span class="profile-value">{{ user.birthday }}</span>
+</div>
+
+<div class="profile-row">
+<span class="profile-label">Year</span>
+<span class="profile-value">{{ user.get_year_display }}</span>
+</div>
+
+<div class="profile-row">
+<span class="profile-label">School</span>
+<span class="profile-value">{{ user.get_school_display }}</span>
+</div>
+
+</div>
+
+<a href="{% url 'create_profile' %}" class="edit-btn">Edit Profile</a>
+
+</div>
+
+
+<script>
+
+function toggleNav() {
+document.getElementById('navIcon').classList.toggle('open');
+}
+
+document.addEventListener('click', function(e) {
+const nav = document.getElementById('navIcon');
+if (!nav.contains(e.target)) nav.classList.remove('open');
+});
+
+</script>
+
 </body>
 </html>

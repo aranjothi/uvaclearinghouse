@@ -23,10 +23,12 @@ def signup_page(request):
             last_name=last_name,
         )
         user.set_password(password)
+        if hasattr(user, 'membership'):
+            user.membership = membership
         user.save()
 
-        login(request, user)
-        return redirect('profile')
+        login(request, user, backend='django.contrib.auth.backends.ModelBackend')
+        return redirect('create_profile')
 
     return render(request, 'main/signup.html')
 
@@ -44,6 +46,22 @@ def login_page(request):
             return render(request, 'main/login.html', {'error': 'Invalid email or password.'})
 
     return render(request, 'main/login.html')
+
+
+def create_profile_page(request):
+    if not request.user.is_authenticated:
+        return redirect('home')
+
+    if request.method == 'POST':
+        request.user.age = request.POST.get('age') or None
+        request.user.birthday = request.POST.get('birthday') or None
+        request.user.year = request.POST.get('year')
+        request.user.school = request.POST.get('school')
+        request.user.save()
+
+        return redirect('profile')
+
+    return render(request, 'main/create_profile.html')
 
 
 def profile_page(request):

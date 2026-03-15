@@ -8,6 +8,27 @@ class User(AbstractUser):
     last_name = models.CharField(max_length=150)
     profile_slug = models.SlugField(unique=True, blank=True)
 
+    YEAR_CHOICES = [
+        ('1', '1st year'),
+        ('2', '2nd year'),
+        ('3', '3rd year'),
+        ('4', '4th year'),]
+
+    SCHOOL_CHOICES = [
+        ('engineering', 'School of Engineering and Applied Science'),
+        ('cas', 'College of Arts and Sciences'),
+        ('commerce', 'McIntire School of Commerce'),
+        ('architecture', 'School of Architecture'),
+        ('education', 'School of Education and Human Development'),
+        ('nursing', 'School of Nursing'),
+        ('batten', 'Batten School of Leadership and Public Policy'),
+    ]
+
+    age = models.PositiveIntegerField(default=0)
+    birthday = models.DateField(null=True, blank=True)
+    year = models.CharField(max_length = 1, choices = YEAR_CHOICES, blank=True, null=True)
+    school = models.CharField(max_length = 50, choices = SCHOOL_CHOICES, blank=True, null=True)
+
     def save(self, *args, **kwargs):
         if not self.profile_slug:
             self.profile_slug = slugify(self.username)

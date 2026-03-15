@@ -8,4 +8,5 @@ urlpatterns = [
     path('profile/', views.profile_page, name='profile'),
     path('logout/', views.logout_page, name='logout'),
     path('signup/google/', views.google_signup, name='google_signup'),
+    path('create-profile/', views.create_profile_page, name='create_profile')
 ]
