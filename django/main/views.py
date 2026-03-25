@@ -1,7 +1,6 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, authenticate, logout
-from .models import User, Membership
-from .models import Club
+from .models import User,Club, Event, Membership
 
 def home(request):
     return render(request, 'main/home.html')
@@ -90,3 +89,7 @@ def get_involved_page(request):
 def my_clubs_page(request):
     memberships = Membership.objects.filter(user=request.user)
     return render(request, 'main/my_clubs.html', {'memberships': memberships})
+
+def Events_page(request):
+    events = Event.objects.all().order_by('date')
+    return render(request, 'main/Events.html', {'events': events})

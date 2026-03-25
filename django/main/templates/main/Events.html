@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Events</title>
+
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+font-family: Helvetica, Arial, sans-serif;
+background-color: #FFFFFF;
+color: #232D4B;
+}
+
+/* Navbar */
+nav {
+background-color: #232D4B;
+padding: 0 40px;
+display: flex;
+align-items: center;
+justify-content: space-between;
+}
+
+nav .logo {
+color: #FFFFFF;
+font-size: 1.4rem;
+font-weight: bold;
+letter-spacing: 1px;
+}
+
+nav ul {
+list-style: none;
+display: flex;
+gap: 32px;
+}
+
+nav ul li a {
+color: #FFFFFF;
+text-decoration: none;
+font-size: 1rem;
+padding: 20px 0;
+display: block;
+border-bottom: 3px solid transparent; /* hidden underline until hover */
+transition: border-color 0.2s;
+}
+
+nav ul li a:hover {
+border-bottom: 3px solid #E57200; /* orange underline on hover */
+}
+
+.nav-icon { position: relative; padding: 11px 0px; }
+.icon-btn { background: none; border: none; cursor: pointer; color: #FFFFFF; padding: 4px; display: flex; align-items: center; }
+.icon-btn svg { width: 28px; height: 28px; }
+.dropdown { display: none; position: absolute; right: 0; top: calc(100% + 8px); background: #FFFFFF; border: 1.5px solid #232D4B; border-radius: 6px; min-width: 130px; z-index: 100; overflow: hidden; }
+.dropdown a, .dropdown button { display: block; width: 100%; text-align: left; padding: 10px 16px; font-size: 0.95rem; color: #232D4B; text-decoration: none; background: none; border: none; cursor: pointer; font-family: inherit; }
+.dropdown a:hover, .dropdown button:hover { background-color: #f0f0f0; }
+.nav-icon.open .dropdown { display: block; }
+
+.page-header {
+padding: 60px 40px 30px 40px;
+}
+
+.page-header h1 {
+font-size: 2rem;
+}
+
+.page-header span {
+color: #E57200; /* orange accent */
+}
+
+/* Responsive grid */
+.event-container {
+padding: 0 40px 60px 40px;
+display: grid;
+grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+gap: 25px;
+}
+
+/* Event card */
+.event-card {
+background-color: #f7f7f7;
+border-radius: 10px;
+padding: 22px;
+box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+display: flex;
+flex-direction: column;
+justify-content: space-between;
+}
+
+.event-card h3 {
+margin-bottom: 8px;
+font-size: 1.3rem;
+}
+
+.event-card p {
+font-size: 0.95rem;
+line-height: 1.5;
+color: #444;
+margin-bottom: 18px;
+}
+
+/* Event metadata like date, location, club */
+.event-meta {
+font-size: 0.85rem;
+color: #E57200;
+font-weight: bold;
+margin-bottom: 6px;
+}
+
+.event-btn {
+background-color: #E57200;
+color: #FFFFFF;
+text-decoration: none;
+padding: 10px 16px;
+border-radius: 6px;
+font-weight: bold;
+font-size: 0.9rem;
+width: fit-content;
+}
+
+.event-btn:hover {
+background-color: #c86100;
+}
+
+.no-events {
+padding: 40px;
+font-size: 1rem;
+color: #555;
+}
+</style>
+</head>
+
+<body>
+
+<nav>
+    <span class="logo">HoosLinked</span>
+    <ul>
+        <li><a href="{% url 'home' %}">Home</a></li>
+        <li><a href="{% url 'get_involved' %}">Get Involved</a></li>
+        <li><a href="{% url 'events' %}">Events</a></li>
+        <li><a href="#">FAQ</a></li>
+        <li class="nav-icon" id="navIcon">
+            <button class="icon-btn" onclick="toggleNav()">
+                <!-- User profile icon -->
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                </svg>
+            </button>
+            <div class="dropdown">
+                {% if user.is_authenticated %} <!-- show options if logged in -->
+                    <a href="{% url 'profile' %}">Profile</a>
+                    <a href="{% url 'my_clubs' %}">My Clubs</a>
+                    <a href="{% url 'logout' %}">Logout</a>
+                {% else %}
+                    <a href="{% url 'login' %}">Login</a>
+                {% endif %}
+            </div>
+        </li>
+    </ul>
+</nav>
+
+<div class="page-header">
+    <h1>Upcoming <span>Events</span></h1>
+</div>
+
+<div class="event-container">
+
+    {% for event in events %} <!-- loop through all events -->
+    <div class="event-card">
+        <div>
+            <p class="event-meta">{{ event.date }} · {{ event.location }}</p> <!-- event metadata -->
+            <h3>{{ event.title }}</h3>
+            <p>{{ event.description|default:"No description available." }}</p>
+        </div>
+        <a href="#" class="event-btn">View Event</a>
+    </div>
+    {% empty %} <!-- shown when no events exist -->
+    <p class="no-events">No upcoming events yet. Check back soon!</p>
+    {% endfor %}
+
+</div>
+
+<script>
+    function toggleNav() {
+        document.getElementById('navIcon').classList.toggle('open'); // toggle dropdown
+    }
+    // close dropdown when clicking outside
+    document.addEventListener('click', function(e) {
+        const nav = document.getElementById('navIcon');
+        if (!nav.contains(e.target)) nav.classList.remove('open');
+    });
+</script>
+
+</body>
+</html>

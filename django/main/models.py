@@ -69,3 +69,15 @@ class Membership(models.Model):
 
     def __str__(self):
         return f"{self.user} - {self.club} ({self.role})"
+
+class Event(models.Model):
+    title = models.CharField(max_length=200)
+    description = models.TextField(blank=True)
+    date = models.DateField()
+    time = models.TimeField()
+    location = models.CharField(max_length=200)
+    club = models.ForeignKey(Club, on_delete=models.CASCADE, related_name='events')
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.title

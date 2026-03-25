@@ -11,4 +11,5 @@ urlpatterns = [
     path('create-profile/', views.create_profile_page, name='create_profile'),
     path('get-involved/', views.get_involved_page, name='get_involved'),
     path('my-clubs/', views.my_clubs_page, name='my_clubs'),
+    path('events/', views.Events_page, name='events'),
 ]
