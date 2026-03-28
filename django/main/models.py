@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.utils.text import slugify
+import secrets
 
 
 class User(AbstractUser):
@@ -38,14 +39,24 @@ class User(AbstractUser):
         return self.username
 
 
+def generate_executive_code():
+    return secrets.token_urlsafe(15)[:20]
+
+
 class Club(models.Model):
     name = models.CharField(max_length=200)
     description = models.TextField(blank=True)
     slug = models.SlugField(unique=True, blank=True)
+    executive_code = models.CharField(max_length=20, unique=True, blank=True)
 
     def save(self, *args, **kwargs):
         if not self.slug:
             self.slug = slugify(self.name)
+        if not self.executive_code:
+            code = generate_executive_code()
+            while Club.objects.filter(executive_code=code).exists():
+                code = generate_executive_code()
+            self.executive_code = code
         super().save(*args, **kwargs)
 
     def __str__(self):
