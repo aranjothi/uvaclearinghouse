@@ -10,6 +10,11 @@ urlpatterns = [
     path('signup/google/', views.google_signup, name='google_signup'),
     path('create-profile/', views.create_profile_page, name='create_profile'),
     path('get-involved/', views.get_involved_page, name='get_involved'),
-    path('my-clubs/', views.my_clubs_page, name='my_clubs'),
-    path('events/', views.Events_page, name='events'),
+    #creates the urls for each club's page
+   path('clubs/<slug:slug>/', views.ClubDetailView.as_view(), name='club_detail'),
+   path('clubs/<slug:slug>/join/', views.join_club, name='join_club'),
+   path('clubs/<slug:slug>/verify/', views.verify_exec, name='verify_exec'),
+   path("clubs/<slug:slug>/create-event/", views.create_event, name="create_event"),
+   path('executives/', views.executive_page, name='executive_page'),
+   path('clubs/<slug:slug>/create-event/', views.create_event, name='create_event'),
 ]

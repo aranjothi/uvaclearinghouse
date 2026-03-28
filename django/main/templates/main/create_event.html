@@ -1,0 +1,14 @@
+<h1>Create Event</h1>
+
+<p>{{ club.name }}</p>
+
+<form method="post">
+    {% csrf_token %}
+
+    {{ form.as_p }}
+
+    <button type="submit">
+        Create Event
+    </button>
+
+</form>

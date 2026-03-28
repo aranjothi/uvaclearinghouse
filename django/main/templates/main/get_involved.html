@@ -56,8 +56,7 @@ nav ul li a:hover {
 border-bottom: 3px solid #E57200;
 }
 
-/* Nav icon dropdown */
-.nav-icon { position: relative; padding: 11px 0px; }
+.nav-icon { position: relative; padding: 11px 0px;}
 .icon-btn { background: none; border: none; cursor: pointer; color: #FFFFFF; padding: 4px; display: flex; align-items: center; }
 .icon-btn svg { width: 28px; height: 28px; }
 .dropdown { display: none; position: absolute; right: 0; top: calc(100% + 8px); background: #FFFFFF; border: 1.5px solid #232D4B; border-radius: 6px; min-width: 130px; z-index: 100; overflow: hidden; }
@@ -78,6 +77,55 @@ font-size: 2rem;
 .page-header span {
 color: #E57200;
 }
+
+/* SEARCH BAR */
+.search-bar-wrap {
+    padding: 0 40px 30px 40px;
+}
+
+.search-form {
+    display: flex;
+    gap: 12px;
+    max-width: 700px;
+}
+
+.search-input {
+    flex: 1;
+    padding: 12px 14px;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-family: inherit;
+}
+
+.search-btn {
+    background-color: #E57200;
+    color: #FFFFFF;
+    border: none;
+    padding: 12px 18px;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+.search-btn:hover {
+    background-color: #c86100;
+}
+
+.reset-btn {
+    background-color: #ccc;
+    color: black;
+    padding: 12px 18px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.reset-btn:hover {
+    background-color: #b5b5b5;
+}
+
 
 /* CLUB GRID */
 
@@ -125,21 +173,6 @@ font-size: 0.9rem;
 width: fit-content;
 }
 
-.club-btn-secondary {
-    background-color: #232D4B;
-    color: #FFFFFF;
-    text-decoration: none;
-    padding: 10px 16px;
-    border-radius: 6px;
-    font-weight: bold;
-    font-size: 0.9rem;
-    width: fit-content;
-}
-
-.club-btn-secondary:hover {
-    background-color: #1a2238;
-}
-
 .club-btn:hover {
 background-color: #c86100;
 }
@@ -158,12 +191,12 @@ color: #555;
 <nav>
 
 <span class="logo">HoosLinked</span>
-        <ul>
-            <li><a href="{% url 'home' %}">Home</a></li>
-            <li><a href="{% url 'get_involved' %}">Get Involved</a></li>
-            <li><a href = "{% url 'events' %}">Events</a></li>
-            <li><a href="#">FAQ</a></li>
-            <li class="nav-icon" id="navIcon">
+
+<ul>
+<li><a href="{% url 'home' %}">Home</a></li>
+<li><a href="{% url 'get_involved' %}">Get Involved</a></li>
+<li><a href="#">FAQ</a></li>
+<li class="nav-icon" id="navIcon">
                 <button class="icon-btn" onclick="toggleNav()">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
@@ -172,14 +205,13 @@ color: #555;
                 <div class="dropdown">
                     {% if user.is_authenticated %}
                         <a href="{% url 'profile' %}">Profile</a>
-                        <a href="{% url 'my_clubs' %}">My Clubs</a>
                         <a href="{% url 'logout' %}">Logout</a>
                     {% else %}
                         <a href="{% url 'login' %}">Login</a>
                     {% endif %}
                 </div>
             </li>
-        </ul>
+</ul>
 
 </nav>
 
@@ -187,17 +219,40 @@ color: #555;
 <h1>Get <span>Involved</span></h1>
 </div>
 
+
+<div class="search-bar-wrap">
+    <form method="get" class="search-form">
+        <input
+            type="text"
+            name="q"
+            placeholder="Search for clubs..."
+            value="{{ query }}"
+            class="search-input"
+        >
+        <button type="submit" class="search-btn">Search</button>
+
+        <a href="{% url 'get_involved' %}" class="reset-btn">
+            Reset
+        </a>
+    </form>
+</div>
+
 <div class="club-container">
 
 {% for club in clubs %}
 
 <div class="club-card">
+
 <h3>{{ club.name }}</h3>
-<p>{{ club.description|default:"No description available." }}</p>
-<div style="display: flex; gap: 10px;">
-    <a href="#" class="club-btn">View Club</a>
-    <a href="#" class="club-btn-secondary">Join Club</a>
-</div>
+
+<p>
+{{ club.description|default:"No description available." }}
+</p>
+
+<a href="{% url 'club_detail' club.slug %}" class="club-btn">
+    View Club
+</a>
+
 </div>
 
 {% empty %}
@@ -207,15 +262,6 @@ color: #555;
 {% endfor %}
 
 </div>
-<script>
-    function toggleNav() {
-        document.getElementById('navIcon').classList.toggle('open');
-    }
-    document.addEventListener('click', function(e) {
-        const nav = document.getElementById('navIcon');
-        if (!nav.contains(e.target)) nav.classList.remove('open');
-    });
-</script>
 
 </body>
 </html>

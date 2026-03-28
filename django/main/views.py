@@ -1,6 +1,40 @@
-from django.shortcuts import render, redirect
+from django.views.generic import DetailView
+from django.db.models import Q
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, authenticate, logout
-from .models import User,Club, Event, Membership
+from django.contrib.auth.decorators import login_required
+from .models import User, Club, Membership, Event
+from .forms import EventForm
+
+class ClubDetailView(DetailView):
+    model = Club
+    template_name = "main/club_detail.html"
+    context_object_name = "club"
+    slug_field = "slug"
+    slug_url_kwarg = "slug"
+
+    def get_context_data(self, **kwargs):
+
+        context = super().get_context_data(**kwargs)
+
+        is_member = False
+        is_exec = False
+
+        if self.request.user.is_authenticated:
+
+            membership = Membership.objects.filter(
+                user=self.request.user,
+                club=self.object
+            ).first()
+
+            if membership:
+                is_member = True
+                is_exec = membership.role == Membership.EXECUTIVE
+
+        context["is_member"] = is_member
+        context["is_exec"] = is_exec
+
+        return context
 
 def home(request):
     return render(request, 'main/home.html')
@@ -65,9 +99,13 @@ def create_profile_page(request):
 
 
 def profile_page(request):
+    #based on database
+    memberships = request.user.memberships.select_related("club")
     if not request.user.is_authenticated:
         return redirect('home')
-    return render(request, 'main/profile.html')
+    return render(request, 'main/profile.html',{
+        "memberships": memberships,
+    })
 
 
 def logout_page(request):
@@ -81,15 +119,106 @@ def google_signup(request):
     return redirect('google_login')
 
 def get_involved_page(request):
+    query = request.GET.get('q', '').strip()
     clubs = Club.objects.all() #fetch all the club records from db
+    if query:
+        clubs = clubs.filter(
+            Q(name__icontains=query) | Q(description__icontains=query)
+        )
     return render(request, 'main/get_involved.html', {
-        'clubs': clubs #pass clubs queryset to template
+        'clubs': clubs, #pass clubs queryset to template
+        'query': query,
     })
 
-def my_clubs_page(request):
-    memberships = Membership.objects.filter(user=request.user)
-    return render(request, 'main/my_clubs.html', {'memberships': memberships})
+@login_required
+def join_club(request, slug):
+    if request.method == "POST":
 
-def Events_page(request):
-    events = Event.objects.all().order_by('date')
-    return render(request, 'main/Events.html', {'events': events})
+        club = get_object_or_404(Club, slug=slug)
+
+        Membership.objects.get_or_create(
+            user=request.user,
+            club=club,
+            defaults={"role": Membership.MEMBER}
+        )
+
+    return redirect("club_detail", slug=slug)
+
+@login_required
+def verify_exec(request, slug):
+    if request.method == "POST":
+
+        club = get_object_or_404(Club, slug=slug)
+        membership, created = Membership.objects.get_or_create(
+            user=request.user,
+            club=club
+        )
+
+        #update instead of new entry
+        membership.role = Membership.EXECUTIVE
+        membership.save()
+
+    return redirect("club_detail", slug=slug)
+
+def get_context_data(self, **kwargs):
+
+        context = super().get_context_data(**kwargs)
+
+        is_member = False
+
+        if self.request.user.is_authenticated:
+            is_member = Membership.objects.filter(
+                user=self.request.user,
+                club=self.object
+            ).exists()
+
+        context["is_member"] = is_member
+
+        return context
+
+@login_required
+def executive_page(request):
+
+    executive_memberships = request.user.memberships.filter(
+        role=Membership.EXECUTIVE
+    ).select_related("club")
+
+    return render(request, "main/executive_page.html", {
+        "executive_memberships": executive_memberships
+    })
+
+@login_required
+def create_event(request, slug):
+
+    club = get_object_or_404(Club, slug=slug)
+
+    is_exec = Membership.objects.filter(
+        user=request.user,
+        club=club,
+        role=Membership.EXECUTIVE
+    ).exists()
+
+    if not is_exec:
+        return redirect("executive_page")
+
+    if request.method == "POST":
+
+        form = EventForm(request.POST)
+
+        if form.is_valid():
+            event = form.save(commit=False)
+
+            event.club = club
+            event.created_by = request.user
+
+            event.save()
+
+            return redirect("executive_page")
+
+    else:
+        form = EventForm()
+
+    return render(request, "main/create_event.html", {
+        "club": club,
+        "form": form
+    })
