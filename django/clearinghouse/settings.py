@@ -33,7 +33,7 @@ SECRET_KEY = os.getenv("SECRET_KEY", "django-insecure-local-dev-key-12345")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["clearinghouse-b05-48721624d34f.herokuapp.com", "127.0.0.1", "localhost:5006"]
+ALLOWED_HOSTS = ["clearinghouse-b05-48721624d34f.herokuapp.com", "127.0.0.1", "localhost"]
 
 
 # Application definition
