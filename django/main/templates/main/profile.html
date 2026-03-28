@@ -188,6 +188,9 @@ nav ul li a:hover {
 <li><a href="{% url 'home' %}">Home</a></li>
 <li><a href="{% url 'get_involved' %}">Get Involved</a></li>
 <li><a href="#">FAQ</a></li>
+{% if user.is_authenticated %}
+    <li><a href="{% url 'dm_inbox' %}">Messages</a></li>
+{% endif %}
 
 <li class="nav-icon" id="navIcon">
 

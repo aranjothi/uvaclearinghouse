@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ club.name }} — Threads</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Helvetica, Arial, sans-serif; background: #f4f6fa; color: #232D4B; }
+        nav { background: #232D4B; padding: 0 40px; display: flex; align-items: center; justify-content: space-between; height: 60px; }
+        nav .logo { color: #fff; font-size: 1.4rem; font-weight: bold; }
+        nav ul { list-style: none; display: flex; gap: 24px; }
+        nav ul li a { color: #fff; text-decoration: none; font-size: 0.95rem; }
+        .container { max-width: 800px; margin: 40px auto; padding: 0 20px; }
+        h1 { font-size: 1.6rem; margin-bottom: 6px; }
+        .subtitle { color: #666; margin-bottom: 24px; font-size: 0.95rem; }
+        .btn { display: inline-block; padding: 10px 20px; background: #E57200; color: #fff; border-radius: 6px; text-decoration: none; font-weight: bold; font-size: 0.9rem; }
+        .btn:hover { background: #c96200; }
+        .thread-card { background: #fff; border-radius: 8px; padding: 18px 22px; margin-bottom: 14px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); display: flex; justify-content: space-between; align-items: center; }
+        .thread-card a { text-decoration: none; color: #232D4B; font-weight: 600; font-size: 1rem; }
+        .thread-card a:hover { color: #E57200; }
+        .badge { background: #232D4B; color: #fff; font-size: 0.7rem; padding: 2px 8px; border-radius: 20px; margin-left: 8px; }
+        .meta { font-size: 0.8rem; color: #888; }
+        .empty { color: #888; font-style: italic; margin-top: 20px; }
+        .header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+<nav>
+    <span class="logo">HoosLinked</span>
+    <ul>
+        <li><a href="{% url 'home' %}">Home</a></li>
+        <li><a href="{% url 'get_involved' %}">Get Involved</a></li>
+        {% if user.is_authenticated %}
+        <li><a href="{% url 'dm_inbox' %}">Messages</a></li>
+        <li><a href="{% url 'profile' %}">Profile</a></li>
+        <li><a href="{% url 'logout' %}">Logout</a></li>
+        {% endif %}
+    </ul>
+</nav>
+<div class="container">
+    <div class="header-row">
+        <div>
+            <h1>{{ club.name }} — Discussions</h1>
+            <p class="subtitle">Browse or start a thread</p>
+        </div>
+        <a href="{% url 'create_thread' slug=club.slug %}" class="btn">+ New Thread</a>
+    </div>
+
+    {% if threads %}
+        {% for thread in threads %}
+        <div class="thread-card">
+            <div>
+                <a href="{% url 'thread_detail' slug=club.slug thread_id=thread.id %}">{{ thread.title }}</a>
+                {% if thread.is_announcement %}<span class="badge">📢 Announcement</span>{% endif %}
+                <div class="meta">Started by {{ thread.created_by.first_name }} {{ thread.created_by.last_name }} · {{ thread.created_at|date:"M d, Y" }}</div>
+            </div>
+            <div class="meta">{{ thread.messages.count }} replies</div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <p class="empty">No threads yet. Start the conversation!</p>
+    {% endif %}
+</div>
+</body>
+</html>

@@ -12,4 +12,14 @@ urlpatterns = [
     path('get-involved/', views.get_involved_page, name='get_involved'),
     path('my-clubs/', views.my_clubs_page, name='my_clubs'),
     path('events/', views.Events_page, name='events'),
+        # Messaging — Threads
+    path('clubs/<slug:slug>/threads/', views.thread_list, name='thread_list'),
+    path('clubs/<slug:slug>/threads/new/', views.create_thread, name='create_thread'),
+    path('clubs/<slug:slug>/threads/<int:thread_id>/', views.thread_detail, name='thread_detail'),
+    path('clubs/<slug:slug>/threads/<int:thread_id>/pin/<int:message_id>/', views.pin_message, name='pin_message'),
+
+    # Messaging — Direct Messages
+    path('messages/', views.dm_inbox, name='dm_inbox'),
+    path('messages/<str:username>/', views.dm_conversation, name='dm_conversation'),
+
 ]

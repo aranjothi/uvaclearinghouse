@@ -148,6 +148,10 @@
             <li><a href="{% url 'get_involved' %}">Get Involved</a></li>
             <li><a href = "{% url 'events' %}">Events</a></li>
             <li><a href="#">FAQ</a></li>
+            {% if user.is_authenticated %}
+                <li><a href="{% url 'dm_inbox' %}">Messages</a></li>
+            {% endif %}
+            
             <li class="nav-icon" id="navIcon">
                 <button class="icon-btn" onclick="toggleNav()">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">

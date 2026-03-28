@@ -189,6 +189,9 @@ color: #FFFFFF;
         </div>
         <div style="display: flex; gap: 10px;">
             <a href="#" class="club-btn">View Club</a>
+             <a href="{% url 'thread_list' slug=membership.club.slug %}" class="club-btn-secondary">
+                💬 Threads
+            </a>
             <a href="#" class="club-btn-secondary">Leave Club</a>
         </div>
     </div>
