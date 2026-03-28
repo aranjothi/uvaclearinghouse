@@ -39,7 +39,7 @@
 <div class="chat-header">
     <a href="{% url 'dm_inbox' %}">← Inbox</a>
     <span class="name">{{ other_user.first_name }} {{ other_user.last_name }}</span>
-    <span style="color:#aaa; font-size:0.82rem;">@{{ other_user.email }}</span>
+    <span style="color:#aaa; font-size:0.82rem;">@{{ other_user.username }}</span>
 </div>
 <div class="messages" id="msgContainer">
     {% if messages %}
