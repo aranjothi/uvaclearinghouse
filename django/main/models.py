@@ -109,3 +109,23 @@ class ForumReply(models.Model):
 
     def __str__(self):
         return f"Reply by {self.author} on {self.thread}"
+
+# ──────────────────────────────────────────────
+# MESSAGING MODELS
+# ──────────────────────────────────────────────
+
+class DirectMessage(models.Model):
+    """A private message between two users."""
+    sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sent_dms')
+    recipient = models.ForeignKey(User, on_delete=models.CASCADE, related_name='received_dms')
+    content = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    is_read = models.BooleanField(default=False)
+
+    class Meta:
+        ordering = ['created_at']
+
+    def __str__(self):
+        return f"DM from {self.sender} to {self.recipient}"
+    
+    

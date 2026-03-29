@@ -1,0 +1,82 @@
+
+<!DOCTYPE html>
+{% load dict_extras %}
+<html lang="en">
+<head>
+  
+    <meta charset="UTF-8">
+    <title>Messages — HoosLinked</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Helvetica, Arial, sans-serif; background: #f4f6fa; color: #232D4B; }
+        nav { background: #232D4B; padding: 0 40px; display: flex; align-items: center; justify-content: space-between; height: 60px; }
+        nav .logo { color: #fff; font-size: 1.4rem; font-weight: bold; }
+        nav ul { list-style: none; display: flex; gap: 24px; }
+        nav ul li a { color: #fff; text-decoration: none; font-size: 0.95rem; }
+        .container { max-width: 700px; margin: 40px auto; padding: 0 20px; }
+        h1 { font-size: 1.5rem; margin-bottom: 24px; }
+        .convo-card { background: #fff; border-radius: 8px; padding: 16px 22px; margin-bottom: 12px; box-shadow: 0 1px 4px rgba(0,0,0,0.07); display: flex; justify-content: space-between; align-items: center; text-decoration: none; color: inherit; }
+        .convo-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.12); }
+        .name { font-weight: 600; font-size: 0.95rem; }
+        .unread-badge { background: #E57200; color: #fff; border-radius: 20px; padding: 2px 9px; font-size: 0.75rem; font-weight: bold; }
+        .new-dm { background: #fff; border-radius: 8px; padding: 22px; margin-top: 30px; box-shadow: 0 1px 4px rgba(0,0,0,0.07); }
+        .new-dm h2 { font-size: 1rem; margin-bottom: 14px; }
+        .row { display: flex; gap: 10px; }
+        .row input { flex: 1; padding: 11px 14px; border: 1px solid #ddd; border-radius: 6px; font-size: 0.95rem; font-family: inherit; }
+        .row button { padding: 11px 22px; background: #232D4B; color: #fff; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 0.9rem; }
+        .row button:hover { background: #1a2238; }
+        .empty { color: #888; font-style: italic; }
+    </style>
+</head>
+<body>
+<nav>
+    <span class="logo">HoosLinked</span>
+    <ul>
+        <li><a href="{% url 'home' %}">Home</a></li>
+        <li><a href="{% url 'get_involved' %}">Get Involved</a></li>
+        <li><a href="{% url 'dm_inbox' %}">Messages</a></li>
+        <li><a href="{% url 'profile' %}">Profile</a></li>
+        <li><a href="{% url 'logout' %}">Logout</a></li>
+    </ul>
+</nav>
+<div class="container">
+    <h1>💬 Direct Messages</h1>
+
+    {% if convo_users %}
+        {% for u in convo_users %}
+        <a class="convo-card" href="{% url 'dm_conversation' username=u.username %}">
+            <span class="name">{{ u.first_name }} {{ u.last_name }} <span style="color:#aaa;font-weight:400;">@{{ u.username }}</span></span>
+            {% with count=unread_counts|get_item:u.id %}
+                {% if count %}<span class="unread-badge">{{ count }} new</span>{% endif %}
+            {% endwith %}
+        </a>
+        {% endfor %}
+    {% else %}
+        <p class="empty">No conversations yet. Start one below!</p>
+    {% endif %}
+
+    <div class="new-dm">
+        <h2>Start a new conversation</h2>
+            {% if messages %}
+                {% for message in messages %}
+                    <p style="color:#c62828; margin-bottom:12px; font-weight:600;">
+                        {{ message }}
+                    </p>
+                {% endfor %}
+            {% endif %}
+        <form method="get" action="">
+            <div class="row">
+                <input type="text" name="to" placeholder="Enter email..." id="to_input">
+                <button type="button" onclick="startDM()">Open Chat</button>
+            </div>
+        </form>
+    </div>
+</div>
+<script>
+function startDM() {
+    const val = document.getElementById('to_input').value.trim();
+    if (val) window.location.href = `/messages/${val}/`;
+}
+</script>
+</body>
+</html>

@@ -10,17 +10,23 @@ urlpatterns = [
     path('signup/google/', views.google_signup, name='google_signup'),
     path('create-profile/', views.create_profile_page, name='create_profile'),
     path('get-involved/', views.get_involved_page, name='get_involved'),
-    #creates the urls for each club's page
-   path('clubs/<slug:slug>/', views.ClubDetailView.as_view(), name='club_detail'),
-   path('clubs/<slug:slug>/join/', views.join_club, name='join_club'),
-   path('clubs/<slug:slug>/verify/', views.verify_exec, name='verify_exec'),
-   path("clubs/<slug:slug>/create-event/", views.create_event, name="create_event"),
-   path('executives/', views.executive_page, name='executive_page'),
-   path('clubs/<slug:slug>/create-event/', views.create_event, name='create_event'),
+
+    path('clubs/<slug:slug>/', views.ClubDetailView.as_view(), name='club_detail'),
+    path('clubs/<slug:slug>/join/', views.join_club, name='join_club'),
+    path('clubs/<slug:slug>/verify/', views.verify_exec, name='verify_exec'),
+    path('clubs/<slug:slug>/create-event/', views.create_event, name='create_event'),
+    path('executives/', views.executive_page, name='executive_page'),
     path('my-clubs/', views.my_clubs_page, name='my_clubs'),
+
     path('clubs/<slug:slug>/forum/', views.forum_list, name='forum_list'),
     path('clubs/<slug:slug>/forum/new/', views.forum_new_thread, name='forum_new_thread'),
     path('clubs/<slug:slug>/forum/<int:thread_id>/', views.forum_thread, name='forum_thread'),
     path('clubs/<slug:slug>/forum/<int:thread_id>/like/', views.like_thread, name='like_thread'),
     path('clubs/<slug:slug>/forum/reply/<int:reply_id>/like/', views.like_reply, name='like_reply'),
+
+    path('events/', views.Events_page, name='events'),
+
+    # Messaging — Direct Messages
+    path('messages/', views.dm_inbox, name='dm_inbox'),
+    path('messages/<str:username>/', views.dm_conversation, name='dm_conversation'),
 ]
