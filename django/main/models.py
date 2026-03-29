@@ -87,36 +87,6 @@ class Event(models.Model):
 # MESSAGING MODELS
 # ──────────────────────────────────────────────
 
-class Thread(models.Model):
-    """A discussion thread that belongs to a club."""
-    club = models.ForeignKey(Club, on_delete=models.CASCADE, related_name='threads')
-    title = models.CharField(max_length=255)
-    created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='created_threads')
-    created_at = models.DateTimeField(auto_now_add=True)
-    is_announcement = models.BooleanField(default=False)  # officers-only broadcast threads
-
-    class Meta:
-        ordering = ['-created_at']
-
-    def __str__(self):
-        return f"{self.title} ({self.club.name})"
-
-
-class ThreadMessage(models.Model):
-    """A single message posted inside a Thread."""
-    thread = models.ForeignKey(Thread, on_delete=models.CASCADE, related_name='messages')
-    sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name='thread_messages')
-    content = models.TextField()
-    created_at = models.DateTimeField(auto_now_add=True)
-    is_pinned = models.BooleanField(default=False)
-
-    class Meta:
-        ordering = ['created_at']
-
-    def __str__(self):
-        return f"Message by {self.sender} in {self.thread}"
-
-
 class DirectMessage(models.Model):
     """A private message between two users."""
     sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sent_dms')

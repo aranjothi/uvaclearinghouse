@@ -1,11 +1,9 @@
-from django.shortcuts import render, redirect , get_object_or_404
+from django.shortcuts import render, redirect
 from django.contrib.auth import login, authenticate, logout
-from .models import User,Club, Event, Membership
-from .models import User, Club, Membership, Event, Thread, ThreadMessage, DirectMessage
+from .models import User, Club, Event, Membership, DirectMessage
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from django.contrib import messages
-
 
 def home(request):
     return render(request, 'main/home.html')
@@ -102,108 +100,6 @@ def Events_page(request):
 # ──────────────────────────────────────────────
 # MESSAGING VIEWS
 # ──────────────────────────────────────────────
-
-@login_required
-def thread_list(request, slug):
-    """Show all threads for a club. Members can see them; non-members cannot."""
-    club = get_object_or_404(Club, slug=slug)
-
-    membership = Membership.objects.filter(user=request.user, club=club).first()
-    if not membership:
-        return redirect('club_detail', slug=slug)
-
-    is_exec = membership.role == Membership.EXECUTIVE
-    threads = Thread.objects.filter(club=club).order_by('-created_at')
-
-    return render(request, 'main/thread_list.html', {
-        'club': club,
-        'threads': threads,
-        'is_exec': is_exec,
-    })
-
-
-@login_required
-def thread_detail(request, slug, thread_id):
-    """View a thread and post a reply."""
-    club = get_object_or_404(Club, slug=slug)
-    thread = get_object_or_404(Thread, id=thread_id, club=club)
-
-    membership = Membership.objects.filter(user=request.user, club=club).first()
-    if not membership:
-        return redirect('club_detail', slug=slug)
-
-    is_exec = membership.role == Membership.EXECUTIVE
-
-    # Announcement threads: only execs can post; everyone can read
-    can_post = is_exec if thread.is_announcement else True
-
-    if request.method == 'POST' and can_post:
-        content = request.POST.get('content', '').strip()
-        if content:
-            ThreadMessage.objects.create(
-                thread=thread,
-                sender=request.user,
-                content=content,
-            )
-        return redirect('thread_detail', slug=slug, thread_id=thread_id)
-
-    pinned = thread.messages.filter(is_pinned=True)
-    regular = thread.messages.filter(is_pinned=False)
-
-    return render(request, 'main/thread_detail.html', {
-        'club': club,
-        'thread': thread,
-        'pinned_messages': pinned,
-        'regular_messages': regular,
-        'is_exec': is_exec,
-        'can_post': can_post,
-    })
-
-
-@login_required
-def create_thread(request, slug):
-    """Create a new thread in a club. Executives can mark it as announcement."""
-    club = get_object_or_404(Club, slug=slug)
-
-    membership = Membership.objects.filter(user=request.user, club=club).first()
-    if not membership:
-        return redirect('club_detail', slug=slug)
-
-    is_exec = membership.role == Membership.EXECUTIVE
-
-    if request.method == 'POST':
-        title = request.POST.get('title', '').strip()
-        is_announcement = request.POST.get('is_announcement') == 'on' and is_exec
-        if title:
-            Thread.objects.create(
-                club=club,
-                title=title,
-                created_by=request.user,
-                is_announcement=is_announcement,
-            )
-        return redirect('thread_list', slug=slug)
-
-    return render(request, 'main/create_thread.html', {
-        'club': club,
-        'is_exec': is_exec,
-    })
-
-
-@login_required
-def pin_message(request, slug, thread_id, message_id):
-    """Toggle pin on a message. Officers only."""
-    club = get_object_or_404(Club, slug=slug)
-
-    is_exec = Membership.objects.filter(
-        user=request.user, club=club, role=Membership.EXECUTIVE
-    ).exists()
-
-    if is_exec and request.method == 'POST':
-        message = get_object_or_404(ThreadMessage, id=message_id, thread__club=club)
-        message.is_pinned = not message.is_pinned
-        message.save()
-
-    return redirect('thread_detail', slug=slug, thread_id=thread_id)
 
 
 @login_required

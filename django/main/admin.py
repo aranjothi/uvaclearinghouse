@@ -1,22 +1,33 @@
 from django.contrib import admin
-from .models import User, Club, Membership, Event, Thread, ThreadMessage, DirectMessage
+from django.contrib.auth.admin import UserAdmin
+from .models import User, Club, Membership, Event, DirectMessage
 
-admin.site.register(User)
-admin.site.register(Club)
-admin.site.register(Membership)
-admin.site.register(Event)
 
-@admin.register(Thread)
-class ThreadAdmin(admin.ModelAdmin):
-    list_display = ['title', 'club', 'created_by', 'created_at', 'is_announcement']
-    list_filter = ['club', 'is_announcement']
+@admin.register(User)
+class CustomUserAdmin(UserAdmin):
+    list_display = ('username', 'email', 'profile_slug')
+    fieldsets = UserAdmin.fieldsets + (
+        ('Profile', {'fields': ('profile_slug',)}),
+    )
 
-@admin.register(ThreadMessage)
-class ThreadMessageAdmin(admin.ModelAdmin):
-    list_display = ['sender', 'thread', 'created_at', 'is_pinned']
-    list_filter = ['is_pinned']
+
+@admin.register(Club)
+class ClubAdmin(admin.ModelAdmin):
+    list_display = ('name', 'slug')
+
+
+@admin.register(Membership)
+class MembershipAdmin(admin.ModelAdmin):
+    list_display = ('user', 'club', 'role')
+    list_filter = ('role', 'club')
+
+
+@admin.register(Event)
+class EventAdmin(admin.ModelAdmin):
+    list_display = ('title', 'club', 'date')
+
 
 @admin.register(DirectMessage)
 class DirectMessageAdmin(admin.ModelAdmin):
-    list_display = ['sender', 'recipient', 'created_at', 'is_read']
-    
+    list_display = ('sender', 'recipient', 'created_at', 'is_read')
+    list_filter = ('is_read',)
