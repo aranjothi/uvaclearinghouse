@@ -45,31 +45,7 @@ nav ul li a:hover { border-bottom: 3px solid #E57200; }
 </head>
 <body>
 
-<nav>
-    <span class="logo">HoosLinked</span>
-    <ul>
-        <li><a href="{% url 'home' %}">Home</a></li>
-        <li><a href="{% url 'get_involved' %}">Get Involved</a></li>
-        <li><a href="{% url 'events' %}">Events</a></li>
-        <li><a href="#">FAQ</a></li>
-        <li class="nav-icon" id="navIcon">
-            <button class="icon-btn" onclick="toggleNav()">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
-                </svg>
-            </button>
-            <div class="dropdown">
-                {% if user.is_authenticated %}
-                    <a href="{% url 'profile' %}">Profile</a>
-                    <a href="{% url 'my_clubs' %}">My Clubs</a>
-                    <a href="{% url 'logout' %}">Logout</a>
-                {% else %}
-                    <a href="{% url 'login' %}">Login</a>
-                {% endif %}
-            </div>
-        </li>
-    </ul>
-</nav>
+{% include 'main/navbar.html' %}
 
 <div class="container">
     <a href="{% url 'forum_list' club.slug %}" class="back-link">← Back to Forum</a>
@@ -126,5 +102,6 @@ nav ul li a:hover { border-bottom: 3px solid #E57200; }
         if (!nav.contains(e.target)) nav.classList.remove('open');
     });
 </script>
+{% include 'main/chat_widget.html' %}
 </body>
 </html>

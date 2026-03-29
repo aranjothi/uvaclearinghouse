@@ -4,6 +4,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.http import JsonResponse
 from .models import User, Club, Membership, Event, Forum, ForumThread, ForumReply, DirectMessage
 from .forms import EventForm
 from functools import wraps
@@ -19,6 +20,7 @@ class ClubDetailView(DetailView):
         context = super().get_context_data(**kwargs)
         is_member = False
         is_exec = False
+        user_role = None
         if self.request.user.is_authenticated:
             membership = Membership.objects.filter(
                 user=self.request.user,
@@ -27,8 +29,14 @@ class ClubDetailView(DetailView):
             if membership:
                 is_member = True
                 is_exec = membership.role == Membership.EXECUTIVE
+                user_role = membership.get_role_display()
         context["is_member"] = is_member
         context["is_exec"] = is_exec
+        context["user_role"] = user_role
+        forum, _ = Forum.objects.get_or_create(club=self.object)
+        context["forum"] = forum
+        context["threads"] = forum.threads.select_related('author').order_by('-created_at')[:20]
+        context["events"] = self.object.events.order_by('date', 'time')
         return context
 
 def home(request):
@@ -78,6 +86,8 @@ def login_page(request):
 def create_profile_page(request):
     if not request.user.is_authenticated:
         return redirect('home')
+    if request.user.is_user_admin:
+        return redirect('user_admin')
     if request.method == 'POST':
         request.user.age = request.POST.get('age') or None
         request.user.birthday = request.POST.get('birthday') or None
@@ -93,6 +103,8 @@ def create_profile_page(request):
 def profile_page(request):
     if not request.user.is_authenticated:
         return redirect('home')
+    if request.user.is_user_admin:
+        return redirect('user_admin')
     memberships = request.user.memberships.select_related("club")
     return render(request, 'main/profile.html', {"memberships": memberships})
 
@@ -134,12 +146,18 @@ def join_club(request, slug):
 def verify_exec(request, slug):
     if request.method == "POST":
         club = get_object_or_404(Club, slug=slug)
-        membership, created = Membership.objects.get_or_create(
-            user=request.user,
-            club=club
-        )
-        membership.role = Membership.EXECUTIVE  # update instead of new entry
-        membership.save()
+        entered_code = request.POST.get('executive_code', '').strip()
+        if entered_code == club.executive_code:
+            membership, _ = Membership.objects.get_or_create(
+                user=request.user,
+                club=club,
+                defaults={"role": Membership.MEMBER}
+            )
+            membership.role = Membership.EXECUTIVE
+            membership.save()
+            messages.success(request, f"You are now an executive member of {club.name}.")
+        else:
+            messages.error(request, "Invalid executive code.")
     return redirect("club_detail", slug=slug)
 
 @login_required
@@ -168,7 +186,7 @@ def create_event(request, slug):
             event.club = club
             event.created_by = request.user
             event.save()
-            return redirect("executive_page")
+            return redirect("club_detail", slug=club.slug)
     else:
         form = EventForm()
     return render(request, "main/create_event.html", {"club": club, "form": form})
@@ -248,6 +266,30 @@ def like_reply(request, slug, reply_id):
     return render(request, 'main/Events.html', {'events': events})
 
 # ──────────────────────────────────────────────
+# USER ADMIN VIEWS
+# ──────────────────────────────────────────────
+
+@login_required
+def user_admin(request):
+    if not request.user.is_user_admin:
+        return redirect('home')
+    users = User.objects.filter(is_user_admin=False).prefetch_related('memberships__club').order_by('email')
+    return render(request, 'main/user_admin.html', {'users': users})
+
+@login_required
+def user_admin_change_role(request):
+    if not request.user.is_user_admin:
+        return redirect('home')
+    if request.method == 'POST':
+        membership_id = request.POST.get('membership_id')
+        new_role = request.POST.get('role')
+        if new_role in (Membership.MEMBER, Membership.EXECUTIVE):
+            membership = get_object_or_404(Membership, id=membership_id)
+            membership.role = new_role
+            membership.save()
+    return redirect('user_admin')
+
+# ──────────────────────────────────────────────
 # MESSAGING VIEWS
 # ──────────────────────────────────────────────
 
@@ -316,3 +358,71 @@ def dm_conversation(request, username):
         'other_user': other_user,
         'messages': chat_messages,
     })
+
+
+@login_required
+def widget_inbox(request):
+    user = request.user
+    sent_to = DirectMessage.objects.filter(sender=user).values_list('recipient', flat=True).distinct()
+    received_from = DirectMessage.objects.filter(recipient=user).values_list('sender', flat=True).distinct()
+    convo_user_ids = set(list(sent_to) + list(received_from))
+    convo_users = User.objects.filter(id__in=convo_user_ids)
+    data = []
+    for u in convo_users:
+        unread = DirectMessage.objects.filter(sender=u, recipient=user, is_read=False).count()
+        last_msg = DirectMessage.objects.filter(
+            Q(sender=user, recipient=u) | Q(sender=u, recipient=user)
+        ).order_by('-created_at').first()
+        data.append({
+            'username': u.username,
+            'name': f"{u.first_name} {u.last_name}".strip() or u.email,
+            'unread': unread,
+            'last_message': last_msg.content if last_msg else '',
+            'last_time': last_msg.created_at.strftime('%b %d, %H:%M') if last_msg else '',
+        })
+    data.sort(key=lambda x: x['last_time'], reverse=True)
+    return JsonResponse({'conversations': data})
+
+
+@login_required
+def widget_conversation(request, username):
+    other_user = User.objects.filter(
+        Q(username=username) | Q(email__iexact=username)
+    ).first()
+    if not other_user:
+        return JsonResponse({'error': 'User not found'}, status=404)
+    DirectMessage.objects.filter(sender=other_user, recipient=request.user, is_read=False).update(is_read=True)
+    chat_messages = DirectMessage.objects.filter(
+        Q(sender=request.user, recipient=other_user) |
+        Q(sender=other_user, recipient=request.user)
+    ).order_by('created_at').values('content', 'created_at', 'sender__username')
+    return JsonResponse({
+        'messages': [
+            {
+                'content': m['content'],
+                'mine': m['sender__username'] == request.user.username,
+                'time': m['created_at'].strftime('%b %d, %H:%M'),
+            }
+            for m in chat_messages
+        ],
+        'name': f"{other_user.first_name} {other_user.last_name}".strip() or other_user.email,
+    })
+
+
+@login_required
+def widget_send(request):
+    if request.method == 'POST':
+        import json
+        body = json.loads(request.body)
+        username = body.get('username', '').strip()
+        content = body.get('content', '').strip()
+        other_user = User.objects.filter(
+            Q(username=username) | Q(email__iexact=username)
+        ).first()
+        if not other_user:
+            return JsonResponse({'error': 'User not found'}, status=404)
+        if not content:
+            return JsonResponse({'error': 'Empty message'}, status=400)
+        DirectMessage.objects.create(sender=request.user, recipient=other_user, content=content)
+        return JsonResponse({'ok': True})
+    return JsonResponse({'error': 'POST only'}, status=405)

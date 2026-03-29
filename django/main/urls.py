@@ -26,7 +26,15 @@ urlpatterns = [
 
     path('events/', views.Events_page, name='events'),
 
+    path('user-admin/', views.user_admin, name='user_admin'),
+    path('user-admin/change-role/', views.user_admin_change_role, name='user_admin_change_role'),
+
     # Messaging — Direct Messages
     path('messages/', views.dm_inbox, name='dm_inbox'),
     path('messages/<str:username>/', views.dm_conversation, name='dm_conversation'),
+
+    # Messaging widget API
+    path('widget/inbox/', views.widget_inbox, name='widget_inbox'),
+    path('widget/conversation/<str:username>/', views.widget_conversation, name='widget_conversation'),
+    path('widget/send/', views.widget_send, name='widget_send'),
 ]

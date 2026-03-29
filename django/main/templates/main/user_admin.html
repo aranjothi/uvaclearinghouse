@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>User Administration</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    font-family: Helvetica, Arial, sans-serif;
+    background-color: #FFFFFF;
+    color: #232D4B;
+}
+
+nav {
+    background-color: #232D4B;
+    padding: 0 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+nav .logo { color: #FFFFFF; font-size: 1.4rem; font-weight: bold; letter-spacing: 1px; }
+
+nav ul { list-style: none; display: flex; gap: 32px; }
+
+nav ul li a {
+    color: #FFFFFF;
+    text-decoration: none;
+    font-size: 1rem;
+    padding: 20px 0;
+    display: block;
+    border-bottom: 3px solid transparent;
+}
+
+nav ul li a:hover { border-bottom: 3px solid #E57200; }
+
+.content { padding: 50px 40px; }
+
+.content h1 { font-size: 2rem; margin-bottom: 8px; }
+
+.content h1 span { color: #E57200; }
+
+.subtitle { color: #666; margin-bottom: 30px; }
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #f7f7f7;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+th {
+    background-color: #232D4B;
+    color: #fff;
+    padding: 14px 16px;
+    text-align: left;
+    font-size: 0.95rem;
+}
+
+td {
+    padding: 12px 16px;
+    border-bottom: 1px solid #e0e0e0;
+    font-size: 0.95rem;
+}
+
+tr:last-child td { border-bottom: none; }
+
+tr:hover td { background-color: #f0f0f0; }
+
+.role-form { display: flex; gap: 8px; align-items: center; }
+
+.role-select {
+    padding: 6px 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-family: inherit;
+    font-size: 0.9rem;
+}
+
+.save-btn {
+    background-color: #E57200;
+    color: #fff;
+    border: none;
+    padding: 6px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 0.9rem;
+    font-weight: bold;
+}
+
+.save-btn:hover { background-color: #c86100; }
+
+.no-memberships { color: #999; font-style: italic; }
+
+.logout-btn {
+    background: none;
+    border: none;
+    color: #fff;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 1rem;
+    padding: 20px 0;
+    display: block;
+    border-bottom: 3px solid transparent;
+}
+
+.logout-btn:hover { border-bottom: 3px solid #E57200; }
+</style>
+</head>
+<body>
+
+<nav>
+    <span class="logo">HoosLinked</span>
+    <ul>
+        <li>
+            <form method="post" action="{% url 'logout' %}">
+                {% csrf_token %}
+                <button type="submit" class="logout-btn">Logout</button>
+            </form>
+        </li>
+    </ul>
+</nav>
+
+<div class="content">
+    <h1>User <span>Administration</span></h1>
+    <p class="subtitle">Manage user roles within clubs. You cannot assign the User Administrator role.</p>
+
+    {% if messages %}
+        {% for message in messages %}
+        <p style="margin-bottom:20px;padding:10px 14px;border-radius:6px;font-weight:bold;
+                  background-color:#e8f5e9;color:#2e7d32;">{{ message }}</p>
+        {% endfor %}
+    {% endif %}
+
+    <table>
+        <thead>
+            <tr>
+                <th>User</th>
+                <th>Email</th>
+                <th>Club</th>
+                <th>Current Role</th>
+                <th>Change Role</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in users %}
+                {% if user.memberships.all %}
+                    {% for membership in user.memberships.all %}
+                    <tr>
+                        {% if forloop.first %}
+                        <td rowspan="{{ user.memberships.all|length }}">{{ user.first_name }} {{ user.last_name }}</td>
+                        <td rowspan="{{ user.memberships.all|length }}">{{ user.email }}</td>
+                        {% endif %}
+                        <td>{{ membership.club.name }}</td>
+                        <td>{{ membership.get_role_display }}</td>
+                        <td>
+                            <form method="post" action="{% url 'user_admin_change_role' %}" class="role-form">
+                                {% csrf_token %}
+                                <input type="hidden" name="membership_id" value="{{ membership.id }}">
+                                <select name="role" class="role-select">
+                                    <option value="member" {% if membership.role == "member" %}selected{% endif %}>General Member</option>
+                                    <option value="executive" {% if membership.role == "executive" %}selected{% endif %}>Executive</option>
+                                </select>
+                                <button type="submit" class="save-btn">Save</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td>{{ user.first_name }} {{ user.last_name }}</td>
+                        <td>{{ user.email }}</td>
+                        <td colspan="3" class="no-memberships">No club memberships</td>
+                    </tr>
+                {% endif %}
+            {% empty %}
+                <tr>
+                    <td colspan="5" class="no-memberships">No users found.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+</body>
+</html>

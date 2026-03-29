@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.utils.text import slugify
+import secrets
 
 
 class User(AbstractUser):
@@ -24,6 +25,7 @@ class User(AbstractUser):
         ('batten', 'Batten School of Leadership and Public Policy'),
     ]
 
+    is_user_admin = models.BooleanField(default=False)
     profile_picture = models.ImageField(upload_to='profile_pics/', blank=True, null=True)
     age = models.PositiveIntegerField(default=0)
     birthday = models.DateField(null=True, blank=True)
@@ -43,10 +45,13 @@ class Club(models.Model):
     name = models.CharField(max_length=200)
     description = models.TextField(blank=True)
     slug = models.SlugField(unique=True, blank=True)
+    executive_code = models.CharField(max_length=8, blank=True)
 
     def save(self, *args, **kwargs):
         if not self.slug:
             self.slug = slugify(self.name)
+        if not self.executive_code:
+            self.executive_code = secrets.token_hex(4)
         super().save(*args, **kwargs)
 
     def __str__(self):

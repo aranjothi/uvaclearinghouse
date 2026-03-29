@@ -25,15 +25,7 @@ nav ul li a:hover { border-bottom: 3px solid #E57200; }
 </head>
 <body>
 
-<nav>
-    <span class="logo">HoosLinked</span>
-    <ul>
-        <li><a href="{% url 'home' %}">Home</a></li>
-        <li><a href="{% url 'get_involved' %}">Get Involved</a></li>
-        <li><a href="{% url 'events' %}">Events</a></li>
-        <li><a href="#">FAQ</a></li>
-    </ul>
-</nav>
+{% include 'main/navbar.html' %}
 
 <div class="form-container">
     <h1>New <span>Thread</span></h1>
@@ -51,5 +43,15 @@ nav ul li a:hover { border-bottom: 3px solid #E57200; }
     </form>
 </div>
 
+{% include 'main/chat_widget.html' %}
+<script>
+function toggleNav() {
+    document.getElementById('navIcon').classList.toggle('open');
+}
+document.addEventListener('click', function(e) {
+    const nav = document.getElementById('navIcon');
+    if (!nav.contains(e.target)) nav.classList.remove('open');
+});
+</script>
 </body>
 </html>

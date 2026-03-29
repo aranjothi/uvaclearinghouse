@@ -5,15 +5,17 @@ from .models import User, Club, Membership, Event, DirectMessage
 
 @admin.register(User)
 class CustomUserAdmin(UserAdmin):
-    list_display = ('username', 'email', 'profile_slug')
+    list_display = ('username', 'email', 'profile_slug', 'is_user_admin')
     fieldsets = UserAdmin.fieldsets + (
-        ('Profile', {'fields': ('profile_slug',)}),
+        ('Profile', {'fields': ('profile_slug', 'age', 'birthday', 'year', 'school', 'profile_picture')}),
+        ('Site Role', {'fields': ('is_user_admin',)}),
     )
 
 
 @admin.register(Club)
 class ClubAdmin(admin.ModelAdmin):
-    list_display = ('name', 'slug')
+    list_display = ('name', 'slug', 'executive_code')
+    readonly_fields = ('executive_code',)
 
 
 @admin.register(Membership)

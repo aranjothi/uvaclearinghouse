@@ -1,0 +1,393 @@
+{% if user.is_authenticated and not user.is_user_admin %}
+<style>
+#chat-widget {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 1000;
+    font-family: Helvetica, Arial, sans-serif;
+}
+
+#chat-bubble {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background-color: #232D4B;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    margin-left: auto;
+    position: relative;
+}
+
+#chat-bubble svg { width: 26px; height: 26px; }
+
+#chat-unread-badge {
+    display: none;
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    background: #E57200;
+    color: #fff;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    font-size: 0.7rem;
+    font-weight: bold;
+    align-items: center;
+    justify-content: center;
+}
+
+#chat-panel {
+    display: none;
+    width: 320px;
+    background: #fff;
+    border: 1.5px solid #e0e0e0;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+    margin-bottom: 12px;
+    overflow: hidden;
+    flex-direction: column;
+    max-height: 480px;
+}
+
+#chat-panel.open { display: flex; }
+
+.chat-header {
+    background: #232D4B;
+    color: #fff;
+    padding: 14px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: bold;
+    font-size: 1rem;
+}
+
+.chat-header button {
+    background: none;
+    border: none;
+    color: #fff;
+    cursor: pointer;
+    font-size: 1.2rem;
+    line-height: 1;
+}
+
+#chat-screen-inbox, #chat-screen-convo { display: none; flex-direction: column; flex: 1; overflow: hidden; }
+#chat-screen-inbox.active, #chat-screen-convo.active { display: flex; }
+
+/* Inbox */
+#new-convo-form {
+    display: flex;
+    gap: 8px;
+    padding: 12px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+#new-convo-email {
+    flex: 1;
+    padding: 8px 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-family: inherit;
+}
+
+#new-convo-btn {
+    background: #E57200;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 12px;
+    cursor: pointer;
+    font-family: inherit;
+    font-weight: bold;
+    font-size: 0.85rem;
+}
+
+#convo-list { overflow-y: auto; flex: 1; }
+
+.convo-item {
+    padding: 12px 16px;
+    cursor: pointer;
+    border-bottom: 1px solid #f0f0f0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.95rem;
+}
+
+.convo-item:hover { background: #f7f7f7; }
+
+.convo-unread {
+    background: #E57200;
+    color: #fff;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    font-size: 0.7rem;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#no-convos { padding: 20px 16px; color: #888; font-size: 0.9rem; text-align: center; }
+
+/* Conversation */
+#convo-back {
+    background: none;
+    border: none;
+    color: #fff;
+    cursor: pointer;
+    font-size: 0.85rem;
+    opacity: 0.8;
+}
+
+#convo-back:hover { opacity: 1; }
+
+#messages-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.msg-bubble {
+    max-width: 75%;
+    padding: 8px 12px;
+    border-radius: 16px;
+    font-size: 0.9rem;
+    line-height: 1.4;
+}
+
+.msg-mine {
+    background: #232D4B;
+    color: #fff;
+    align-self: flex-end;
+    border-bottom-right-radius: 4px;
+}
+
+.msg-theirs {
+    background: #f0f0f0;
+    color: #232D4B;
+    align-self: flex-start;
+    border-bottom-left-radius: 4px;
+}
+
+.msg-time {
+    font-size: 0.7rem;
+    opacity: 0.6;
+    margin-top: 2px;
+    text-align: right;
+}
+
+#send-form {
+    display: flex;
+    gap: 8px;
+    padding: 10px 12px;
+    border-top: 1px solid #e0e0e0;
+}
+
+#send-input {
+    flex: 1;
+    padding: 8px 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-family: inherit;
+}
+
+#send-btn {
+    background: #E57200;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 12px;
+    cursor: pointer;
+    font-family: inherit;
+    font-weight: bold;
+}
+</style>
+
+<div id="chat-widget">
+    <div id="chat-panel">
+        <div class="chat-header">
+            <span id="chat-title">Messages</span>
+            <div style="display:flex;gap:8px;align-items:center;">
+                <button id="convo-back" style="display:none;" onclick="showInbox()">&#8592; Back</button>
+                <button onclick="closeChat()">&#10005;</button>
+            </div>
+        </div>
+
+        <!-- Inbox screen -->
+        <div id="chat-screen-inbox" class="active">
+            <div id="new-convo-form">
+                <input type="text" id="new-convo-email" placeholder="Start chat by email...">
+                <button id="new-convo-btn" onclick="startNewConvo()">Go</button>
+            </div>
+            <div id="convo-list"></div>
+        </div>
+
+        <!-- Conversation screen -->
+        <div id="chat-screen-convo">
+            <div id="messages-list"></div>
+            <div id="send-form">
+                <input type="text" id="send-input" placeholder="Type a message..." onkeydown="if(event.key==='Enter')sendMessage()">
+                <button id="send-btn" onclick="sendMessage()">Send</button>
+            </div>
+        </div>
+    </div>
+
+    <button id="chat-bubble" onclick="toggleChat()">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round"
+                d="M8.625 12a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H8.25m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H12m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 0 1-2.555-.337A5.972 5.972 0 0 1 5.41 20.97a5.969 5.969 0 0 1-.474-.065 4.48 4.48 0 0 0 .978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25Z" />
+        </svg>
+        <span id="chat-unread-badge"></span>
+    </button>
+</div>
+
+<script>
+let currentUsername = null;
+
+function toggleChat() {
+    const panel = document.getElementById('chat-panel');
+    if (panel.classList.contains('open')) {
+        panel.classList.remove('open');
+    } else {
+        panel.classList.add('open');
+        loadInbox();
+    }
+}
+
+function closeChat() {
+    document.getElementById('chat-panel').classList.remove('open');
+}
+
+function showInbox() {
+    currentUsername = null;
+    document.getElementById('chat-screen-convo').classList.remove('active');
+    document.getElementById('chat-screen-inbox').classList.add('active');
+    document.getElementById('chat-title').textContent = 'Messages';
+    document.getElementById('convo-back').style.display = 'none';
+    loadInbox();
+}
+
+function loadInbox() {
+    fetch('/widget/inbox/')
+        .then(r => r.json())
+        .then(data => {
+            const list = document.getElementById('convo-list');
+            list.innerHTML = '';
+            let totalUnread = 0;
+            if (data.conversations.length === 0) {
+                list.innerHTML = '<div id="no-convos">No conversations yet.</div>';
+            } else {
+                data.conversations.forEach(c => {
+                    totalUnread += c.unread;
+                    const div = document.createElement('div');
+                    div.className = 'convo-item';
+                    div.onclick = () => openConvo(c.username, c.name);
+                    div.innerHTML = `
+                        <div style="flex:1;min-width:0;">
+                            <div style="font-weight:bold;font-size:0.9rem;">${c.name}</div>
+                            <div style="font-size:0.8rem;color:#888;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:200px;">${c.last_message}</div>
+                        </div>
+                        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0;">
+                            <span style="font-size:0.7rem;color:#aaa;">${c.last_time}</span>
+                            ${c.unread ? `<span class="convo-unread">${c.unread}</span>` : ''}
+                        </div>`;
+                    list.appendChild(div);
+                });
+            }
+            const badge = document.getElementById('chat-unread-badge');
+            if (totalUnread > 0) {
+                badge.textContent = totalUnread;
+                badge.style.display = 'flex';
+            } else {
+                badge.style.display = 'none';
+            }
+        });
+}
+
+function openConvo(username, name) {
+    currentUsername = username;
+    document.getElementById('chat-screen-inbox').classList.remove('active');
+    document.getElementById('chat-screen-convo').classList.add('active');
+    document.getElementById('chat-title').textContent = name;
+    document.getElementById('convo-back').style.display = 'inline';
+    loadMessages();
+}
+
+function loadMessages() {
+    if (!currentUsername) return;
+    fetch(`/widget/conversation/${currentUsername}/`)
+        .then(r => r.json())
+        .then(data => {
+            if (data.error) { alert(data.error); showInbox(); return; }
+            const list = document.getElementById('messages-list');
+            list.innerHTML = '';
+            data.messages.forEach(m => {
+                const wrap = document.createElement('div');
+                wrap.style.display = 'flex';
+                wrap.style.flexDirection = 'column';
+                wrap.style.alignItems = m.mine ? 'flex-end' : 'flex-start';
+                wrap.innerHTML = `<div class="msg-bubble ${m.mine ? 'msg-mine' : 'msg-theirs'}">${escapeHtml(m.content)}</div>
+                                  <div class="msg-time">${m.time}</div>`;
+                list.appendChild(wrap);
+            });
+            list.scrollTop = list.scrollHeight;
+        });
+}
+
+function sendMessage() {
+    const input = document.getElementById('send-input');
+    const content = input.value.trim();
+    if (!content || !currentUsername) return;
+    fetch('/widget/send/', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken')},
+        body: JSON.stringify({username: currentUsername, content: content}),
+    }).then(r => r.json()).then(data => {
+        if (data.ok) {
+            input.value = '';
+            loadMessages();
+        } else {
+            alert(data.error || 'Could not send message.');
+        }
+    });
+}
+
+function startNewConvo() {
+    const email = document.getElementById('new-convo-email').value.trim();
+    if (!email) return;
+    fetch(`/widget/conversation/${encodeURIComponent(email)}/`)
+        .then(r => r.json())
+        .then(data => {
+            if (data.error) { alert('No user found with that email.'); return; }
+            document.getElementById('new-convo-email').value = '';
+            openConvo(email, data.name || email);
+        });
+}
+
+function escapeHtml(text) {
+    return text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function getCookie(name) {
+    const v = document.cookie.match('(^|;) ?' + name + '=([^;]*)(;|$)');
+    return v ? v[2] : null;
+}
+
+// Poll for unread badge every 30 seconds
+setInterval(() => { if (!document.getElementById('chat-panel').classList.contains('open')) loadInbox(); }, 30000);
+window.addEventListener('load', loadInbox);
+</script>
+{% endif %}

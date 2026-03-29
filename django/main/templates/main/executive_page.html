@@ -9,6 +9,7 @@
         <div>
             <h3>{{ membership.club.name }}</h3>
             <p>{{ membership.club.description }}</p>
+            <p><strong>Executive Code:</strong> <code>{{ membership.club.executive_code }}</code></p>
 
             <a href="{% url 'create_event' membership.club.slug %}">
                 Create Event
@@ -23,3 +24,4 @@
     <p>You are not currently an executive member of any organizations.</p>
 
 {% endif %}
+{% include 'main/chat_widget.html' %}
