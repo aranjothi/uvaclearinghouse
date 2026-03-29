@@ -24,6 +24,7 @@ class User(AbstractUser):
         ('batten', 'Batten School of Leadership and Public Policy'),
     ]
 
+    profile_picture = models.ImageField(upload_to='profile_pics/', blank=True, null=True)
     age = models.PositiveIntegerField(default=0)
     birthday = models.DateField(null=True, blank=True)
     year = models.CharField(max_length = 1, choices = YEAR_CHOICES, blank=True, null=True)

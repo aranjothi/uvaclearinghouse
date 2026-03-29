@@ -83,6 +83,8 @@ def create_profile_page(request):
         request.user.birthday = request.POST.get('birthday') or None
         request.user.year = request.POST.get('year')
         request.user.school = request.POST.get('school')
+        if request.FILES.get('profile_picture'):
+            request.user.profile_picture = request.FILES['profile_picture']
         request.user.save()
         return redirect('profile')
     return render(request, 'main/create_profile.html')

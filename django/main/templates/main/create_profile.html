@@ -201,12 +201,15 @@
     <div class="content">
         <h1>Create <span>Your Profile</span></h1>
 
-        <form method="post" class="profile-form">
+        <form method="post" enctype="multipart/form-data" class="profile-form">
             {% csrf_token %}
 
             {% if error %}
                 <p class="error">{{ error }}</p>
             {% endif %}
+
+            <label for="profile_picture">Profile Picture</label>
+            <input type="file" name="profile_picture" id="profile_picture" accept="image/*">
 
             <label for="age">Age</label>
             <input type="number" name="age" id="age" required>

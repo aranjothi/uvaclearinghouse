@@ -236,6 +236,11 @@ M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
 
 <h1>Welcome, <span>{{ user.first_name|upper }}</span></h1>
 
+{% if user.profile_picture %}
+<img src="{{ user.profile_picture.url }}" alt="Profile picture"
+     style="width:120px;height:120px;border-radius:50%;object-fit:cover;margin-bottom:20px;border:3px solid #232D4B;">
+{% endif %}
+
 <div class="profile-card">
 
 <div class="profile-row">
