@@ -46,6 +46,7 @@ class Club(models.Model):
     description = models.TextField(blank=True)
     slug = models.SlugField(unique=True, blank=True)
     executive_code = models.CharField(max_length=8, blank=True)
+    image = models.ImageField(upload_to='club_images/', blank=True, null=True)
 
     def save(self, *args, **kwargs):
         if not self.slug:
@@ -85,6 +86,7 @@ class Event(models.Model):
     location = models.CharField(max_length=200)
     club = models.ForeignKey(Club, on_delete=models.CASCADE, related_name='events')
     created_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    rsvps = models.ManyToManyField(User, related_name='rsvped_events', blank=True)
 
     def __str__(self):
         return self.title

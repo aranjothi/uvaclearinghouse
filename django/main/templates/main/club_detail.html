@@ -198,6 +198,28 @@ nav ul li a:hover {
     color: #444;
 }
 
+.search-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 8px 14px;
+    margin-bottom: 20px;
+    max-width: 400px;
+}
+
+.search-bar svg { flex-shrink: 0; color: #888; }
+
+.search-bar input {
+    border: none;
+    outline: none;
+    font-size: 0.95rem;
+    font-family: inherit;
+    width: 100%;
+    color: #232D4B;
+}
+
 .thread-card {
     display: block;
     text-decoration: none;
@@ -315,8 +337,21 @@ nav ul li a:hover {
 
     <div class="club-card">
 
-        <div class="club-image">
-            Club Image Placeholder
+        {% load static %}
+        <div class="club-image" style="position:relative;">
+            {% if club.image %}
+            <img src="{{ club.image.url }}" alt="{{ club.name }}" style="width:100%;height:100%;object-fit:cover;">
+            {% else %}
+            <img src="{% static 'defaultclubimage.jpg' %}" alt="{{ club.name }}" style="width:100%;height:100%;object-fit:cover;">
+            {% endif %}
+            {% if is_exec %}
+            <button onclick="document.getElementById('uploadImageModal').classList.add('open')"
+                style="position:absolute;bottom:12px;right:12px;background:rgba(0,0,0,0.55);border:none;border-radius:50%;width:40px;height:40px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#fff;">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width:20px;height:20px;">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
+                </svg>
+            </button>
+            {% endif %}
         </div>
 
         <div class="club-content">
@@ -394,14 +429,21 @@ nav ul li a:hover {
 
         <!-- Discussion tab -->
         <div id="tab-discussion" class="tab-content">
-            <div style="display:flex;justify-content:flex-end;margin-bottom:16px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px;">
+                <div class="search-bar">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width:18px;height:18px;">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+                    </svg>
+                    <input type="text" placeholder="Search discussions..." oninput="filterItems('discussion-list', this.value)">
+                </div>
                 {% if is_member %}
                 <a href="{% url 'forum_new_thread' club.slug %}" class="club-btn">+ New Post</a>
                 {% endif %}
             </div>
+            <div id="discussion-list">
             {% if threads %}
                 {% for thread in threads %}
-                <a href="{% url 'forum_thread' club.slug thread.id %}" class="thread-card">
+                <a href="{% url 'forum_thread' club.slug thread.id %}" class="thread-card" data-search="{{ thread.title|lower }} {{ thread.author.first_name|lower }} {{ thread.author.last_name|lower }}">
                     <div class="thread-header">
                         <span class="thread-title">{{ thread.title }}</span>
                         <span class="thread-meta">{{ thread.likes.count }} ♥</span>
@@ -414,26 +456,63 @@ nav ul li a:hover {
             {% else %}
                 <p style="color:#888;">No posts yet.{% if is_member %} Be the first to start a discussion!{% endif %}</p>
             {% endif %}
+            </div><!-- end discussion-list -->
         </div>
 
         <!-- Events tab -->
         <div id="tab-events" class="tab-content" style="display:none;">
-            <div style="display:flex;justify-content:flex-end;margin-bottom:16px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px;">
+                <div class="search-bar">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width:18px;height:18px;">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+                    </svg>
+                    <input type="text" placeholder="Search events..." oninput="filterItems('events-list', this.value)">
+                </div>
                 {% if is_exec %}
                 <button type="button" class="club-btn" onclick="document.getElementById('createEventModal').classList.add('open')">+ New Event</button>
                 {% endif %}
             </div>
+            <div id="events-list">
             {% if events %}
                 {% for event in events %}
-                <div class="event-card">
-                    <div class="event-title">{{ event.title }}</div>
-                    <div class="event-meta">{{ event.date|date:"M d, Y" }} at {{ event.time|time:"g:i A" }} &middot; {{ event.location }}</div>
-                    {% if event.description %}<div class="event-desc">{{ event.description }}</div>{% endif %}
+                <div class="event-card" data-search="{{ event.title|lower }} {{ event.location|lower }}" style="display:flex;justify-content:space-between;align-items:center;cursor:pointer;">
+                    <div onclick="openEventModal('{{ event.id }}')">
+                        <div class="event-title">{{ event.title }}</div>
+                        <div class="event-meta">{{ event.date|date:"M d, Y" }} at {{ event.time|time:"g:i A" }} &middot; {{ event.location }}</div>
+                    </div>
+                    {% if user.is_authenticated %}
+                    <form method="post" action="{% url 'rsvp_event' event.id %}" style="flex-shrink:0;margin-left:16px;">
+                        {% csrf_token %}
+                        {% if event.id in rsvped_ids %}
+                        <button type="submit" class="club-btn secondary-btn" style="white-space:nowrap;">Cancel RSVP</button>
+                        {% else %}
+                        <button type="submit" class="club-btn secondary-btn" style="white-space:nowrap;">RSVP</button>
+                        {% endif %}
+                    </form>
+                    {% endif %}
+                </div>
+
+                <!-- Event detail modal -->
+                <div class="modal-overlay" id="event-modal-{{ event.id }}">
+                    <div class="modal">
+                        <h2>{{ event.title }}</h2>
+                        <div class="profile-row"><span class="profile-label">Date: </span><span>{{ event.date|date:"M d, Y" }}</span></div>
+                        <div class="profile-row"><span class="profile-label">Time: </span><span>{{ event.time|time:"g:i A" }}</span></div>
+                        <div class="profile-row"><span class="profile-label">Location: </span><span>{{ event.location }}</span></div>
+                        {% if event.description %}
+                        <div style="margin-top:16px;font-size:0.95rem;color:#444;line-height:1.6;">{{ event.description }}</div>
+                        {% endif %}
+                        {% if is_exec %}<div style="margin-top:12px;font-size:0.85rem;color:#888;">{{ event.rsvps.count }} RSVP{{ event.rsvps.count|pluralize }}</div>{% endif %}
+                        <div class="modal-footer">
+                            <button class="cancel-btn" onclick="closeEventModal('{{ event.id }}')">Close</button>
+                        </div>
+                    </div>
                 </div>
                 {% endfor %}
             {% else %}
                 <p style="color:#888;">No events scheduled yet.{% if is_exec %} Create one above!{% endif %}</p>
             {% endif %}
+            </div><!-- end events-list -->
         </div>
 
         </div><!-- end club-content -->
@@ -443,6 +522,16 @@ nav ul li a:hover {
 </div>
 
 <script>
+function filterItems(listId, query) {
+    const q = query.toLowerCase();
+    document.querySelectorAll('#' + listId + ' [data-search]').forEach(el => {
+        el.style.display = el.dataset.search.includes(q) ? '' : 'none';
+    });
+}
+
+function openEventModal(id) { document.getElementById('event-modal-' + id).classList.add('open'); }
+function closeEventModal(id) { document.getElementById('event-modal-' + id).classList.remove('open'); }
+
 function switchTab(name, btn) {
     document.querySelectorAll('.tab-content').forEach(el => el.style.display = 'none');
     document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
@@ -459,6 +548,23 @@ document.addEventListener('click', function(e) {
     if (!nav.contains(e.target)) nav.classList.remove('open');
 });
 </script>
+
+{% if is_exec %}
+<div class="modal-overlay" id="uploadImageModal">
+    <div class="modal">
+        <h2>Upload Club Image</h2>
+        <form method="post" enctype="multipart/form-data" action="{% url 'upload_club_image' club.slug %}">
+            {% csrf_token %}
+            <label for="club_image">Select image</label>
+            <input type="file" name="club_image" id="club_image" accept="image/*">
+            <div class="modal-footer">
+                <button type="button" class="cancel-btn" onclick="document.getElementById('uploadImageModal').classList.remove('open')">Cancel</button>
+                <button type="submit" class="club-btn">Upload</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endif %}
 
 {% if is_exec %}
 <div class="modal-overlay" id="createEventModal">

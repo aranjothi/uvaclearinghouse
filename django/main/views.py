@@ -36,7 +36,12 @@ class ClubDetailView(DetailView):
         forum, _ = Forum.objects.get_or_create(club=self.object)
         context["forum"] = forum
         context["threads"] = forum.threads.select_related('author').order_by('-created_at')[:20]
-        context["events"] = self.object.events.order_by('date', 'time')
+        events = list(self.object.events.order_by('date', 'time'))
+        rsvped_ids = set()
+        if self.request.user.is_authenticated:
+            rsvped_ids = set(self.request.user.rsvped_events.values_list('id', flat=True))
+        context["events"] = events
+        context["rsvped_ids"] = rsvped_ids
         return context
 
 def home(request):
@@ -106,7 +111,8 @@ def profile_page(request):
     if request.user.is_user_admin:
         return redirect('user_admin')
     memberships = request.user.memberships.select_related("club")
-    return render(request, 'main/profile.html', {"memberships": memberships})
+    rsvped_events = request.user.rsvped_events.select_related('club').order_by('date', 'time')
+    return render(request, 'main/profile.html', {"memberships": memberships, "rsvped_events": rsvped_events})
 
 
 def logout_page(request):
@@ -264,6 +270,27 @@ def like_reply(request, slug, reply_id):
     return redirect('forum_thread', slug=slug, thread_id=reply.thread.id)
     events = Event.objects.all().order_by('date')
     return render(request, 'main/Events.html', {'events': events})
+
+@login_required
+def rsvp_event(request, event_id):
+    from .models import Event
+    event = get_object_or_404(Event, id=event_id)
+    if request.user in event.rsvps.all():
+        event.rsvps.remove(request.user)
+    else:
+        event.rsvps.add(request.user)
+    return redirect('club_detail', slug=event.club.slug)
+
+@login_required
+def upload_club_image(request, slug):
+    club = get_object_or_404(Club, slug=slug)
+    is_exec = Membership.objects.filter(user=request.user, club=club, role=Membership.EXECUTIVE).exists()
+    if not is_exec:
+        return redirect('club_detail', slug=slug)
+    if request.method == 'POST' and request.FILES.get('club_image'):
+        club.image = request.FILES['club_image']
+        club.save()
+    return redirect('club_detail', slug=slug)
 
 # ──────────────────────────────────────────────
 # USER ADMIN VIEWS

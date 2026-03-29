@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Get Involved</title>
+<title>Clubs</title>
 
 <style>
 
@@ -64,47 +64,154 @@ border-bottom: 3px solid #E57200;
 .dropdown a:hover, .dropdown button:hover { background-color: #f0f0f0; }
 .nav-icon.open .dropdown { display: block; }
 
-/* PAGE HEADER */
-
-.page-header {
-padding: 60px 40px 30px 40px;
+/* BANNER */
+.page-banner {
+    position: relative;
+    width: 100%;
+    height: 320px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-.page-header h1 {
-font-size: 2rem;
+.page-banner img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 }
 
-.page-header span {
-color: #E57200;
+.page-banner-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(35, 45, 75, 0.72);
 }
 
-/* SEARCH BAR */
-.search-bar-wrap {
-    padding: 0 40px 30px 40px;
+.page-banner-content {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    width: 100%;
+    max-width: 560px;
+    padding: 0 40px;
 }
+
+.page-banner-content h1 {
+    font-size: 2.4rem;
+    color: #fff;
+    text-align: center;
+}
+
+.page-banner-content h1 span {
+    color: #E57200;
+}
+
+.banner-search-form {
+    display: flex;
+    gap: 10px;
+    width: 100%;
+    align-items: center;
+}
+
+.banner-search-input-wrap {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.4);
+    border-radius: 6px;
+    padding: 10px 14px;
+}
+
+.banner-search-input-wrap svg { flex-shrink: 0; color: #fff; }
+
+.banner-search-input {
+    border: none;
+    outline: none;
+    background: none;
+    font-size: 1rem;
+    font-family: inherit;
+    color: #fff;
+    width: 100%;
+}
+
+.banner-search-input::placeholder { color: rgba(255,255,255,0.65); }
+
+.search-btn {
+    background-color: #E57200;
+    color: #FFFFFF;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 6px;
+    font-weight: bold;
+    font-size: 1rem;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+.search-btn:hover { background-color: #c86100; }
+
+.reset-btn {
+    background-color: rgba(255,255,255,0.2);
+    color: #fff;
+    padding: 10px 18px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 1rem;
+    border: 1px solid rgba(255,255,255,0.4);
+}
+
+.reset-btn:hover { background-color: rgba(255,255,255,0.3); }
+
+/* SEARCH BAR (old, kept for reference but unused) */
+.search-bar-wrap { display: none; }
 
 .search-form {
     display: flex;
     gap: 12px;
     max-width: 700px;
+    align-items: center;
+}
+
+.search-input-wrap {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    padding: 10px 14px;
+}
+
+.search-input-wrap svg {
+    flex-shrink: 0;
+    color: #888;
 }
 
 .search-input {
-    flex: 1;
-    padding: 12px 14px;
+    border: none;
+    outline: none;
     font-size: 1rem;
-    border: 1px solid #ccc;
-    border-radius: 6px;
     font-family: inherit;
+    width: 100%;
+    color: #232D4B;
 }
 
 .search-btn {
     background-color: #E57200;
     color: #FFFFFF;
     border: none;
-    padding: 12px 18px;
+    padding: 10px 18px;
     border-radius: 6px;
     font-weight: bold;
+    font-size: 1rem;
     cursor: pointer;
     font-family: inherit;
 }
@@ -116,10 +223,11 @@ color: #E57200;
 .reset-btn {
     background-color: #ccc;
     color: black;
-    padding: 12px 18px;
+    padding: 10px 18px;
     border-radius: 6px;
     text-decoration: none;
     font-weight: bold;
+    font-size: 1rem;
 }
 
 .reset-btn:hover {
@@ -130,10 +238,11 @@ color: #E57200;
 /* CLUB GRID */
 
 .club-container {
-padding: 0 40px 60px 40px;
+padding: 40px 40px 60px 40px;
 display: grid;
-grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
 gap: 25px;
+align-items: start;
 }
 
 /* CLUB CARD */
@@ -141,40 +250,92 @@ gap: 25px;
 .club-card {
 background-color: #f7f7f7;
 border-radius: 10px;
-padding: 22px;
 box-shadow: 0 2px 6px rgba(0,0,0,0.08);
 display: flex;
 flex-direction: column;
-justify-content: space-between;
+text-decoration: none;
+color: inherit;
+transition: transform 0.15s, box-shadow 0.15s, background-color 0.15s;
+cursor: pointer;
+overflow: visible;
+}
+
+.club-card:hover {
+background-color: #eef0f5;
+transform: translateY(-3px);
+box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+}
+
+.club-card-banner {
+    position: relative;
+    width: 100%;
+    height: 90px;
+    border-radius: 10px 10px 0 0;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.club-card-banner img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.club-card-pfp-wrap {
+    position: relative;
+    height: 28px;
+    flex-shrink: 0;
+}
+
+.club-card-pfp {
+    position: absolute;
+    left: 16px;
+    top: -28px;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #fff;
+    background: #fff;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}
+
+.club-card-body {
+    padding: 8px 16px 16px 16px;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
 }
 
 .club-card h3 {
-margin-bottom: 10px;
-font-size: 1.3rem;
+margin-bottom: 6px;
+font-size: 1.15rem;
+color: #232D4B;
 }
 
 .club-card p {
-font-size: 0.95rem;
+font-size: 0.9rem;
 line-height: 1.5;
 color: #444;
-margin-bottom: 18px;
+flex: 1;
+overflow: hidden;
+display: -webkit-box;
+-webkit-line-clamp: 3;
+line-clamp: 3;
+-webkit-box-orient: vertical;
 }
 
-/* BUTTON */
-
-.club-btn {
-background-color: #E57200;
-color: #FFFFFF;
-text-decoration: none;
-padding: 10px 16px;
-border-radius: 6px;
-font-weight: bold;
-font-size: 0.9rem;
-width: fit-content;
+.club-card-footer {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: auto;
+    padding-top: 10px;
 }
 
-.club-btn:hover {
-background-color: #c86100;
+.view-club-link {
+    font-size: 0.85rem;
+    font-weight: bold;
+    color: #232D4B;
 }
 
 .no-clubs {
@@ -186,6 +347,13 @@ color: #555;
 </style>
 </head>
 <script>
+    function filterClubs(query) {
+        const q = query.toLowerCase();
+        document.querySelectorAll('.club-card').forEach(card => {
+            card.style.display = card.dataset.search.includes(q) ? '' : 'none';
+        });
+    }
+
     function toggleNav() {
         document.getElementById('navIcon').classList.toggle('open');
     }
@@ -199,45 +367,44 @@ color: #555;
 
 {% include 'main/navbar.html' %}
 
-<div class="page-header">
-<h1>Get <span>Involved</span></h1>
-</div>
-
-
-<div class="search-bar-wrap">
-    <form method="get" class="search-form">
-        <input
-            type="text"
-            name="q"
-            placeholder="Search for clubs..."
-            value="{{ query }}"
-            class="search-input"
-        >
-        <button type="submit" class="search-btn">Search</button>
-
-        <a href="{% url 'get_involved' %}" class="reset-btn">
-            Reset
-        </a>
-    </form>
+{% load static %}
+<div class="page-banner">
+    <img src="{% static 'getinvolvedbanner.png' %}" alt="Clubs banner">
+    <div class="page-banner-overlay"></div>
+    <div class="page-banner-content">
+        <h1>Clubs <span>@ UVA</span></h1>
+        <div class="banner-search-input-wrap" style="width:100%;">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width:18px;height:18px;">
+                <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+            </svg>
+            <input type="text" id="clubSearch" placeholder="Search for clubs..." class="banner-search-input" oninput="filterClubs(this.value)">
+        </div>
+    </div>
 </div>
 
 <div class="club-container">
 
 {% for club in clubs %}
 
-<div class="club-card">
-
-<h3>{{ club.name }}</h3>
-
-<p>
-{{ club.description | default:"No description available." |truncatewords:60 }}
-</p>
-
-<a href="{% url 'club_detail' club.slug %}" class="club-btn">
-    View Club
+<a href="{% url 'club_detail' club.slug %}" class="club-card" data-search="{{ club.name|lower }} {{ club.description|lower }}">
+    <div class="club-card-banner">
+        {% if club.image %}
+        <img src="{{ club.image.url }}" alt="{{ club.name }} banner">
+        {% else %}
+        <img src="{% static 'defaultclubimage.jpg' %}" alt="Default banner">
+        {% endif %}
+    </div>
+    <div class="club-card-pfp-wrap">
+        <img src="{% static 'defaultclubpfp.png' %}" alt="{{ club.name }} logo" class="club-card-pfp">
+    </div>
+    <div class="club-card-body">
+        <h3>{{ club.name }}</h3>
+        <p>{{ club.description|default:"No description available."|truncatewords:30 }}</p>
+        <div class="club-card-footer">
+            <span class="view-club-link">View Club &rarr;</span>
+        </div>
+    </div>
 </a>
-
-</div>
 
 {% empty %}
 
