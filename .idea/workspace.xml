@@ -5,17 +5,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="00a4688b-7249-4d35-9273-226e29aacd18" name="Changes" comment="Make the get_involved.html">
-      <change afterPath="$PROJECT_DIR$/django/main/templates/main/Events.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Checkout_at_3_14_2026_11_35_PM_[Changes]/shelved.patch" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Checkout_at_3_14_2026_11_35_PM__Changes_.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.env" beforeDir="false" afterPath="$PROJECT_DIR$/.env" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/django/db.sqlite3" beforeDir="false" afterPath="$PROJECT_DIR$/django/db.sqlite3" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/django/main/migrations/0002_alter_user_first_name_alter_user_last_name.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/django/main/migrations/0003_user_age_user_birthday_user_school_user_year.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/django/clearinghouse/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/django/clearinghouse/settings.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/django/clearinghouse/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/django/clearinghouse/urls.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/django/main/migrations/0004_event.py" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/django/main/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/django/main/models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/django/main/templates/main/get_involved.html" beforeDir="false" afterPath="$PROJECT_DIR$/django/main/templates/main/get_involved.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/django/main/templates/main/home.html" beforeDir="false" afterPath="$PROJECT_DIR$/django/main/templates/main/home.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/django/main/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/django/main/urls.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/django/main/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/django/main/views.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />

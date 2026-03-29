@@ -222,3 +222,11 @@ def create_event(request, slug):
         "club": club,
         "form": form
     })
+def Events_page(request):
+    events = Event.objects.all().order_by('date')  # fetch all events ordered by soonest first
+    return render(request, 'main/Events.html', {'events': events})  # pass events to template
+
+@login_required
+def my_clubs_page(request):
+    memberships = Membership.objects.filter(user=request.user)  # get all memberships for current user
+    return render(request, 'main/my_clubs.html', {'memberships': memberships})

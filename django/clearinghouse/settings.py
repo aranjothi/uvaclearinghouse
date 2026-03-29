@@ -14,15 +14,17 @@ from pathlib import Path
 from dotenv import load_dotenv
 import os
 import dj_database_url
+from dotenv import load_dotenv
 
-
+load_dotenv(Path(__file__).resolve().parent.parent / '.env', override=True)
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 ENV_PATH = BASE_DIR.parent / ".env"
 
-load_dotenv(ENV_PATH)
+load_dotenv(ENV_PATH, override=True)
 print("GOOGLE_CLIENT_ID loaded:", os.environ.get('GOOGLE_CLIENT_ID'))
+print("DATABASE_URL loaded:", os.environ.get('DATABASE_URL'))
 print("ENV_PATH:", ENV_PATH)
 print("ENV_PATH exists:", ENV_PATH.exists())
 

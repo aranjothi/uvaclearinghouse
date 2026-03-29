@@ -17,4 +17,5 @@ urlpatterns = [
    path("clubs/<slug:slug>/create-event/", views.create_event, name="create_event"),
    path('executives/', views.executive_page, name='executive_page'),
    path('clubs/<slug:slug>/create-event/', views.create_event, name='create_event'),
+    path('my-clubs/', views.my_clubs_page, name='my_clubs'),
 ]

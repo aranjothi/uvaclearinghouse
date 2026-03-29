@@ -72,15 +72,13 @@ class Membership(models.Model):
 
 #basic event setup - to be edited
 class Event(models.Model):
-    club = models.ForeignKey(Club, on_delete=models.CASCADE, related_name="events")
     title = models.CharField(max_length=200)
     description = models.TextField(blank=True)
     date = models.DateField()
     time = models.TimeField()
-    location = models.CharField(max_length=200, blank=True)
-
+    location = models.CharField(max_length=200)
+    club = models.ForeignKey(Club, on_delete=models.CASCADE, related_name='events')
     created_by = models.ForeignKey(User, on_delete=models.CASCADE)
-    created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.title} - {self.club.name}"
+        return self.title
