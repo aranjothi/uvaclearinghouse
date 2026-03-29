@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>New Thread</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: Helvetica, Arial, sans-serif; background-color: #FFFFFF; color: #232D4B; }
+nav { background-color: #232D4B; padding: 0 40px; display: flex; align-items: center; justify-content: space-between; }
+nav .logo { color: #FFFFFF; font-size: 1.4rem; font-weight: bold; }
+nav ul { list-style: none; display: flex; gap: 32px; }
+nav ul li a { color: #FFFFFF; text-decoration: none; font-size: 1rem; padding: 20px 0; display: block; border-bottom: 3px solid transparent; transition: border-color 0.2s; }
+nav ul li a:hover { border-bottom: 3px solid #E57200; }
+
+.form-container { max-width: 700px; margin: 60px auto; padding: 40px; background-color: #f7f7f7; border-radius: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.08); }
+.form-container h1 { font-size: 1.8rem; margin-bottom: 24px; }
+.form-container h1 span { color: #E57200; }
+.form-container label { display: block; font-weight: bold; margin-bottom: 8px; }
+.form-container input, .form-container textarea { width: 100%; padding: 12px; border: 1.5px solid #232D4B; border-radius: 6px; font-family: inherit; font-size: 0.95rem; margin-bottom: 20px; }
+.form-container textarea { min-height: 160px; resize: vertical; }
+.form-container input:focus, .form-container textarea:focus { outline: none; border-color: #E57200; }
+.btn-submit { background-color: #E57200; color: #FFFFFF; padding: 12px 28px; border: none; border-radius: 6px; font-size: 1rem; font-weight: bold; cursor: pointer; }
+.btn-submit:hover { background-color: #c86100; }
+</style>
+</head>
+<body>
+
+<nav>
+    <span class="logo">HoosLinked</span>
+    <ul>
+        <li><a href="{% url 'home' %}">Home</a></li>
+        <li><a href="{% url 'get_involved' %}">Get Involved</a></li>
+        <li><a href="{% url 'events' %}">Events</a></li>
+        <li><a href="#">FAQ</a></li>
+    </ul>
+</nav>
+
+<div class="form-container">
+    <h1>New <span>Thread</span></h1>
+    <p style="margin-bottom: 24px; color: #444;">{{ club.name }} Forum</p>
+
+    <form method="POST">
+        {% csrf_token %}
+        <label for="title">Thread Title</label>
+        <input type="text" id="title" name="title" placeholder="Enter a title..." required>
+
+        <label for="content">Content</label>
+        <textarea id="content" name="content" placeholder="Write your post here..." required></textarea>
+
+        <button type="submit" class="btn-submit">Post Thread</button>
+    </form>
+</div>
+
+</body>
+</html>

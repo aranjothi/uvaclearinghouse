@@ -4,12 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="00a4688b-7249-4d35-9273-226e29aacd18" name="Changes" comment="Make the get_involved.html">
+    <list default="true" id="00a4688b-7249-4d35-9273-226e29aacd18" name="Changes" comment="Started on making the forum page">
+      <change afterPath="$PROJECT_DIR$/django/main/templates/main/forum_list.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/django/main/templates/main/forum_new_thread.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/django/main/templates/main/forum_thread.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/django/main/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/django/main/models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/django/main/templates/main/my_clubs.html" beforeDir="false" afterPath="$PROJECT_DIR$/django/main/templates/main/my_clubs.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/django/main/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/django/main/urls.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/django/main/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/django/main/views.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -147,7 +146,15 @@
       <option name="project" value="LOCAL" />
       <updated>1774744981360</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="Started on making the forum page">
+      <option name="closed" value="true" />
+      <created>1774746796707</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1774746796707</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -168,6 +175,7 @@
     <MESSAGE value="fix some issue with db not merging correctly" />
     <MESSAGE value="Make the get_involved.html" />
     <MESSAGE value="Fix some stuff with main and merge features to main smoothly" />
-    <option name="LAST_COMMIT_MESSAGE" value="Fix some stuff with main and merge features to main smoothly" />
+    <MESSAGE value="Started on making the forum page" />
+    <option name="LAST_COMMIT_MESSAGE" value="Started on making the forum page" />
   </component>
 </project>

@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>{{ thread.title }}</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: Helvetica, Arial, sans-serif; background-color: #FFFFFF; color: #232D4B; }
+nav { background-color: #232D4B; padding: 0 40px; display: flex; align-items: center; justify-content: space-between; }
+nav .logo { color: #FFFFFF; font-size: 1.4rem; font-weight: bold; }
+nav ul { list-style: none; display: flex; gap: 32px; }
+nav ul li a { color: #FFFFFF; text-decoration: none; font-size: 1rem; padding: 20px 0; display: block; border-bottom: 3px solid transparent; transition: border-color 0.2s; }
+nav ul li a:hover { border-bottom: 3px solid #E57200; }
+.nav-icon { position: relative; padding: 11px 0px; }
+.icon-btn { background: none; border: none; cursor: pointer; color: #FFFFFF; padding: 4px; display: flex; align-items: center; }
+.icon-btn svg { width: 28px; height: 28px; }
+.dropdown { display: none; position: absolute; right: 0; top: calc(100% + 8px); background: #FFFFFF; border: 1.5px solid #232D4B; border-radius: 6px; min-width: 130px; z-index: 100; overflow: hidden; }
+.dropdown a { display: block; padding: 10px 16px; font-size: 0.95rem; color: #232D4B; text-decoration: none; }
+.dropdown a:hover { background-color: #f0f0f0; }
+.nav-icon.open .dropdown { display: block; }
+
+.container { max-width: 800px; margin: 60px auto; padding: 0 20px; }
+.thread-header { margin-bottom: 30px; }
+.thread-header h1 { font-size: 1.8rem; margin-bottom: 8px; }
+.thread-meta { font-size: 0.85rem; color: #E57200; margin-bottom: 16px; }
+.thread-content { background-color: #f7f7f7; border-radius: 10px; padding: 22px; margin-bottom: 12px; }
+.like-btn { background: none; border: 1.5px solid #E57200; color: #E57200; padding: 6px 14px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: bold; }
+.like-btn:hover { background-color: #E57200; color: #FFFFFF; }
+
+.replies-section { margin-top: 40px; }
+.replies-section h2 { font-size: 1.3rem; margin-bottom: 20px; }
+.reply-card { background-color: #f7f7f7; border-radius: 10px; padding: 18px; margin-bottom: 16px; }
+.reply-meta { font-size: 0.85rem; color: #E57200; margin-bottom: 8px; }
+.reply-card p { font-size: 0.95rem; color: #444; margin-bottom: 12px; }
+
+.reply-form { margin-top: 40px; }
+.reply-form h2 { font-size: 1.3rem; margin-bottom: 16px; }
+.reply-form textarea { width: 100%; padding: 12px; border: 1.5px solid #232D4B; border-radius: 6px; font-family: inherit; font-size: 0.95rem; min-height: 120px; resize: vertical; margin-bottom: 12px; }
+.reply-form textarea:focus { outline: none; border-color: #E57200; }
+.btn-submit { background-color: #E57200; color: #FFFFFF; padding: 10px 24px; border: none; border-radius: 6px; font-size: 0.95rem; font-weight: bold; cursor: pointer; }
+.btn-submit:hover { background-color: #c86100; }
+.back-link { display: inline-block; margin-bottom: 24px; color: #E57200; text-decoration: none; font-weight: bold; }
+.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+
+<nav>
+    <span class="logo">HoosLinked</span>
+    <ul>
+        <li><a href="{% url 'home' %}">Home</a></li>
+        <li><a href="{% url 'get_involved' %}">Get Involved</a></li>
+        <li><a href="{% url 'events' %}">Events</a></li>
+        <li><a href="#">FAQ</a></li>
+        <li class="nav-icon" id="navIcon">
+            <button class="icon-btn" onclick="toggleNav()">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                </svg>
+            </button>
+            <div class="dropdown">
+                {% if user.is_authenticated %}
+                    <a href="{% url 'profile' %}">Profile</a>
+                    <a href="{% url 'my_clubs' %}">My Clubs</a>
+                    <a href="{% url 'logout' %}">Logout</a>
+                {% else %}
+                    <a href="{% url 'login' %}">Login</a>
+                {% endif %}
+            </div>
+        </li>
+    </ul>
+</nav>
+
+<div class="container">
+    <a href="{% url 'forum_list' club.slug %}" class="back-link">← Back to Forum</a>
+
+    <!-- Thread -->
+    <div class="thread-header">
+        <h1>{{ thread.title }}</h1>
+        <p class="thread-meta">By {{ thread.author.first_name }} · {{ thread.created_at|date:"M d, Y" }}</p>
+    </div>
+    <div class="thread-content">
+        <p>{{ thread.content }}</p>
+    </div>
+    <form method="POST" action="{% url 'like_thread' club.slug thread.id %}" style="margin-top: 10px;">
+        {% csrf_token %}
+        <button type="submit" class="like-btn">
+            ♥ {{ thread.likes.count }} {% if user in thread.likes.all %}Unlike{% else %}Like{% endif %}
+        </button>
+    </form>
+
+    <!-- Replies -->
+    <div class="replies-section">
+        <h2>{{ replies.count }} Replies</h2>
+        {% for reply in replies %}
+        <div class="reply-card">
+            <p class="reply-meta">{{ reply.author.first_name }} · {{ reply.created_at|date:"M d, Y" }}</p>
+            <p>{{ reply.content }}</p>
+            <form method="POST" action="{% url 'like_reply' club.slug reply.id %}">
+                {% csrf_token %}
+                <button type="submit" class="like-btn">
+                    ♥ {{ reply.likes.count }} {% if user in reply.likes.all %}Unlike{% else %}Like{% endif %}
+                </button>
+            </form>
+        </div>
+        {% empty %}
+        <p style="color: #555;">No replies yet. Be the first to reply!</p>
+        {% endfor %}
+    </div>
+
+    <!-- Reply Form -->
+    <div class="reply-form">
+        <h2>Leave a Reply</h2>
+        <form method="POST">
+            {% csrf_token %}
+            <textarea name="content" placeholder="Write your reply..." required></textarea>
+            <button type="submit" class="btn-submit">Post Reply</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    function toggleNav() { document.getElementById('navIcon').classList.toggle('open'); }
+    document.addEventListener('click', function(e) {
+        const nav = document.getElementById('navIcon');
+        if (!nav.contains(e.target)) nav.classList.remove('open');
+    });
+</script>
+</body>
+</html>

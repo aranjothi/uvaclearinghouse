@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>{{ club.name }} Forum</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: Helvetica, Arial, sans-serif; background-color: #FFFFFF; color: #232D4B; }
+nav { background-color: #232D4B; padding: 0 40px; display: flex; align-items: center; justify-content: space-between; }
+nav .logo { color: #FFFFFF; font-size: 1.4rem; font-weight: bold; letter-spacing: 1px; }
+nav ul { list-style: none; display: flex; gap: 32px; }
+nav ul li a { color: #FFFFFF; text-decoration: none; font-size: 1rem; padding: 20px 0; display: block; border-bottom: 3px solid transparent; transition: border-color 0.2s; }
+nav ul li a:hover { border-bottom: 3px solid #E57200; }
+.nav-icon { position: relative; padding: 11px 0px; }
+.icon-btn { background: none; border: none; cursor: pointer; color: #FFFFFF; padding: 4px; display: flex; align-items: center; }
+.icon-btn svg { width: 28px; height: 28px; }
+.dropdown { display: none; position: absolute; right: 0; top: calc(100% + 8px); background: #FFFFFF; border: 1.5px solid #232D4B; border-radius: 6px; min-width: 130px; z-index: 100; overflow: hidden; }
+.dropdown a { display: block; width: 100%; text-align: left; padding: 10px 16px; font-size: 0.95rem; color: #232D4B; text-decoration: none; }
+.dropdown a:hover { background-color: #f0f0f0; }
+.nav-icon.open .dropdown { display: block; }
+
+.page-header { padding: 60px 40px 30px 40px; }
+.page-header h1 { font-size: 2rem; }
+.page-header span { color: #E57200; }
+
+.forum-container { padding: 0 40px 60px 40px; }
+
+.thread-card {
+    background-color: #f7f7f7;
+    border-radius: 10px;
+    padding: 22px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    margin-bottom: 20px;
+}
+.thread-card h3 { font-size: 1.2rem; margin-bottom: 8px; }
+.thread-meta { font-size: 0.85rem; color: #E57200; margin-bottom: 10px; }
+.thread-card p { font-size: 0.95rem; color: #444; margin-bottom: 16px; }
+
+.btn { background-color: #E57200; color: #FFFFFF; text-decoration: none; padding: 10px 16px; border-radius: 6px; font-weight: bold; font-size: 0.9rem; display: inline-block; }
+.btn:hover { background-color: #c86100; }
+.btn-navy { background-color: #232D4B; }
+.btn-navy:hover { background-color: #1a2238; }
+
+.new-thread-btn { margin-bottom: 30px; }
+.no-threads { color: #555; font-size: 1rem; padding: 20px 0; }
+</style>
+</head>
+<body>
+
+<nav>
+    <span class="logo">HoosLinked</span>
+    <ul>
+        <li><a href="{% url 'home' %}">Home</a></li>
+        <li><a href="{% url 'get_involved' %}">Get Involved</a></li>
+        <li><a href="{% url 'events' %}">Events</a></li>
+        <li><a href="#">FAQ</a></li>
+        <li class="nav-icon" id="navIcon">
+            <button class="icon-btn" onclick="toggleNav()">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                </svg>
+            </button>
+            <div class="dropdown">
+                {% if user.is_authenticated %}
+                    <a href="{% url 'profile' %}">Profile</a>
+                    <a href="{% url 'my_clubs' %}">My Clubs</a>
+                    <a href="{% url 'logout' %}">Logout</a>
+                {% else %}
+                    <a href="{% url 'login' %}">Login</a>
+                {% endif %}
+            </div>
+        </li>
+    </ul>
+</nav>
+
+<div class="page-header">
+    <h1>{{ club.name }} <span>Forum</span></h1>
+</div>
+
+<div class="forum-container">
+    <a href="{% url 'forum_new_thread' club.slug %}" class="btn new-thread-btn">+ New Thread</a>
+
+    {% for thread in threads %}
+    <div class="thread-card">
+        <h3>{{ thread.title }}</h3>
+        <p class="thread-meta">By {{ thread.author.first_name }} · {{ thread.created_at|date:"M d, Y" }} · {{ thread.likes.count }} likes · {{ thread.replies.count }} replies</p>
+        <p>{{ thread.content|truncatewords:30 }}</p>
+        <a href="{% url 'forum_thread' club.slug thread.id %}" class="btn btn-navy">View Thread</a>
+    </div>
+    {% empty %}
+    <p class="no-threads">No threads yet. Be the first to start a discussion!</p>
+    {% endfor %}
+</div>
+
+<script>
+    function toggleNav() { document.getElementById('navIcon').classList.toggle('open'); }
+    document.addEventListener('click', function(e) {
+        const nav = document.getElementById('navIcon');
+        if (!nav.contains(e.target)) nav.classList.remove('open');
+    });
+</script>
+</body>
+</html>
