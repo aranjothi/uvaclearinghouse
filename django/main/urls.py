@@ -18,4 +18,9 @@ urlpatterns = [
    path('executives/', views.executive_page, name='executive_page'),
    path('clubs/<slug:slug>/create-event/', views.create_event, name='create_event'),
     path('my-clubs/', views.my_clubs_page, name='my_clubs'),
+    path('clubs/<slug:slug>/forum/', views.forum_list, name='forum_list'),
+    path('clubs/<slug:slug>/forum/new/', views.forum_new_thread, name='forum_new_thread'),
+    path('clubs/<slug:slug>/forum/<int:thread_id>/', views.forum_thread, name='forum_thread'),
+    path('clubs/<slug:slug>/forum/<int:thread_id>/like/', views.like_thread, name='like_thread'),
+    path('clubs/<slug:slug>/forum/reply/<int:reply_id>/like/', views.like_reply, name='like_reply'),
 ]

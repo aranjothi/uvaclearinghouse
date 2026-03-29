@@ -3,8 +3,9 @@ from django.db.models import Q
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.decorators import login_required
-from .models import User, Club, Membership, Event
+from .models import User, Club, Membership, Event, Forum, ForumThread, ForumReply  # add forum models
 from .forms import EventForm
+from functools import wraps
 
 class ClubDetailView(DetailView):
     model = Club
@@ -14,26 +15,19 @@ class ClubDetailView(DetailView):
     slug_url_kwarg = "slug"
 
     def get_context_data(self, **kwargs):
-
         context = super().get_context_data(**kwargs)
-
         is_member = False
         is_exec = False
-
         if self.request.user.is_authenticated:
-
             membership = Membership.objects.filter(
                 user=self.request.user,
                 club=self.object
             ).first()
-
             if membership:
                 is_member = True
                 is_exec = membership.role == Membership.EXECUTIVE
-
         context["is_member"] = is_member
         context["is_exec"] = is_exec
-
         return context
 
 def home(request):
@@ -71,41 +65,33 @@ def login_page(request):
     if request.method == 'POST':
         email = request.POST.get('email')
         password = request.POST.get('password')
-
         user = authenticate(request, username=email, password=password)
         if user is not None:
             login(request, user)
             return redirect('profile')
         else:
             return render(request, 'main/login.html', {'error': 'Invalid email or password.'})
-
     return render(request, 'main/login.html')
 
 
 def create_profile_page(request):
     if not request.user.is_authenticated:
         return redirect('home')
-
     if request.method == 'POST':
         request.user.age = request.POST.get('age') or None
         request.user.birthday = request.POST.get('birthday') or None
         request.user.year = request.POST.get('year')
         request.user.school = request.POST.get('school')
         request.user.save()
-
         return redirect('profile')
-
     return render(request, 'main/create_profile.html')
 
 
 def profile_page(request):
-    #based on database
-    memberships = request.user.memberships.select_related("club")
     if not request.user.is_authenticated:
         return redirect('home')
-    return render(request, 'main/profile.html',{
-        "memberships": memberships,
-    })
+    memberships = request.user.memberships.select_related("club")
+    return render(request, 'main/profile.html', {"memberships": memberships})
 
 
 def logout_page(request):
@@ -120,108 +106,70 @@ def google_signup(request):
 
 def get_involved_page(request):
     query = request.GET.get('q', '').strip()
-    clubs = Club.objects.all() #fetch all the club records from db
+    clubs = Club.objects.all()  # fetch all club records from db
     if query:
         clubs = clubs.filter(
             Q(name__icontains=query) | Q(description__icontains=query)
         )
     return render(request, 'main/get_involved.html', {
-        'clubs': clubs, #pass clubs queryset to template
+        'clubs': clubs,  # pass clubs queryset to template
         'query': query,
     })
 
 @login_required
 def join_club(request, slug):
     if request.method == "POST":
-
         club = get_object_or_404(Club, slug=slug)
-
         Membership.objects.get_or_create(
             user=request.user,
             club=club,
             defaults={"role": Membership.MEMBER}
         )
-
     return redirect("club_detail", slug=slug)
 
 @login_required
 def verify_exec(request, slug):
     if request.method == "POST":
-
         club = get_object_or_404(Club, slug=slug)
         membership, created = Membership.objects.get_or_create(
             user=request.user,
             club=club
         )
-
-        #update instead of new entry
-        membership.role = Membership.EXECUTIVE
+        membership.role = Membership.EXECUTIVE  # update instead of new entry
         membership.save()
-
     return redirect("club_detail", slug=slug)
-
-def get_context_data(self, **kwargs):
-
-        context = super().get_context_data(**kwargs)
-
-        is_member = False
-
-        if self.request.user.is_authenticated:
-            is_member = Membership.objects.filter(
-                user=self.request.user,
-                club=self.object
-            ).exists()
-
-        context["is_member"] = is_member
-
-        return context
 
 @login_required
 def executive_page(request):
-
     executive_memberships = request.user.memberships.filter(
         role=Membership.EXECUTIVE
     ).select_related("club")
-
     return render(request, "main/executive_page.html", {
         "executive_memberships": executive_memberships
     })
 
 @login_required
 def create_event(request, slug):
-
     club = get_object_or_404(Club, slug=slug)
-
     is_exec = Membership.objects.filter(
         user=request.user,
         club=club,
         role=Membership.EXECUTIVE
     ).exists()
-
     if not is_exec:
         return redirect("executive_page")
-
     if request.method == "POST":
-
         form = EventForm(request.POST)
-
         if form.is_valid():
             event = form.save(commit=False)
-
             event.club = club
             event.created_by = request.user
-
             event.save()
-
             return redirect("executive_page")
-
     else:
         form = EventForm()
+    return render(request, "main/create_event.html", {"club": club, "form": form})
 
-    return render(request, "main/create_event.html", {
-        "club": club,
-        "form": form
-    })
 def Events_page(request):
     events = Event.objects.all().order_by('date')  # fetch all events ordered by soonest first
     return render(request, 'main/Events.html', {'events': events})  # pass events to template
@@ -230,3 +178,66 @@ def Events_page(request):
 def my_clubs_page(request):
     memberships = Membership.objects.filter(user=request.user)  # get all memberships for current user
     return render(request, 'main/my_clubs.html', {'memberships': memberships})
+
+def members_only(view_func):
+    @wraps(view_func)
+    def wrapper(request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return redirect('login')
+        if not Membership.objects.filter(user=request.user).exists():
+            return redirect('get_involved')
+        return view_func(request, *args, **kwargs)
+    return wrapper
+
+@login_required
+def forum_list(request, slug):
+    club = get_object_or_404(Club, slug=slug)
+    if not Membership.objects.filter(user=request.user, club=club).exists():
+        return redirect('get_involved')
+    forum, _ = Forum.objects.get_or_create(club=club) #create forum
+    threads = forum.threads.all().order_by('-created_at') #new threads
+    return render(request, 'main/forum_list.html', {'club': club, 'threads': threads, 'forum': forum})
+
+@login_required
+def forum_new_thread(request, slug):
+    club = get_object_or_404(Club, slug=slug)
+    if not Membership.objects.filter(user=request.user, club=club).exists():
+        return redirect('get_involved')
+    if request.method == "POST":
+        title = request.POST.get('title')
+        content = request.POST.get('content')
+        forum, _ = Forum.objects.get_or_create(club=club)
+        ForumThread.objects.create(forum=forum, title=title, content=content, author=request.user)
+        return redirect("forum_list", slug=slug)
+    return render(request, 'main/forum_new_thread.html', {'club': club})
+
+@login_required
+def forum_thread(request, slug, thread_id):
+    club = get_object_or_404(Club, slug=slug)
+    if not Membership.objects.filter(user=request.user, club=club).exists():
+        return redirect('get_involved')
+    thread = get_object_or_404(ForumThread, id=thread_id)
+    replies = thread.replies.all().order_by('created_at') #oldest replies first
+    if request.method == 'POST':
+        content = request.POST.get('content') #this handles new replies
+        ForumReply.objects.create(thread=thread, content=content, author=request.user)
+        return redirect('forum_thread', slug=slug, thread_id=thread_id)
+    return render(request, 'main/forum_thread.html', {'club': club, 'thread': thread, 'replies': replies})
+
+@login_required
+def like_thread(request, slug, thread_id):
+    thread = get_object_or_404(ForumThread, id=thread_id)
+    if request.user in thread.likes.all():
+        thread.likes.remove(request.user)  # remove like
+    else:
+        thread.likes.add(request.user)
+    return redirect('forum_thread', slug=slug, thread_id=thread.id)
+
+@login_required
+def like_reply(request, slug, reply_id):
+    reply = get_object_or_404(ForumReply, id=reply_id)
+    if request.user in reply.likes.all():
+        reply.likes.remove(request.user) #toggle likes on the replies
+    else:
+        reply.likes.add(request.user)
+    return redirect('forum_thread', slug=slug, thread_id=reply.thread.id)
