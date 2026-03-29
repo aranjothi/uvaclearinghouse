@@ -106,7 +106,7 @@ def google_signup(request):
 
 def get_involved_page(request):
     query = request.GET.get('q', '').strip()
-    clubs = Club.objects.all()  # fetch all club records from db
+    clubs = Club.objects.all().order_by('name') # fetch all club records from db and alphabetical order
     if query:
         clubs = clubs.filter(
             Q(name__icontains=query) | Q(description__icontains=query)
