@@ -453,3 +453,71 @@ def widget_send(request):
         DirectMessage.objects.create(sender=request.user, recipient=other_user, content=content)
         return JsonResponse({'ok': True})
     return JsonResponse({'error': 'POST only'}, status=405)
+
+# ──────────────────────────────────────────────
+# EXEC VIEWS
+# ──────────────────────────────────────────────
+
+# This is for the executive page
+@login_required
+def executive_page(request):
+    executive_memberships = request.user.memberships.filter(
+        role=Membership.EXECUTIVE
+    ).select_related('club')
+
+    if not executive_memberships.exists():
+        return render(request, 'main/executive_page.html', {
+            'executive_memberships': executive_memberships,
+            'dashboard_data': []
+        })
+
+    if executive_memberships.count() == 1:
+        return redirect('executive_club_page', slug=executive_memberships.first().club.slug)
+
+    return render(request, 'main/executive_page.html', {
+        'executive_memberships': executive_memberships,
+    })
+
+@login_required
+def executive_club_page(request, slug):
+    club = get_object_or_404(Club, slug=slug)
+    is_exec = Membership.objects.filter(
+        user=request.user, club=club, role=Membership.EXECUTIVE
+    ).exists()
+    if not is_exec:
+        return redirect('executive_page')
+
+    all_exec_clubs = Club.objects.filter(
+        memberships__user=request.user,
+        memberships__role=Membership.EXECUTIVE
+    )
+    upcoming_events = club.events.filter( # show the upcoming events
+        date__gte=__import__('datetime').date.today()
+    ).order_by('date', 'time')[:3]
+    total_members = club.memberships.count()
+    total_events = club.events.count()
+
+    return render(request, 'main/executive_club_page.html', {
+        'club': club,
+        'all_exec_clubs': all_exec_clubs,
+        'upcoming_events': upcoming_events,
+        'total_members': total_members,
+        'total_events': total_events,
+    })
+
+#Club events for the exec
+@login_required
+def executive_club_events(request, slug):
+    club = get_object_or_404(Club, slug=slug)
+    is_exec = Membership.objects.filter(
+        user=request.user, club=club, role=Membership.EXECUTIVE
+    ).exists()
+    if not is_exec:
+        return redirect('executive_page')
+    events = club.events.order_by('date', 'time')
+    return render(request, 'main/executive_club_events.html', {
+        'club': club,
+        'events': events,
+    })
+
+

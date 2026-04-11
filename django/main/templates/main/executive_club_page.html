@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ club.name }} – Executive Dashboard</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Helvetica, Arial, sans-serif; background: #f4f5f7; color: #232D4B; display: flex; min-height: 100vh; flex-direction: column; }
+
+        .shell { display: flex; flex: 1; }
+
+        /* ── Sidebar ── */
+        .sidebar { width: 210px; background: #232D4B; display: flex; flex-direction: column; flex-shrink: 0; min-height: 100vh; }
+        .club-switcher { padding: 0.75rem 1.25rem; border-bottom: 1px solid rgba(255,255,255,0.1); position: relative; }
+        .club-switcher-btn { width: 100%; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); border-radius: 6px; padding: 8px 10px; color: #fff; font-size: 12px; font-family: inherit; cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 6px; text-align: left; }
+        .club-switcher-btn:hover { background: rgba(255,255,255,0.12); }
+        .club-switcher-btn .club-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .club-dropdown { display: none; position: absolute; left: 1.25rem; right: 1.25rem; top: calc(100% - 4px); background: #fff; border: 1px solid #e0e0e0; border-radius: 6px; z-index: 100; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .club-dropdown.open { display: block; }
+        .club-dropdown a { display: block; padding: 9px 12px; font-size: 12px; color: #232D4B; text-decoration: none; border-bottom: 1px solid #f0f0f0; }
+        .club-dropdown a:last-child { border-bottom: none; }
+        .club-dropdown a:hover { background: #f4f5f7; }
+        .club-dropdown a.current { color: #E57200; font-weight: bold; }
+        .nav-item { display: flex; align-items: center; gap: 10px; padding: 11px 1.25rem; color: #8fa0be; font-size: 13px; text-decoration: none; border-left: 3px solid transparent; transition: all 0.15s; }
+        .nav-item:hover { color: #fff; background: rgba(255,255,255,0.05); }
+        .nav-item.active { color: #fff; background: rgba(255,255,255,0.08); border-left-color: #E57200; }
+        .sidebar-footer { margin-top: auto; padding: 1rem 1.25rem; border-top: 1px solid rgba(255,255,255,0.1); }
+        .sidebar-footer a { color: #8fa0be; font-size: 12px; text-decoration: none; display: flex; align-items: center; gap: 10px; }
+        .sidebar-footer a:hover { color: #fff; }
+
+        /* ── Main ── */
+        .main { flex: 1; display: flex; flex-direction: column; }
+        .topbar { background: #fff; padding: 0 1.5rem; height: 52px; display: flex; align-items: center; border-bottom: 1px solid #e0e0e0; }
+        .topbar h1 { font-size: 15px; font-weight: bold; color: #232D4B; }
+
+        /* ── Body ── */
+        .body { padding: 1.5rem; display: flex; flex-direction: column; gap: 1.25rem; }
+
+        /* ── Stat cards ── */
+        .stat-row { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; }
+        .stat-card { background: #fff; border-radius: 12px; border: 1px solid #e0e0e0; padding: 1.25rem; }
+        .stat-label { font-size: 10px; font-weight: bold; color: #aaa; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px; }
+        .stat-value { font-size: 42px; font-weight: bold; color: #E57200; line-height: 1; }
+        .stat-sub { font-size: 12px; color: #888; margin-top: 8px; }
+
+        /* ── Events panel ── */
+        .events-card { background: #fff; border-radius: 12px; border: 1px solid #e0e0e0; padding: 1.25rem; }
+        .events-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+        .events-header h2 { font-size: 13px; font-weight: bold; color: #232D4B; text-transform: uppercase; letter-spacing: 0.05em; }
+        .events-header a { font-size: 12px; color: #E57200; text-decoration: none; }
+        .events-header a:hover { text-decoration: underline; }
+        .event-item { padding: 10px 0; border-bottom: 1px solid #f0f0f0; }
+        .event-item:last-child { border-bottom: none; padding-bottom: 0; }
+        .event-date { font-size: 11px; color: #E57200; font-weight: bold; margin-bottom: 3px; }
+        .event-name { font-size: 13px; font-weight: bold; color: #232D4B; }
+        .event-meta { font-size: 11px; color: #888; margin-top: 2px; }
+        .no-events { font-size: 13px; color: #aaa; font-style: italic; text-align: center; padding: 1.5rem 0; }
+
+        /* ── Quick actions ── */
+        .actions-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem; }
+        .btn { display: block; padding: 10px 16px; border-radius: 6px; font-size: 13px; text-decoration: none; font-weight: bold; text-align: center; transition: background 0.15s; }
+        .btn-orange { background: #E57200; color: #fff; }
+        .btn-orange:hover { background: #c96200; }
+        .btn-primary { background: #232D4B; color: #fff; }
+        .btn-primary:hover { background: #1a2236; }
+        .btn-outline { background: #fff; color: #232D4B; border: 1.5px solid #232D4B; }
+        .btn-outline:hover { background: #f4f5f7; }
+
+        /* ── Exec code ── */
+        .exec-code-bar { background: #fff; border-radius: 12px; border: 1px solid #e0e0e0; padding: 1rem 1.25rem; display: flex; align-items: center; justify-content: space-between; }
+        .exec-code-label { font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 3px; }
+        .exec-code-value { font-size: 15px; font-weight: bold; color: #232D4B; font-family: monospace; letter-spacing: 0.1em; }
+    </style>
+</head>
+<body>
+
+<nav style="position:relative; background-color:#232D4B; padding:0 40px; display:flex; align-items:center; justify-content:space-between;">
+    <a href="{% url 'home' %}" style="color:#fff; font-size:1.4rem; font-weight:bold; letter-spacing:1px; text-decoration:none;">HoosLinked</a>
+    <ul style="list-style:none; display:flex; gap:32px; align-items:center; margin:0; padding:0;">
+        <li><a href="{% url 'get_involved' %}" style="color:#fff; text-decoration:none; font-size:1rem; padding:20px 0; display:block;">Clubs</a></li>
+        <li><a href="{% url 'events' %}" style="color:#fff; text-decoration:none; font-size:1rem; padding:20px 0; display:block;">Events</a></li>
+        <li style="position:relative;" id="navIcon">
+            <button onclick="document.getElementById('execDropdown').style.display = document.getElementById('execDropdown').style.display === 'none' ? 'block' : 'none'" style="background:none; border:none; cursor:pointer; color:#fff; padding:4px; display:flex; align-items:center;">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width:28px;height:28px;">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                </svg>
+            </button>
+            <div id="execDropdown" style="display:none; position:absolute; right:0; top:calc(100% + 8px); background:#fff; border:1.5px solid #232D4B; border-radius:6px; min-width:130px; z-index:100; overflow:hidden;">
+                {% if user.is_authenticated %}
+                <a href="{% url 'profile' %}" style="display:block; padding:10px 16px; font-size:0.95rem; color:#232D4B; text-decoration:none;">Profile</a>
+                <a href="{% url 'logout' %}" style="display:block; padding:10px 16px; font-size:0.95rem; color:#232D4B; text-decoration:none;">Logout</a>
+                {% else %}
+                <a href="{% url 'login' %}" style="display:block; padding:10px 16px; font-size:0.95rem; color:#232D4B; text-decoration:none;">Login</a>
+                {% endif %}
+            </div>
+        </li>
+    </ul>
+</nav>
+
+<div class="shell">
+    <aside class="sidebar">
+        <div class="club-switcher">
+            <button class="club-switcher-btn" onclick="document.getElementById('clubDropdown').classList.toggle('open')">
+                <span class="club-name">{{ club.name }}</span>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <div class="club-dropdown" id="clubDropdown">
+                {% for c in all_exec_clubs %}
+                <a href="{% url 'executive_club_page' c.slug %}" class="{% if c.slug == club.slug %}current{% endif %}">
+                    {{ c.name }}
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+
+        <a class="nav-item active" href="{% url 'executive_club_page' club.slug %}">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+            Dashboard
+        </a>
+        <a class="nav-item" href="{% url 'executive_club_events' club.slug %}">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            Events
+        </a>
+
+        <div class="sidebar-footer">
+            <a href="{% url 'logout' %}">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                Sign out
+            </a>
+        </div>
+    </aside>
+
+    <div class="main">
+        <div class="topbar">
+            <h1>{{ club.name }}</h1>
+        </div>
+
+        <div class="body">
+
+            <!-- Stat cards -->
+            <div class="stat-row">
+                <div class="stat-card">
+                    <div class="stat-label">Total Members</div>
+                    <div class="stat-value">{{ total_members }}</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Upcoming Events</div>
+                    <div class="stat-value">{{ upcoming_events|length }}</div>
+                    {% if upcoming_events %}
+                    <div class="stat-sub">Next: {{ upcoming_events.0.date|date:"M d" }}</div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Upcoming events -->
+            <div class="events-card">
+                <div class="events-header">
+                    <h2>Upcoming Events</h2>
+                    <a href="{% url 'executive_club_events' club.slug %}">See all →</a>
+                </div>
+                {% if upcoming_events %}
+                    {% for event in upcoming_events %}
+                    <div class="event-item">
+                        <div class="event-date">{{ event.date|date:"M d, Y" }}</div>
+                        <div class="event-name">{{ event.title }}</div>
+                        <div class="event-meta">{{ event.location }} · {{ event.time|time:"g:i A" }}</div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="no-events">No upcoming events. Create one!</p>
+                {% endif %}
+            </div>
+
+            <!-- Exec code -->
+            <div class="exec-code-bar">
+                <div>
+                    <div class="exec-code-label">Executive Code</div>
+                    <div class="exec-code-value">{{ club.executive_code }}</div>
+                </div>
+            </div>
+
+            <!-- Quick actions -->
+            <div class="actions-row">
+                <a href="{% url 'create_event' club.slug %}" class="btn btn-orange">+ Create Event</a>
+                <a href="{% url 'club_detail' club.slug %}" class="btn btn-primary">View Club Page</a>
+                <a href="{% url 'forum_list' club.slug %}" class="btn btn-outline">Club Forum</a>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('click', function(e) {
+        const navIcon = document.getElementById('navIcon');
+        const dropdown = document.getElementById('execDropdown');
+        if (!navIcon.contains(e.target)) dropdown.style.display = 'none';
+
+        const switcher = document.querySelector('.club-switcher');
+        const clubDropdown = document.getElementById('clubDropdown');
+        if (switcher && !switcher.contains(e.target)) clubDropdown.classList.remove('open');
+    });
+</script>
+
+{% include 'main/chat_widget.html' %}
+</body>
+</html>

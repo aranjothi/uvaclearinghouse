@@ -17,7 +17,6 @@ urlpatterns = [
     path('clubs/<slug:slug>/create-event/', views.create_event, name='create_event'),
     path('clubs/<slug:slug>/upload-image/', views.upload_club_image, name='upload_club_image'),
     path('events/<int:event_id>/rsvp/', views.rsvp_event, name='rsvp_event'),
-    path('executives/', views.executive_page, name='executive_page'),
     path('my-clubs/', views.my_clubs_page, name='my_clubs'),
 
     path('clubs/<slug:slug>/forum/', views.forum_list, name='forum_list'),
@@ -39,4 +38,9 @@ urlpatterns = [
     path('widget/inbox/', views.widget_inbox, name='widget_inbox'),
     path('widget/conversation/<str:username>/', views.widget_conversation, name='widget_conversation'),
     path('widget/send/', views.widget_send, name='widget_send'),
+
+    #Exec page stuff
+    path('executives/', views.executive_page, name='executive_page'),
+    path('executives/<slug:slug>/', views.executive_club_page, name='executive_club_page'),
+    path('executives/<slug:slug>/events/', views.executive_club_events, name='executive_club_events'),
 ]

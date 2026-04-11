@@ -1,27 +1,87 @@
-<h1>Executive Dashboard</h1>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Executive Portal – HoosLinked</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Helvetica, Arial, sans-serif; background: #f4f5f7; color: #232D4B; min-height: 100vh; }
+        .body { padding: 3rem 2rem; max-width: 700px; margin: 0 auto; }
+        .heading { font-size: 22px; font-weight: bold; color: #232D4B; margin-bottom: 8px; }
+        .subheading { font-size: 14px; color: #888; margin-bottom: 2rem; }
+        .club-grid { display: flex; flex-direction: column; gap: 1rem; }
+        .club-card { background: #fff; border-radius: 12px; border: 1px solid #e0e0e0; padding: 1.25rem; display: flex; align-items: center; justify-content: space-between; text-decoration: none; transition: border-color 0.15s; }
+        .club-card:hover { border-color: #E57200; }
+        .club-card-name { font-size: 15px; font-weight: bold; color: #232D4B; }
+        .club-card-desc { font-size: 12px; color: #888; margin-top: 3px; }
+        .club-card-arrow { color: #E57200; font-size: 18px; }
+        .empty-card { background: #fff; border-radius: 12px; border: 1px solid #e0e0e0; padding: 3rem 2rem; text-align: center; }
+        .empty-card h2 { font-size: 18px; color: #232D4B; margin-bottom: 8px; }
+        .empty-card p { color: #666; font-size: 14px; line-height: 1.6; margin-bottom: 1.5rem; }
+        .btn-orange { display: inline-block; padding: 9px 20px; border-radius: 6px; font-size: 13px; text-decoration: none; font-weight: bold; background: #E57200; color: #fff; }
+        .btn-orange:hover { background: #c96200; }
+    </style>
+</head>
+<body>
 
-{% if executive_memberships %}
+<nav style="position:relative; background-color:#232D4B; padding:0 40px; display:flex; align-items:center; justify-content:space-between;">
+    <a href="{% url 'home' %}" style="color:#fff; font-size:1.4rem; font-weight:bold; letter-spacing:1px; text-decoration:none;">HoosLinked</a>
+    <ul style="list-style:none; display:flex; gap:32px; align-items:center; margin:0; padding:0;">
+        <li><a href="{% url 'get_involved' %}" style="color:#fff; text-decoration:none; font-size:1rem; padding:20px 0; display:block;">Clubs</a></li>
+        <li><a href="{% url 'events' %}" style="color:#fff; text-decoration:none; font-size:1rem; padding:20px 0; display:block;">Events</a></li>
+        <li style="position:relative;" id="navIcon">
+            <button onclick="document.getElementById('execDropdown').style.display = document.getElementById('execDropdown').style.display === 'none' ? 'block' : 'none'" style="background:none; border:none; cursor:pointer; color:#fff; padding:4px; display:flex; align-items:center;">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width:28px;height:28px;">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                </svg>
+            </button>
+            <div id="execDropdown" style="display:none; position:absolute; right:0; top:calc(100% + 8px); background:#fff; border:1.5px solid #232D4B; border-radius:6px; min-width:130px; z-index:100; overflow:hidden;">
+                {% if user.is_authenticated %}
+                <a href="{% url 'profile' %}" style="display:block; padding:10px 16px; font-size:0.95rem; color:#232D4B; text-decoration:none;">Profile</a>
+                <a href="{% url 'logout' %}" style="display:block; padding:10px 16px; font-size:0.95rem; color:#232D4B; text-decoration:none;">Logout</a>
+                {% else %}
+                <a href="{% url 'login' %}" style="display:block; padding:10px 16px; font-size:0.95rem; color:#232D4B; text-decoration:none;">Login</a>
+                {% endif %}
+            </div>
+        </li>
+    </ul>
+</nav>
 
-    <h2>Your Organizations</h2>
-
-    {% for membership in executive_memberships %}
-
-        <div>
-            <h3>{{ membership.club.name }}</h3>
-            <p>{{ membership.club.description }}</p>
-            <p><strong>Executive Code:</strong> <code>{{ membership.club.executive_code }}</code></p>
-
-            <a href="{% url 'create_event' membership.club.slug %}">
-                Create Event
+<div class="body">
+    {% if executive_memberships %}
+        <div class="heading">Your Organizations</div>
+        <div class="subheading">Select an organization to manage its dashboard.</div>
+        <div class="club-grid">
+            {% for membership in executive_memberships %}
+            <a href="{% url 'executive_club_page' membership.club.slug %}" class="club-card">
+                <div>
+                    <div class="club-card-name">{{ membership.club.name }}</div>
+                    {% if membership.club.description %}
+                    <div class="club-card-desc">{{ membership.club.description|truncatechars:80 }}</div>
+                    {% endif %}
+                </div>
+                <span class="club-card-arrow">→</span>
             </a>
-
+            {% endfor %}
         </div>
+    {% else %}
+        <div class="empty-card">
+            <h2>No organizations yet</h2>
+            <p>You are not currently an executive member of any organizations. Visit a club page and enter your executive code to get started.</p>
+            <a href="{% url 'get_involved' %}" class="btn-orange">Browse Clubs</a>
+        </div>
+    {% endif %}
+</div>
 
-    {% endfor %}
+<script>
+    document.addEventListener('click', function(e) {
+        const navIcon = document.getElementById('navIcon');
+        const dropdown = document.getElementById('execDropdown');
+        if (!navIcon.contains(e.target)) dropdown.style.display = 'none';
+    });
+</script>
 
-{% else %}
-
-    <p>You are not currently an executive member of any organizations.</p>
-
-{% endif %}
 {% include 'main/chat_widget.html' %}
+</body>
+</html>
