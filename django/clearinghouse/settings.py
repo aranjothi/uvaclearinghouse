@@ -146,7 +146,8 @@ AWS_S3_REGION_NAME = os.getenv('AWS_S3_REGION_NAME', 'us-east-2')
 
 AWS_S3_FILE_OVERWRITE = False
 
-DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+#DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+DEFAULT_FILE_STORAGE = 'storages.backends.s3.S3Storage'
 MEDIA_URL = f'https://{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com/'
 
 # https://django-storages.readthedocs.io/en/latest/backends/amazon-S3.html
@@ -158,7 +159,14 @@ STORAGES = {
            "region_name":AWS_S3_REGION_NAME
         }
     },
-    "staticfiles" : "storages.backends.s3.S3Storage"
+    # https://stackoverflow.com/questions/78608996/django-storages-staticfiles-storage-key-attribute-error
+    "staticfiles": {
+        "BACKEND": "storages.backends.s3.S3Storage",
+        "OPTIONS": {
+          "bucket_name":AWS_STORAGE_BUCKET_NAME,
+           "region_name":AWS_S3_REGION_NAME
+        }
+    }
 }
 
 AUTH_USER_MODEL = 'main.User'
