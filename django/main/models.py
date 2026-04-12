@@ -37,7 +37,7 @@ class User(AbstractUser):
     profile_picture = models.ImageField(upload_to=rename_image, blank=True, null=True)
 
 
-    age = models.PositiveIntegerField(default=0)
+    age = models.PositiveIntegerField(default=0, null=True)
     birthday = models.DateField(null=True, blank=True)
     year = models.CharField(max_length = 1, choices = YEAR_CHOICES, blank=True, null=True)
     school = models.CharField(max_length = 50, choices = SCHOOL_CHOICES, blank=True, null=True)
