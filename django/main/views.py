@@ -137,6 +137,30 @@ def get_involved_page(request):
         'query': query,
     })
 
+def global_search(request):
+    query = request.GET.get('q', '').strip()
+
+    clubs = Club.objects.none()
+    events = Event.objects.none()
+
+    if query:
+        clubs = Club.objects.filter(
+            Q(name__icontains=query) | Q(description__icontains=query)
+        ).order_by('name')
+
+        events = Event.objects.select_related('club').filter(
+            Q(title__icontains=query) |
+            Q(description__icontains=query) |
+            Q(location__icontains=query) |
+            Q(club__name__icontains=query)
+        ).order_by('date', 'time')
+
+    return render(request, 'main/global_search.html', {
+        'query': query,
+        'clubs': clubs,
+        'events': events,
+    })
+
 @login_required
 def join_club(request, slug):
     if request.method == "POST":
