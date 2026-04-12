@@ -119,6 +119,31 @@ class ForumReply(models.Model):
         return f"Reply by {self.author} on {self.thread}"
 
 # ──────────────────────────────────────────────
+# ANNOUNCEMENTS
+# ──────────────────────────────────────────────
+
+class Announcement(models.Model):
+    MEMBERS = 'members'
+    EVERYONE = 'everyone'
+    VISIBILITY_CHOICES = [
+        (MEMBERS, 'Club Members Only'),
+        (EVERYONE, 'Everyone'),
+    ]
+
+    club = models.ForeignKey(Club, on_delete=models.CASCADE, related_name='announcements')
+    author = models.ForeignKey(User, on_delete=models.CASCADE)
+    title = models.CharField(max_length=200)
+    content = models.TextField()
+    visibility = models.CharField(max_length=10, choices=VISIBILITY_CHOICES, default=EVERYONE)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.club.name}: {self.title}"
+
+# ──────────────────────────────────────────────
 # MESSAGING MODELS
 # ──────────────────────────────────────────────
 

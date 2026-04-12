@@ -16,6 +16,7 @@ urlpatterns = [
     path('clubs/<slug:slug>/verify/', views.verify_exec, name='verify_exec'),
     path('clubs/<slug:slug>/create-event/', views.create_event, name='create_event'),
     path('clubs/<slug:slug>/upload-image/', views.upload_club_image, name='upload_club_image'),
+    path('clubs/<slug:slug>/post-announcement/', views.post_announcement, name='post_announcement'),
     path('events/<int:event_id>/rsvp/', views.rsvp_event, name='rsvp_event'),
     path('executives/', views.executive_page, name='executive_page'),
     path('my-clubs/', views.my_clubs_page, name='my_clubs'),

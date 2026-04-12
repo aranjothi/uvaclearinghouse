@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import User, Club, Membership, Event, DirectMessage
+from .models import User, Club, Membership, Event, DirectMessage, Announcement
 
 
 @admin.register(User)
@@ -33,3 +33,9 @@ class EventAdmin(admin.ModelAdmin):
 class DirectMessageAdmin(admin.ModelAdmin):
     list_display = ('sender', 'recipient', 'created_at', 'is_read')
     list_filter = ('is_read',)
+
+
+@admin.register(Announcement)
+class AnnouncementAdmin(admin.ModelAdmin):
+    list_display = ('title', 'club', 'author', 'visibility', 'created_at')
+    list_filter = ('visibility', 'club')
