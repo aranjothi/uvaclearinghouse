@@ -542,6 +542,70 @@ nav ul li a:hover {
     font-weight: normal;
 }
 
+.ann-item {
+    display: flex;
+    gap: 12px;
+    padding: 14px 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.ann-item:last-child { border-bottom: none; }
+
+.ann-avatar {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
+.ann-body { flex: 1; min-width: 0; }
+
+.ann-header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 4px;
+    flex-wrap: wrap;
+}
+
+.ann-author {
+    font-weight: bold;
+    font-size: 0.9rem;
+    color: #232D4B;
+}
+
+.ann-audience {
+    font-size: 0.85rem;
+    color: #888;
+}
+
+.ann-date {
+    font-size: 0.8rem;
+    color: #aaa;
+    margin-left: auto;
+}
+
+.ann-text {
+    font-size: 0.9rem;
+    color: #444;
+    line-height: 1.55;
+    white-space: pre-wrap;
+}
+
+.action-section {
+    margin-bottom: 24px;
+}
+
+.action-section-label {
+    font-size: 0.72rem;
+    font-weight: bold;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: #888;
+    margin-bottom: 8px;
+}
+
 </style>
 </head>
 
@@ -592,93 +656,69 @@ nav ul li a:hover {
         </p>
         {% endfor %}
 
-        <div class="button-row">
-
-            {% if user.is_authenticated %}
-                {% if not is_member %}
-                <form method="post" action="{% url 'join_club' club.slug %}">
-                    {% csrf_token %}
-                    <button type="submit" class="club-btn">Become Member</button>
-                </form>
-                {% endif %}
-
-                {% if not is_exec %}
-                <form method="post" action="{% url 'verify_exec' club.slug %}" style="display:flex;gap:8px;align-items:center;">
-                    {% csrf_token %}
-                    <input type="text" name="executive_code" placeholder="Executive code" maxlength="8"
-                           style="padding:10px;border:1px solid #ccc;border-radius:6px;font-size:1rem;width:160px;">
-                    <button type="submit" class="club-btn secondary-btn">Verify Exec</button>
-                </form>
-                {% endif %}
-
-                {% if is_exec %}
+        {% if is_exec %}
+        <div class="action-section">
+            <div class="action-section-label">Exec EZ-Access</div>
+            <div class="button-row">
                 <button type="button" class="club-btn" onclick="document.getElementById('createEventModal').classList.add('open')">
                     Create Event
                 </button>
-                {% endif %}
-
-            {% else %}
-                <button type="button" class="club-btn" disabled>
-                    Become Member
+                <button type="button" class="club-btn secondary-btn" onclick="openNewAnnouncement()">
+                    New Announcement
                 </button>
-                
-                <button type="button" class="club-btn secondary-btn" disabled>
-                    Verify Exec
-                </button>
-
-                <p class="login-warning">
-                    You must be signed in to join organizations or verify executive membership.
-                </p>
-
-            
-
-        {% endif %}
-
+            </div>
         </div>
+        {% else %}
+        <div class="action-section">
+            <div class="action-section-label">Actions</div>
+            <div class="button-row">
+                {% if user.is_authenticated %}
+                    {% if not is_member %}
+                    <form method="post" action="{% url 'join_club' club.slug %}">
+                        {% csrf_token %}
+                        <button type="submit" class="club-btn">Become Member</button>
+                    </form>
+                    {% endif %}
+                    <form method="post" action="{% url 'verify_exec' club.slug %}" style="display:flex;gap:8px;align-items:center;">
+                        {% csrf_token %}
+                        <input type="text" name="executive_code" placeholder="Executive code" maxlength="8"
+                               style="padding:10px;border:1px solid #ccc;border-radius:6px;font-size:1rem;width:160px;">
+                        <button type="submit" class="club-btn secondary-btn">Verify Exec</button>
+                    </form>
+                {% else %}
+                    <button type="button" class="club-btn" disabled>Become Member</button>
+                    <button type="button" class="club-btn secondary-btn" disabled>Verify Exec</button>
+                    <p class="login-warning">
+                        You must be signed in to join organizations or verify executive membership.
+                    </p>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
 
         {% if announcements or is_exec %}
         <div class="ann-chat-section">
             <div class="ann-chat-label">Latest Announcement</div>
 
             {% if latest_announcement %}
-            <div class="chat-bubble-wrap">
-                <div class="chat-bubble">
-                    <div class="chat-bubble-title">{{ latest_announcement.title }}</div>
-                    <div class="chat-bubble-body">{{ latest_announcement.content }}</div>
-                </div>
-                <div class="chat-bubble-meta">
-                    {{ latest_announcement.author.first_name }} {{ latest_announcement.author.last_name }} &middot; {{ latest_announcement.created_at|date:"M d, Y" }}
-                    {% if is_member %}
-                    <span class="visibility-badge {{ latest_announcement.visibility }}">
-                        {% if latest_announcement.visibility == 'members' %}Members Only{% else %}Everyone{% endif %}
-                    </span>
-                    {% endif %}
+            <div class="ann-item">
+                {% load static %}
+                <img class="ann-avatar"
+                     src="{% if latest_announcement.author.profile_picture %}{{ latest_announcement.author.profile_picture.url }}{% else %}{% static 'defaultpfp.jpg' %}{% endif %}"
+                     alt="{{ latest_announcement.author.first_name }}">
+                <div class="ann-body">
+                    <div class="ann-header">
+                        <span class="ann-author">{{ latest_announcement.author.first_name }} {{ latest_announcement.author.last_name }}</span>
+                        <span class="ann-audience">to {% if latest_announcement.visibility == 'members' %}Club{% else %}Everyone{% endif %}</span>
+                        <span class="ann-date">{{ latest_announcement.created_at|date:"M d, Y" }}</span>
+                    </div>
+                    <div class="ann-text">{{ latest_announcement.content }}</div>
                 </div>
             </div>
             {% else %}
             <p class="chat-empty">No announcements yet.</p>
             {% endif %}
 
-            {% if is_exec %}
-            <form method="post" action="{% url 'post_announcement' club.slug %}" class="compose-box">
-                {% csrf_token %}
-                <div class="compose-title-row">
-                    <input type="text" name="title" class="compose-title-input" placeholder="Announcement title..." required>
-                </div>
-                <div class="compose-textarea-row">
-                    <textarea name="content" class="compose-textarea" placeholder="Write a message to your members..." rows="2" required></textarea>
-                    <button type="submit" class="compose-send-btn" title="Post announcement">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width:16px;height:16px;">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 12 3.269 3.125A59.769 59.769 0 0 1 21.485 12 59.768 59.768 0 0 1 3.27 20.875L5.999 12Zm0 0h7.5" />
-                        </svg>
-                    </button>
-                </div>
-                <div class="compose-visibility-row">
-                    <label><input type="radio" name="visibility" value="everyone" checked> Everyone</label>
-                    <label><input type="radio" name="visibility" value="members"> Members Only</label>
-                </div>
-            </form>
-            {% endif %}
         </div>
         {% endif %}
 
@@ -695,21 +735,41 @@ nav ul li a:hover {
         <div id="tab-announcements" class="tab-content">
             {% if announcements %}
                 {% for ann in announcements %}
-                <div class="announcement-card">
-                    <div class="announcement-title">{{ ann.title }}</div>
-                    <div class="announcement-content">{{ ann.content }}</div>
-                    <div class="announcement-meta">
-                        <span>{{ ann.author.first_name }} {{ ann.author.last_name }} &middot; {{ ann.created_at|date:"M d, Y" }}</span>
-                        {% if is_exec or is_member %}
-                        <span class="visibility-badge {{ ann.visibility }}">
-                            {% if ann.visibility == 'members' %}Members Only{% else %}Everyone{% endif %}
-                        </span>
-                        {% endif %}
+                <div class="ann-item">
+                    {% load static %}
+                    <img class="ann-avatar"
+                         src="{% if ann.author.profile_picture %}{{ ann.author.profile_picture.url }}{% else %}{% static 'defaultpfp.jpg' %}{% endif %}"
+                         alt="{{ ann.author.first_name }}">
+                    <div class="ann-body">
+                        <div class="ann-header">
+                            <span class="ann-author">{{ ann.author.first_name }} {{ ann.author.last_name }}</span>
+                            <span class="ann-audience">to {% if ann.visibility == 'members' %}Club{% else %}Everyone{% endif %}</span>
+                            <span class="ann-date">{{ ann.created_at|date:"M d, Y" }}</span>
+                        </div>
+                        <div class="ann-text">{{ ann.content }}</div>
                     </div>
                 </div>
                 {% endfor %}
             {% else %}
                 <p style="color:#888;">No announcements yet.</p>
+            {% endif %}
+
+            {% if is_exec %}
+            <form method="post" action="{% url 'post_announcement' club.slug %}" class="compose-box" id="ann-compose" style="margin-top:16px;">
+                {% csrf_token %}
+                <div class="compose-textarea-row">
+                    <textarea name="content" class="compose-textarea" placeholder="Write a message to your members..." rows="2" required></textarea>
+                    <button type="submit" class="compose-send-btn" title="Post announcement">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width:16px;height:16px;">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 12 3.269 3.125A59.769 59.769 0 0 1 21.485 12 59.768 59.768 0 0 1 3.27 20.875L5.999 12Zm0 0h7.5" />
+                        </svg>
+                    </button>
+                </div>
+                <div class="compose-visibility-row">
+                    <label><input type="radio" name="visibility" value="everyone" checked> Everyone</label>
+                    <label><input type="radio" name="visibility" value="members"> Members Only</label>
+                </div>
+            </form>
             {% endif %}
         </div>
 
@@ -823,6 +883,15 @@ function switchTab(name, btn) {
     document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
     document.getElementById('tab-' + name).style.display = 'block';
     btn.classList.add('active');
+}
+
+function openNewAnnouncement() {
+    const annBtn = document.querySelector('.tab-btn[onclick*="announcements"]');
+    switchTab('announcements', annBtn);
+    setTimeout(() => {
+        const compose = document.getElementById('ann-compose');
+        if (compose) compose.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 50);
 }
 </script>
 <script>

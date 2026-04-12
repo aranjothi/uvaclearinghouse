@@ -338,7 +338,7 @@ def post_announcement(request, slug):
         visibility = request.POST.get('visibility', Announcement.EVERYONE)
         if visibility not in (Announcement.MEMBERS, Announcement.EVERYONE):
             visibility = Announcement.EVERYONE
-        if title and content:
+        if content:
             Announcement.objects.create(
                 club=club,
                 author=request.user,

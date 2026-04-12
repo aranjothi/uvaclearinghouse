@@ -142,7 +142,7 @@ class Announcement(models.Model):
 
     club = models.ForeignKey(Club, on_delete=models.CASCADE, related_name='announcements')
     author = models.ForeignKey(User, on_delete=models.CASCADE)
-    title = models.CharField(max_length=200)
+    title = models.CharField(max_length=200, blank=True)
     content = models.TextField()
     visibility = models.CharField(max_length=10, choices=VISIBILITY_CHOICES, default=EVERYONE)
     created_at = models.DateTimeField(auto_now_add=True)
