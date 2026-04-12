@@ -4,3 +4,5 @@ django/venv
 venv/
 django/db.sqlite3
 .env
+CLAUDE.md
+.DS_Store
