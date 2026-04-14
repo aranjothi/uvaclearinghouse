@@ -575,5 +575,27 @@ def executive_club_events(request, slug):
         'club': club,
         'events': events,
     })
+#Edit events
+@login_required
+def executive_edit_event(request, slug, event_id):
+    club = get_object_or_404(Club, slug=slug)
+    is_exec = Membership.objects.filter(
+        user=request.user, club=club, role=Membership.EXECUTIVE
+    ).exists()
+    if not is_exec:
+        return redirect('executive_page')
+    event = get_object_or_404(Event, id=event_id, club=club)
+    if request.method == 'POST':
+        form = EventForm(request.POST, instance=event)
+        if form.is_valid():
+            form.save()
+            return redirect('executive_club_events', slug=club.slug)
+    else:
+        form = EventForm(instance=event)
+    return render(request, 'main/executive_edit_event.html', {
+        'club': club,
+        'event': event,
+        'form': form,
+    })
 
 

@@ -44,6 +44,7 @@ urlpatterns = [
     path('executives/', views.executive_page, name='executive_page'),
     path('executives/<slug:slug>/', views.executive_club_page, name='executive_club_page'),
     path('executives/<slug:slug>/events/', views.executive_club_events, name='executive_club_events'),
+    path('executives/<slug:slug>/events/<int:event_id>/edit/', views.executive_edit_event, name='executive_edit_event'),
 
     #search bar
     path('search/', views.global_search, name='global_search'),

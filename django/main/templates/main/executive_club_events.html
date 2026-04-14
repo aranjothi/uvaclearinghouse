@@ -28,12 +28,9 @@
         .main { flex: 1; display: flex; flex-direction: column; }
         .topbar { background: #fff; padding: 0 1.5rem; height: 52px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #e0e0e0; }
         .topbar h1 { font-size: 15px; font-weight: bold; color: #232D4B; }
-        .body { padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem; }
-        .actions-bar { display: flex; justify-content: space-between; align-items: center; }
-        .actions-bar h2 { font-size: 15px; font-weight: bold; color: #232D4B; }
-        .btn { display: inline-block; padding: 9px 16px; border-radius: 6px; font-size: 13px; text-decoration: none; font-weight: bold; text-align: center; transition: background 0.15s; }
-        .btn-orange { background: #E57200; color: #fff; }
+        .btn-orange { display: inline-block; padding: 9px 16px; border-radius: 6px; font-size: 13px; text-decoration: none; font-weight: bold; background: #E57200; color: #fff; border: none; cursor: pointer; transition: background 0.15s; }
         .btn-orange:hover { background: #c96200; }
+        .body { padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem; }
         .events-card { background: #fff; border-radius: 12px; border: 1px solid #e0e0e0; overflow: hidden; }
         .events-table { width: 100%; border-collapse: collapse; }
         .events-table th { background: #232D4B; color: #fff; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; padding: 10px 1.25rem; text-align: left; font-weight: bold; }
@@ -46,6 +43,8 @@
         .badge-upcoming { background: #e8f5e9; color: #2e7d32; }
         .badge-past { background: #f0f0f0; color: #888; }
         .rsvp-count { font-size: 13px; color: #E57200; font-weight: bold; }
+        .btn-edit { font-size: 12px; font-weight: bold; color: #E57200; text-decoration: none; padding: 5px 10px; border: 1px solid #E57200; border-radius: 4px; white-space: nowrap; transition: all 0.15s; }
+        .btn-edit:hover { background: #E57200; color: #fff; }
         .empty { text-align: center; padding: 3rem; color: #aaa; font-size: 14px; font-style: italic; }
     </style>
 </head>
@@ -112,7 +111,7 @@
     <div class="main">
         <div class="topbar">
             <h1>{{ club.name }} – Events</h1>
-            <a href="{% url 'create_event' club.slug %}" class="btn btn-orange">+ Create Event</a>
+            <a href="{% url 'create_event' club.slug %}" class="btn-orange">+ Create Event</a>
         </div>
 
         <div class="body">
@@ -127,6 +126,7 @@
                             <th>Location</th>
                             <th>RSVPs</th>
                             <th>Status</th>
+                            <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -149,6 +149,9 @@
                                 {% else %}
                                 <span class="badge badge-past">Past</span>
                                 {% endif %}
+                            </td>
+                            <td>
+                                <a href="{% url 'executive_edit_event' club.slug event.id %}" class="btn-edit">Edit</a>
                             </td>
                         </tr>
                         {% endfor %}
