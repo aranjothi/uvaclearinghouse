@@ -149,7 +149,7 @@ color: #555;
             <h3>{{ event.title }}</h3>
             <p>{{ event.description|default:"No description available." }}</p>
         </div>
-        <a href="#" class="event-btn">View Event</a>
+        <a href="{% url 'event_detail' event.id %}" class="event-btn">View Event</a>
     </div>
     {% empty %} <!-- shown when no events exist -->
     <p class="no-events">No upcoming events yet. Check back soon!</p>

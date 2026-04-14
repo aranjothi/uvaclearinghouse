@@ -114,40 +114,81 @@
                         <textarea name="description" id="id_description">{{ event.description }}</textarea>
                     </div>
 
-                    <div class="form-group">
-                        <label for="id_date">Date</label>
-                        <input type="date" name="date" id="id_date" value="{{ event.date|date:'Y-m-d' }}" required
-                               onclick="this.showPicker()"
-                               style="width:100%; padding:10px 12px; border:1px solid #e0e0e0; border-radius:6px; font-size:14px; font-family:inherit; color:#232D4B; cursor:pointer; background:#fff;">
+                    <div class="section-divider">Dates</div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Start Date</label>
+                            <input type="date" name="date" id="id_date" value="{{ event.date|date:'Y-m-d' }}" required
+                                   onclick="this.showPicker()" style="cursor:pointer;">
+                        </div>
+                        <div class="form-group">
+                            <label>End Date <span style="font-weight:normal; color:#aaa;">(optional)</span></label>
+                            <input type="date" name="end_date" id="id_end_date" value="{{ event.end_date|date:'Y-m-d' }}"
+                                   onclick="this.showPicker()" style="cursor:pointer;">
+                        </div>
                     </div>
 
-                    <div class="form-group">
-                        <label>Time</label>
-                        <div style="position:relative;">
-                            <input type="text" id="timeDisplay" placeholder="e.g. 2:30 PM"
-                                   value="{{ event.time|time:'g:i A' }}"
-                                   style="width:100%; padding:10px 12px; border:1px solid #e0e0e0; border-radius:6px; font-size:14px; font-family:inherit; color:#232D4B; background:#fff;">
-                            <input type="hidden" name="time" id="id_time" value="{{ event.time|time:'H:i:s' }}">
-                            <div id="timePicker" style="display:none; position:absolute; top:calc(100% + 8px); left:0; background:#fff; border:1px solid #e0e0e0; border-radius:12px; box-shadow:0 8px 24px rgba(0,0,0,0.12); z-index:200; padding:1.25rem; width:260px;">
-                                <div style="display:flex; align-items:center; justify-content:center; gap:0; user-select:none;">
-                                    <div style="display:flex; flex-direction:column; align-items:center; width:60px;">
-                                        <button type="button" onclick="changeHour(1)" style="background:none; border:none; cursor:pointer; color:#232D4B; font-size:20px; padding:4px;">▲</button>
-                                        <div id="hourDisplay" style="font-size:32px; font-weight:bold; color:#232D4B; width:60px; text-align:center;">12</div>
-                                        <button type="button" onclick="changeHour(-1)" style="background:none; border:none; cursor:pointer; color:#232D4B; font-size:20px; padding:4px;">▼</button>
+                    <div class="section-divider">Times</div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Start Time</label>
+                            <div style="position:relative;">
+                                <input type="text" id="startTimeDisplay" placeholder="e.g. 2:00 PM"
+                                       value="{{ event.start_time|time:'g:i A' }}"
+                                       style="width:100%; padding:10px 12px; border:1px solid #e0e0e0; border-radius:6px; font-size:14px; font-family:inherit; color:#232D4B; background:#fff;">
+                                <input type="hidden" name="start_time" id="id_start_time" value="{{ event.start_time|time:'H:i:s' }}">
+                                <div id="startTimePicker" style="display:none; position:absolute; top:calc(100% + 8px); left:0; background:#fff; border:1px solid #e0e0e0; border-radius:12px; box-shadow:0 8px 24px rgba(0,0,0,0.12); z-index:200; padding:1.25rem; width:260px;">
+                                    <div style="display:flex; align-items:center; justify-content:center; user-select:none;">
+                                        <div style="display:flex; flex-direction:column; align-items:center; width:60px;">
+                                            <button type="button" onclick="changeHour('start',1)" style="background:none;border:none;cursor:pointer;color:#232D4B;font-size:20px;padding:4px;">▲</button>
+                                            <div id="startHourDisplay" style="font-size:32px;font-weight:bold;color:#232D4B;width:60px;text-align:center;">12</div>
+                                            <button type="button" onclick="changeHour('start',-1)" style="background:none;border:none;cursor:pointer;color:#232D4B;font-size:20px;padding:4px;">▼</button>
+                                        </div>
+                                        <div style="font-size:32px;font-weight:bold;color:#232D4B;padding:0 4px;">:</div>
+                                        <div style="display:flex; flex-direction:column; align-items:center; width:60px;">
+                                            <button type="button" onclick="changeMin('start',1)" style="background:none;border:none;cursor:pointer;color:#232D4B;font-size:20px;padding:4px;">▲</button>
+                                            <div id="startMinDisplay" style="font-size:32px;font-weight:bold;color:#232D4B;width:60px;text-align:center;">00</div>
+                                            <button type="button" onclick="changeMin('start',-1)" style="background:none;border:none;cursor:pointer;color:#232D4B;font-size:20px;padding:4px;">▼</button>
+                                        </div>
+                                        <div style="display:flex; flex-direction:column; align-items:center; width:60px; margin-left:8px;">
+                                            <button type="button" onclick="toggleAmPm('start')" style="background:none;border:none;cursor:pointer;color:#232D4B;font-size:20px;padding:4px;">▲</button>
+                                            <div id="startAmpmDisplay" style="font-size:24px;font-weight:bold;color:#E57200;width:60px;text-align:center;">AM</div>
+                                            <button type="button" onclick="toggleAmPm('start')" style="background:none;border:none;cursor:pointer;color:#232D4B;font-size:20px;padding:4px;">▼</button>
+                                        </div>
                                     </div>
-                                    <div style="font-size:32px; font-weight:bold; color:#232D4B; padding:0 4px;">:</div>
-                                    <div style="display:flex; flex-direction:column; align-items:center; width:60px;">
-                                        <button type="button" onclick="changeMin(1)" style="background:none; border:none; cursor:pointer; color:#232D4B; font-size:20px; padding:4px;">▲</button>
-                                        <div id="minDisplay" style="font-size:32px; font-weight:bold; color:#232D4B; width:60px; text-align:center;">00</div>
-                                        <button type="button" onclick="changeMin(-1)" style="background:none; border:none; cursor:pointer; color:#232D4B; font-size:20px; padding:4px;">▼</button>
-                                    </div>
-                                    <div style="display:flex; flex-direction:column; align-items:center; width:60px; margin-left:8px;">
-                                        <button type="button" onclick="toggleAmPm()" style="background:none; border:none; cursor:pointer; color:#232D4B; font-size:20px; padding:4px;">▲</button>
-                                        <div id="ampmDisplay" style="font-size:24px; font-weight:bold; color:#E57200; width:60px; text-align:center;">AM</div>
-                                        <button type="button" onclick="toggleAmPm()" style="background:none; border:none; cursor:pointer; color:#232D4B; font-size:20px; padding:4px;">▼</button>
-                                    </div>
+                                    <button type="button" onclick="confirmTime('start')" style="margin-top:1rem;width:100%;padding:9px;background:#E57200;color:#fff;border:none;border-radius:6px;font-size:14px;font-weight:bold;cursor:pointer;">Set Time</button>
                                 </div>
-                                <button type="button" onclick="confirmTime()" style="margin-top:1rem; width:100%; padding:9px; background:#E57200; color:#fff; border:none; border-radius:6px; font-size:14px; font-weight:bold; cursor:pointer;">Set Time</button>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>End Time <span style="font-weight:normal; color:#aaa;">(optional)</span></label>
+                            <div style="position:relative;">
+                                <input type="text" id="endTimeDisplay" placeholder="e.g. 4:00 PM"
+                                       value="{{ event.end_time|time:'g:i A' }}"
+                                       style="width:100%; padding:10px 12px; border:1px solid #e0e0e0; border-radius:6px; font-size:14px; font-family:inherit; color:#232D4B; background:#fff;">
+                                <input type="hidden" name="end_time" id="id_end_time" value="{{ event.end_time|time:'H:i:s' }}">
+                                <div id="endTimePicker" style="display:none; position:absolute; top:calc(100% + 8px); left:0; background:#fff; border:1px solid #e0e0e0; border-radius:12px; box-shadow:0 8px 24px rgba(0,0,0,0.12); z-index:200; padding:1.25rem; width:260px;">
+                                    <div style="display:flex; align-items:center; justify-content:center; user-select:none;">
+                                        <div style="display:flex; flex-direction:column; align-items:center; width:60px;">
+                                            <button type="button" onclick="changeHour('end',1)" style="background:none;border:none;cursor:pointer;color:#232D4B;font-size:20px;padding:4px;">▲</button>
+                                            <div id="endHourDisplay" style="font-size:32px;font-weight:bold;color:#232D4B;width:60px;text-align:center;">12</div>
+                                            <button type="button" onclick="changeHour('end',-1)" style="background:none;border:none;cursor:pointer;color:#232D4B;font-size:20px;padding:4px;">▼</button>
+                                        </div>
+                                        <div style="font-size:32px;font-weight:bold;color:#232D4B;padding:0 4px;">:</div>
+                                        <div style="display:flex; flex-direction:column; align-items:center; width:60px;">
+                                            <button type="button" onclick="changeMin('end',1)" style="background:none;border:none;cursor:pointer;color:#232D4B;font-size:20px;padding:4px;">▲</button>
+                                            <div id="endMinDisplay" style="font-size:32px;font-weight:bold;color:#232D4B;width:60px;text-align:center;">00</div>
+                                            <button type="button" onclick="changeMin('end',-1)" style="background:none;border:none;cursor:pointer;color:#232D4B;font-size:20px;padding:4px;">▼</button>
+                                        </div>
+                                        <div style="display:flex; flex-direction:column; align-items:center; width:60px; margin-left:8px;">
+                                            <button type="button" onclick="toggleAmPm('end')" style="background:none;border:none;cursor:pointer;color:#232D4B;font-size:20px;padding:4px;">▲</button>
+                                            <div id="endAmpmDisplay" style="font-size:24px;font-weight:bold;color:#E57200;width:60px;text-align:center;">AM</div>
+                                            <button type="button" onclick="toggleAmPm('end')" style="background:none;border:none;cursor:pointer;color:#232D4B;font-size:20px;padding:4px;">▼</button>
+                                        </div>
+                                    </div>
+                                    <button type="button" onclick="confirmTime('end')" style="margin-top:1rem;width:100%;padding:9px;background:#E57200;color:#fff;border:none;border-radius:6px;font-size:14px;font-weight:bold;cursor:pointer;">Set Time</button>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -181,68 +222,102 @@
         if (!navIcon.contains(e.target)) dropdown.style.display = 'none';
     });
 
-    // ── Time picker ──
-    let tHour = 12, tMin = 0, tAmPm = 'AM';
-    const timeDisplay = document.getElementById('timeDisplay');
-    const timePicker = document.getElementById('timePicker');
+    // ── Shared time picker logic ──
+    const timeState = {
+        start: { hour: 12, min: 0, ampm: 'AM' },
+        end:   { hour: 12, min: 0, ampm: 'AM' }
+    };
 
-    // Pre-fill from existing event time
+    function renderTimePicker(id) {
+        const s = timeState[id];
+        document.getElementById(id+'HourDisplay').textContent = String(s.hour).padStart(2,'0');
+        document.getElementById(id+'MinDisplay').textContent = String(s.min).padStart(2,'0');
+        document.getElementById(id+'AmpmDisplay').textContent = s.ampm;
+    }
+
+    function changeHour(id, d) {
+        timeState[id].hour = ((timeState[id].hour - 1 + d + 12) % 12) + 1;
+        renderTimePicker(id);
+    }
+    function changeMin(id, d) {
+        timeState[id].min = (timeState[id].min + d + 60) % 60;
+        renderTimePicker(id);
+    }
+    function toggleAmPm(id) {
+        timeState[id].ampm = timeState[id].ampm === 'AM' ? 'PM' : 'AM';
+        renderTimePicker(id);
+    }
+    function confirmTime(id) {
+        const s = timeState[id];
+        let h24 = s.hour;
+        if (s.ampm === 'PM' && h24 !== 12) h24 += 12;
+        if (s.ampm === 'AM' && h24 === 12) h24 = 0;
+        const val = String(h24).padStart(2,'0') + ':' + String(s.min).padStart(2,'0') + ':00';
+        const display = String(s.hour).padStart(2,'0') + ':' + String(s.min).padStart(2,'0') + ' ' + s.ampm;
+        document.getElementById('id_' + id + '_time').value = val;
+        document.getElementById(id + 'TimeDisplay').value = display;
+        document.getElementById(id + 'TimePicker').style.display = 'none';
+    }
+
+    ['start', 'end'].forEach(id => {
+        renderTimePicker(id);
+        const display = document.getElementById(id + 'TimeDisplay');
+        const picker = document.getElementById(id + 'TimePicker');
+
+        display.addEventListener('click', (e) => {
+            e.stopPropagation();
+            picker.style.display = picker.style.display === 'none' ? 'block' : 'none';
+        });
+        display.addEventListener('input', () => {
+            const raw = display.value.trim();
+            const match = raw.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)?$/i);
+            if (match) {
+                const h = parseInt(match[1]);
+                const m = parseInt(match[2]);
+                const ap = match[3] ? match[3].toUpperCase() : timeState[id].ampm;
+                if (h >= 1 && h <= 12 && m >= 0 && m <= 59) {
+                    timeState[id].hour = h;
+                    timeState[id].min = m;
+                    timeState[id].ampm = ap;
+                    renderTimePicker(id);
+                    let h24 = h;
+                    if (ap === 'PM' && h24 !== 12) h24 += 12;
+                    if (ap === 'AM' && h24 === 12) h24 = 0;
+                    document.getElementById('id_' + id + '_time').value = String(h24).padStart(2,'0') + ':' + String(m).padStart(2,'0') + ':00';
+                }
+            }
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!picker.contains(e.target) && e.target !== display) {
+                picker.style.display = 'none';
+            }
+        });
+    });
+
+    // Pre-fill start time
     (function() {
-        const raw = timeDisplay.value.trim();
+        const raw = document.getElementById('startTimeDisplay').value.trim();
         const match = raw.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)?$/i);
         if (match) {
-            tHour = parseInt(match[1]);
-            tMin = parseInt(match[2]);
-            tAmPm = match[3] ? match[3].toUpperCase() : 'AM';
-            renderTime();
+            timeState.start.hour = parseInt(match[1]);
+            timeState.start.min = parseInt(match[2]);
+            timeState.start.ampm = match[3] ? match[3].toUpperCase() : 'AM';
+            renderTimePicker('start');
         }
     })();
 
-    timeDisplay.addEventListener('click', (e) => {
-        e.stopPropagation();
-        timePicker.style.display = timePicker.style.display === 'none' ? 'block' : 'none';
-    });
-
-    document.addEventListener('click', (e) => {
-        if (!timePicker.contains(e.target) && e.target !== timeDisplay) {
-            timePicker.style.display = 'none';
-        }
-    });
-
-    timeDisplay.addEventListener('input', () => {
-        const raw = timeDisplay.value.trim();
+    // Pre-fill end time
+    (function() {
+        const raw = document.getElementById('endTimeDisplay').value.trim();
         const match = raw.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)?$/i);
         if (match) {
-            let h = parseInt(match[1]);
-            const m = parseInt(match[2]);
-            const ap = match[3] ? match[3].toUpperCase() : tAmPm;
-            if (h >= 1 && h <= 12 && m >= 0 && m <= 59) {
-                tHour = h; tMin = m; tAmPm = ap;
-                renderTime();
-                let h24 = tHour;
-                if (tAmPm === 'PM' && h24 !== 12) h24 += 12;
-                if (tAmPm === 'AM' && h24 === 12) h24 = 0;
-                document.getElementById('id_time').value = String(h24).padStart(2,'0') + ':' + String(tMin).padStart(2,'0') + ':00';
-            }
+            timeState.end.hour = parseInt(match[1]);
+            timeState.end.min = parseInt(match[2]);
+            timeState.end.ampm = match[3] ? match[3].toUpperCase() : 'AM';
+            renderTimePicker('end');
         }
-    });
-
-    function renderTime() {
-        document.getElementById('hourDisplay').textContent = String(tHour).padStart(2,'0');
-        document.getElementById('minDisplay').textContent = String(tMin).padStart(2,'0');
-        document.getElementById('ampmDisplay').textContent = tAmPm;
-    }
-    function changeHour(d) { tHour = ((tHour - 1 + d + 12) % 12) + 1; renderTime(); }
-    function changeMin(d) { tMin = (tMin + d + 60) % 60; renderTime(); }
-    function toggleAmPm() { tAmPm = tAmPm === 'AM' ? 'PM' : 'AM'; renderTime(); }
-    function confirmTime() {
-        let h24 = tHour;
-        if (tAmPm === 'PM' && h24 !== 12) h24 += 12;
-        if (tAmPm === 'AM' && h24 === 12) h24 = 0;
-        document.getElementById('id_time').value = String(h24).padStart(2,'0') + ':' + String(tMin).padStart(2,'0') + ':00';
-        timeDisplay.value = String(tHour).padStart(2,'0') + ':' + String(tMin).padStart(2,'0') + ' ' + tAmPm;
-        timePicker.style.display = 'none';
-    }
+    })();
 
     // ── Location search ──
     const locations = [
@@ -284,14 +359,13 @@
 
     searchInput.addEventListener('input', () => renderLocDropdown(searchInput.value));
     searchInput.addEventListener('focus', () => renderLocDropdown(searchInput.value));
-
     document.addEventListener('click', function(e) {
         const wrapper = document.querySelector('.location-wrapper');
         if (!wrapper.contains(e.target)) locDropdown.classList.remove('open');
     });
 
     document.getElementById('eventForm').addEventListener('submit', function(e) {
-        confirmTime();
+        confirmTime('start');
         if (!hiddenLoc.value) {
             e.preventDefault();
             searchInput.style.borderColor = '#c0392b';

@@ -213,23 +213,21 @@ def executive_page(request):
 def create_event(request, slug):
     club = get_object_or_404(Club, slug=slug)
     is_exec = Membership.objects.filter(
-        user=request.user,
-        club=club,
-        role=Membership.EXECUTIVE
+        user=request.user, club=club, role=Membership.EXECUTIVE
     ).exists()
     if not is_exec:
-        return redirect("executive_page")
-    if request.method == "POST":
-        form = EventForm(request.POST)
+        return redirect('executive_page')
+    if request.method == 'POST':
+        form = EventForm(request.POST, request.FILES)
         if form.is_valid():
             event = form.save(commit=False)
             event.club = club
             event.created_by = request.user
             event.save()
-            return redirect("club_detail", slug=club.slug)
+            return redirect('executive_club_events', slug=club.slug)
     else:
         form = EventForm()
-    return render(request, "main/create_event.html", {"club": club, "form": form})
+    return render(request, 'main/create_event.html', {'club': club, 'form': form})
 
 def Events_page(request):
     events = Event.objects.all().order_by('date')  # fetch all events ordered by soonest first
@@ -586,16 +584,39 @@ def executive_edit_event(request, slug, event_id):
         return redirect('executive_page')
     event = get_object_or_404(Event, id=event_id, club=club)
     if request.method == 'POST':
-        form = EventForm(request.POST, instance=event)
+        form = EventForm(request.POST, request.FILES, instance=event)
         if form.is_valid():
             form.save()
             return redirect('executive_club_events', slug=club.slug)
     else:
         form = EventForm(instance=event)
     return render(request, 'main/executive_edit_event.html', {
-        'club': club,
-        'event': event,
-        'form': form,
+        'club': club, 'event': event, 'form': form
     })
 
+# ──────────────────────────────────────────────
+# Event Details
+# ──────────────────────────────────────────────
+@login_required
+def event_detail(request, event_id):
+    event = get_object_or_404(Event, id=event_id)
+    is_rsvped = False
+    if request.user.is_authenticated:
+        is_rsvped = request.user in event.rsvps.all()
+
+    attendees = event.rsvps.all()
+    search_query = request.GET.get('q', '').strip()
+    if search_query and request.user.is_authenticated:
+        attendees = attendees.filter(
+            Q(first_name__icontains=search_query) |
+            Q(last_name__icontains=search_query) |
+            Q(email__icontains=search_query)
+        )
+
+    return render(request, 'main/event_detail.html', {
+        'event': event,
+        'is_rsvped': is_rsvped,
+        'attendees': attendees,
+        'search_query': search_query,
+    })
 

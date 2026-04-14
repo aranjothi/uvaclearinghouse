@@ -139,7 +139,7 @@
                                 {% endif %}
                             </td>
                             <td>{{ event.date|date:"M d, Y" }}</td>
-                            <td>{{ event.time|time:"g:i A" }}</td>
+                            <td>{{ event.start_time|time:"g:i A" }}{% if event.end_time %} – {{ event.end_time|time:"g:i A" }}{% endif %}</td>
                             <td>{{ event.location }}</td>
                             <td><span class="rsvp-count">{{ event.rsvps.count }}</span></td>
                             <td>

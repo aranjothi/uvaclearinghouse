@@ -89,14 +89,36 @@ class Membership(models.Model):
 
 #basic event setup - to be edited
 class Event(models.Model):
+    CATEGORY_CHOICES = [
+        ('social', 'Social'),
+        ('academic', 'Academic'),
+        ('entertainment', 'Entertainment'),
+        ('professional', 'Professional'),
+        ('cultural', 'Cultural'),
+        ('sports', 'Sports'),
+        ('arts', 'Arts'),
+        ('technology', 'Technology'),
+        ('services', 'Services'),
+    ]
+
     title = models.CharField(max_length=200)
     description = models.TextField(blank=True)
+
     date = models.DateField()
+    end_date = models.DateField(null=True, blank=True)
+
     time = models.TimeField()
+    start_time = models.TimeField(null=True, blank=True)
+    end_time = models.TimeField(null=True, blank=True)
+
     location = models.CharField(max_length=200)
+
     club = models.ForeignKey(Club, on_delete=models.CASCADE, related_name='events')
     created_by = models.ForeignKey(User, on_delete=models.CASCADE)
+
     rsvps = models.ManyToManyField(User, related_name='rsvped_events', blank=True)
+    image = models.ImageField(upload_to='event_images/', blank=True, null=True)
+    category = models.CharField(max_length=50, choices=CATEGORY_CHOICES, blank=True)
 
     def __str__(self):
         return self.title

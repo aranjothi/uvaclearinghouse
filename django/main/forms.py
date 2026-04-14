@@ -10,6 +10,11 @@ class EventForm(forms.ModelForm):
             "title",
             "description",
             "date",
+            "end_date",
             "time",
+            "start_time",
+            "end_time",
             "location",
+            "category",
+            "image",
         ]

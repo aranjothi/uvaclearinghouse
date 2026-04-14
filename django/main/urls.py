@@ -26,7 +26,9 @@ urlpatterns = [
     path('clubs/<slug:slug>/forum/<int:thread_id>/like/', views.like_thread, name='like_thread'),
     path('clubs/<slug:slug>/forum/reply/<int:reply_id>/like/', views.like_reply, name='like_reply'),
 
+    #Indiviudal Events Page Setup
     path('events/', views.Events_page, name='events'),
+    path('events/<int:event_id>/', views.event_detail, name='event_detail'),
 
     path('user-admin/', views.user_admin, name='user_admin'),
     path('user-admin/change-role/', views.user_admin_change_role, name='user_admin_change_role'),
