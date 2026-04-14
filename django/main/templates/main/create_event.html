@@ -1,15 +1,367 @@
-<h1>Create Event</h1>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Event – {{ club.name }}</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Helvetica, Arial, sans-serif; background: #f4f5f7; color: #232D4B; display: flex; min-height: 100vh; flex-direction: column; }
+        .shell { display: flex; flex: 1; }
+        .sidebar { width: 210px; background: #232D4B; display: flex; flex-direction: column; flex-shrink: 0; min-height: 100vh; }
+        .club-switcher { padding: 0.75rem 1.25rem; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .club-name-label { color: #fff; font-size: 12px; font-weight: bold; padding: 8px 10px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); border-radius: 6px; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .nav-item { display: flex; align-items: center; gap: 10px; padding: 11px 1.25rem; color: #8fa0be; font-size: 13px; text-decoration: none; border-left: 3px solid transparent; transition: all 0.15s; }
+        .nav-item:hover { color: #fff; background: rgba(255,255,255,0.05); }
+        .nav-item.active { color: #fff; background: rgba(255,255,255,0.08); border-left-color: #E57200; }
+        .sidebar-footer { margin-top: auto; padding: 1rem 1.25rem; border-top: 1px solid rgba(255,255,255,0.1); }
+        .sidebar-footer a { color: #8fa0be; font-size: 12px; text-decoration: none; display: flex; align-items: center; gap: 10px; }
+        .sidebar-footer a:hover { color: #fff; }
+        .main { flex: 1; display: flex; flex-direction: column; }
+        .topbar { background: #fff; padding: 0 1.5rem; height: 52px; display: flex; align-items: center; border-bottom: 1px solid #e0e0e0; }
+        .topbar h1 { font-size: 15px; font-weight: bold; color: #232D4B; }
+        .body { padding: 1.5rem; }
+        .form-card { background: #fff; border-radius: 12px; border: 1px solid #e0e0e0; padding: 2rem; max-width: 600px; }
+        .form-group { margin-bottom: 1.25rem; }
+        .form-group label { display: block; font-size: 12px; font-weight: bold; color: #232D4B; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px; }
+        .form-group input[type="text"],
+        .form-group input[type="date"],
+        .form-group textarea,
+        .form-group select { width: 100%; padding: 10px 12px; border: 1px solid #e0e0e0; border-radius: 6px; font-size: 14px; font-family: inherit; color: #232D4B; background: #fff; transition: border-color 0.15s; }
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus { outline: none; border-color: #E57200; }
+        .form-group textarea { resize: vertical; min-height: 100px; }
+        .time-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.75rem; }
+        .location-wrapper { position: relative; }
+        .location-search { width: 100%; padding: 10px 12px; border: 1px solid #e0e0e0; border-radius: 6px; font-size: 14px; font-family: inherit; color: #232D4B; }
+        .location-search:focus { outline: none; border-color: #E57200; }
+        .location-dropdown { display: none; position: absolute; top: calc(100% + 4px); left: 0; right: 0; background: #fff; border: 1px solid #e0e0e0; border-radius: 6px; max-height: 220px; overflow-y: auto; z-index: 50; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+        .location-dropdown.open { display: block; }
+        .location-option { padding: 9px 12px; font-size: 13px; color: #232D4B; cursor: pointer; border-bottom: 1px solid #f0f0f0; }
+        .location-option:last-child { border-bottom: none; }
+        .location-option:hover, .location-option.highlighted { background: #f4f5f7; }
+        .location-option.selected { color: #E57200; font-weight: bold; }
+        .no-results { padding: 9px 12px; font-size: 13px; color: #aaa; font-style: italic; }
+        .form-actions { margin-top: 1.5rem; display: flex; gap: 0.75rem; }
+        .btn-orange { display: inline-block; padding: 10px 24px; border-radius: 6px; font-size: 14px; font-weight: bold; background: #E57200; color: #fff; border: none; cursor: pointer; transition: background 0.15s; }
+        .btn-orange:hover { background: #c96200; }
+        .btn-cancel { display: inline-block; padding: 10px 24px; border-radius: 6px; font-size: 14px; font-weight: bold; background: #fff; color: #232D4B; border: 1.5px solid #232D4B; text-decoration: none; transition: background 0.15s; }
+        .btn-cancel:hover { background: #f4f5f7; }
+        .errorlist { list-style: none; color: #c0392b; font-size: 12px; margin-top: 4px; }
+    </style>
+</head>
+<body>
 
-<p>{{ club.name }}</p>
+<nav style="position:relative; background-color:#232D4B; padding:0 40px; display:flex; align-items:center; justify-content:space-between;">
+    <a href="{% url 'home' %}" style="color:#fff; font-size:1.4rem; font-weight:bold; letter-spacing:1px; text-decoration:none;">HoosLinked</a>
+    <ul style="list-style:none; display:flex; gap:32px; align-items:center; margin:0; padding:0;">
+        <li><a href="{% url 'get_involved' %}" style="color:#fff; text-decoration:none; font-size:1rem; padding:20px 0; display:block;">Clubs</a></li>
+        <li><a href="{% url 'events' %}" style="color:#fff; text-decoration:none; font-size:1rem; padding:20px 0; display:block;">Events</a></li>
+        <li style="position:relative;" id="navIcon">
+            <button onclick="document.getElementById('execDropdown').style.display = document.getElementById('execDropdown').style.display === 'none' ? 'block' : 'none'" style="background:none; border:none; cursor:pointer; color:#fff; padding:4px; display:flex; align-items:center;">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width:28px;height:28px;">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                </svg>
+            </button>
+            <div id="execDropdown" style="display:none; position:absolute; right:0; top:calc(100% + 8px); background:#fff; border:1.5px solid #232D4B; border-radius:6px; min-width:130px; z-index:100; overflow:hidden;">
+                {% if user.is_authenticated %}
+                <a href="{% url 'profile' %}" style="display:block; padding:10px 16px; font-size:0.95rem; color:#232D4B; text-decoration:none;">Profile</a>
+                <a href="{% url 'logout' %}" style="display:block; padding:10px 16px; font-size:0.95rem; color:#232D4B; text-decoration:none;">Logout</a>
+                {% else %}
+                <a href="{% url 'login' %}" style="display:block; padding:10px 16px; font-size:0.95rem; color:#232D4B; text-decoration:none;">Login</a>
+                {% endif %}
+            </div>
+        </li>
+    </ul>
+</nav>
 
-<form method="post">
-    {% csrf_token %}
+<div class="shell">
+    <aside class="sidebar">
+        <div class="club-switcher">
+            <span class="club-name-label">{{ club.name }}</span>
+        </div>
+        <a class="nav-item" href="{% url 'executive_club_page' club.slug %}">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+            Dashboard
+        </a>
+        <a class="nav-item active" href="{% url 'executive_club_events' club.slug %}">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            Events
+        </a>
+        <div class="sidebar-footer">
+            <a href="{% url 'logout' %}">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                Sign out
+            </a>
+        </div>
+    </aside>
 
-    {{ form.as_p }}
+    <div class="main">
+        <div class="topbar">
+            <h1>Create Event — {{ club.name }}</h1>
+        </div>
 
-    <button type="submit">
-        Create Event
-    </button>
+        <div class="body">
+            <div class="form-card">
+                <form method="post" id="eventForm">
+                    {% csrf_token %}
 
-</form>
+                    <!-- Title -->
+                    <div class="form-group">
+                        <label for="id_title">Title</label>
+                        <input type="text" name="title" id="id_title" required>
+                    </div>
+
+                    <!-- Description -->
+                    <div class="form-group">
+                        <label for="id_description">Description</label>
+                        <textarea name="description" id="id_description"></textarea>
+                    </div>
+
+                    <!-- Date -->
+                    <div class="form-group">
+                        <label for="id_date">Date</label>
+                        <input type="date" name="date" id="id_date" required
+                            onclick="this.showPicker()"
+                            style="width:100%; padding:10px 12px; border:1px solid #e0e0e0; border-radius:6px; font-size:14px; font-family:inherit; color:#232D4B; cursor:pointer; background:#fff;">
+                    </div>
+
+                    <!-- Time -->
+                    <div class="form-group">
+                        <label>Time</label>
+                        <div style="position:relative;">
+                            <input type="text" id="timeDisplay" placeholder="e.g. 2:30 PM"
+                                   style="width:100%; padding:10px 12px; border:1px solid #e0e0e0; border-radius:6px; font-size:14px; font-family:inherit; color:#232D4B; background:#fff;">
+                            <input type="hidden" name="time" id="id_time">
+
+                            <!-- Popup -->
+                            <div id="timePicker" style="display:none; position:absolute; top:calc(100% + 8px); left:0; background:#fff; border:1px solid #e0e0e0; border-radius:12px; box-shadow:0 8px 24px rgba(0,0,0,0.12); z-index:200; padding:1.25rem; width:260px;">
+                                <div style="display:flex; align-items:center; justify-content:center; gap:0; user-select:none;">
+
+                                    <!-- Hour scroll -->
+                                    <div style="display:flex; flex-direction:column; align-items:center; width:60px;">
+                                        <button type="button" onclick="changeHour(1)" style="background:none; border:none; cursor:pointer; color:#232D4B; font-size:20px; padding:4px;">▲</button>
+                                        <div id="hourDisplay" style="font-size:32px; font-weight:bold; color:#232D4B; width:60px; text-align:center;">12</div>
+                                        <button type="button" onclick="changeHour(-1)" style="background:none; border:none; cursor:pointer; color:#232D4B; font-size:20px; padding:4px;">▼</button>
+                                    </div>
+
+                                    <div style="font-size:32px; font-weight:bold; color:#232D4B; padding:0 4px;">:</div>
+
+                                    <!-- Minute scroll -->
+                                    <div style="display:flex; flex-direction:column; align-items:center; width:60px;">
+                                        <button type="button" onclick="changeMin(1)" style="background:none; border:none; cursor:pointer; color:#232D4B; font-size:20px; padding:4px;">▲</button>
+                                        <div id="minDisplay" style="font-size:32px; font-weight:bold; color:#232D4B; width:60px; text-align:center;">00</div>
+                                        <button type="button" onclick="changeMin(-1)" style="background:none; border:none; cursor:pointer; color:#232D4B; font-size:20px; padding:4px;">▼</button>
+                                    </div>
+
+                                    <!-- AM/PM -->
+                                    <div style="display:flex; flex-direction:column; align-items:center; width:60px; margin-left:8px;">
+                                        <button type="button" onclick="toggleAmPm()" style="background:none; border:none; cursor:pointer; color:#232D4B; font-size:20px; padding:4px;">▲</button>
+                                        <div id="ampmDisplay" style="font-size:24px; font-weight:bold; color:#E57200; width:60px; text-align:center;">AM</div>
+                                        <button type="button" onclick="toggleAmPm()" style="background:none; border:none; cursor:pointer; color:#232D4B; font-size:20px; padding:4px;">▼</button>
+                                    </div>
+                                </div>
+
+                                <!-- Confirm -->
+                                <button type="button" onclick="confirmTime()" style="margin-top:1rem; width:100%; padding:9px; background:#E57200; color:#fff; border:none; border-radius:6px; font-size:14px; font-weight:bold; cursor:pointer;">
+                                    Set Time
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Location -->
+                    <div class="form-group">
+                        <label>Location</label>
+                        <div class="location-wrapper">
+                            <input type="text" class="location-search" id="locationSearch" placeholder="Search UVA venues..." autocomplete="off">
+                            <div class="location-dropdown" id="locationDropdown"></div>
+                        </div>
+                        <input type="hidden" name="location" id="id_location">
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn-orange">Create Event</button>
+                        <a href="{% url 'executive_club_events' club.slug %}" class="btn-cancel">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ── Nav dropdown ──
+    document.addEventListener('click', function(e) {
+        const navIcon = document.getElementById('navIcon');
+        const dropdown = document.getElementById('execDropdown');
+        if (!navIcon.contains(e.target)) dropdown.style.display = 'none';
+    });
+
+    // ── Time picker ──
+    let tHour = 12, tMin = 0, tAmPm = 'AM';
+
+    const timeDisplay = document.getElementById('timeDisplay');
+    const timePicker = document.getElementById('timePicker');
+
+    // Open picker on click
+    timeDisplay.addEventListener('click', (e) => {
+        e.stopPropagation();
+        timePicker.style.display = timePicker.style.display === 'none' ? 'block' : 'none';
+    });
+
+    // Close picker when clicking outside
+    document.addEventListener('click', (e) => {
+        if (!timePicker.contains(e.target) && e.target !== timeDisplay) {
+            timePicker.style.display = 'none';
+        }
+    });
+
+    // Parse typed input and sync picker
+    timeDisplay.addEventListener('input', () => {
+        const raw = timeDisplay.value.trim();
+        const match = raw.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)?$/i);
+        if (match) {
+            let h = parseInt(match[1]);
+            const m = parseInt(match[2]);
+            const ap = match[3] ? match[3].toUpperCase() : tAmPm;
+            if (h >= 1 && h <= 12 && m >= 0 && m <= 59) {
+                tHour = h;
+                tMin = m;
+                tAmPm = ap;
+                renderTime();
+                let h24 = tHour;
+                if (tAmPm === 'PM' && h24 !== 12) h24 += 12;
+                if (tAmPm === 'AM' && h24 === 12) h24 = 0;
+                document.getElementById('id_time').value = String(h24).padStart(2,'0') + ':' + String(tMin).padStart(2,'0') + ':00';
+            }
+        }
+    });
+
+    function renderTime() {
+        document.getElementById('hourDisplay').textContent = String(tHour).padStart(2,'0');
+        document.getElementById('minDisplay').textContent = String(tMin).padStart(2,'0');
+        document.getElementById('ampmDisplay').textContent = tAmPm;
+    }
+
+    function changeHour(d) {
+        tHour = ((tHour - 1 + d + 12) % 12) + 1;
+        renderTime();
+    }
+
+    function changeMin(d) {
+        tMin = (tMin + d + 60) % 60;
+        renderTime();
+    }
+
+    function toggleAmPm() {
+        tAmPm = tAmPm === 'AM' ? 'PM' : 'AM';
+        renderTime();
+    }
+
+    function confirmTime() {
+        let h24 = tHour;
+        if (tAmPm === 'PM' && h24 !== 12) h24 += 12;
+        if (tAmPm === 'AM' && h24 === 12) h24 = 0;
+        document.getElementById('id_time').value = String(h24).padStart(2,'0') + ':' + String(tMin).padStart(2,'0') + ':00';
+        timeDisplay.value = String(tHour).padStart(2,'0') + ':' + String(tMin).padStart(2,'0') + ' ' + tAmPm;
+        timePicker.style.display = 'none';
+    }
+
+    renderTime();
+
+    // ── Location search ──
+    const locations = [
+        "Alderman Library",
+        "Bavaro Hall",
+        "Brooks Hall",
+        "Bryan Hall",
+        "Cabell Hall",
+        "Campbell Hall",
+        "Clark Hall",
+        "Clemons Library",
+        "Cocke Hall",
+        "Dell 1",
+        "Dell 2",
+        "Garrett Hall",
+        "Gibson Hall",
+        "Gilmer Hall",
+        "Halsey Hall",
+        "Hotel C (Physics)",
+        "Kerchof Hall",
+        "Madison Hall",
+        "McLeod Hall",
+        "Memorial Gymnasium",
+        "Minor Hall",
+        "Monroe Hall",
+        "Newcomb Hall",
+        "Nau Hall",
+        "Observatory Hill Dining",
+        "Olsson Hall",
+        "O'Hill Commons",
+        "Pavilion I–X (The Lawn)",
+        "The Rotunda",
+        "Rice Hall",
+        "Robertson Hall",
+        "Ruffner Hall",
+        "Slaughter Recreation Center",
+        "Shannon Library",
+        "The Corner",
+        "Thornton Hall",
+        "University Hall",
+        "Warner Hall",
+        "Withers-Brown Hall",
+        "John Paul Jones Arena",
+        "Scott Stadium",
+        "Virtual / Online",
+        "Other"
+    ];
+
+    const searchInput = document.getElementById('locationSearch');
+    const dropdown = document.getElementById('locationDropdown');
+    const hiddenLoc = document.getElementById('id_location');
+
+    function renderDropdown(filter) {
+        const filtered = locations.filter(l => l.toLowerCase().includes(filter.toLowerCase()));
+        dropdown.innerHTML = '';
+        if (filtered.length === 0) {
+            dropdown.innerHTML = '<div class="no-results">No venues found</div>';
+        } else {
+            filtered.forEach(loc => {
+                const div = document.createElement('div');
+                div.className = 'location-option';
+                div.textContent = loc;
+                div.addEventListener('click', () => {
+                    searchInput.value = loc;
+                    hiddenLoc.value = loc;
+                    dropdown.classList.remove('open');
+                });
+                dropdown.appendChild(div);
+            });
+        }
+        dropdown.classList.add('open');
+    }
+
+    searchInput.addEventListener('input', () => renderDropdown(searchInput.value));
+    searchInput.addEventListener('focus', () => renderDropdown(searchInput.value));
+
+    document.addEventListener('click', function(e) {
+        const wrapper = document.querySelector('.location-wrapper');
+        if (!wrapper.contains(e.target)) dropdown.classList.remove('open');
+    });
+
+    // ── Form submit validation ──
+    document.getElementById('eventForm').addEventListener('submit', function(e) {
+        updateTime();
+        if (!hiddenLoc.value) {
+            e.preventDefault();
+            searchInput.style.borderColor = '#c0392b';
+            searchInput.focus();
+        }
+    });
+</script>
+
 {% include 'main/chat_widget.html' %}
+</body>
+</html>
