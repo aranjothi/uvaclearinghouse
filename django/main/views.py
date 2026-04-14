@@ -5,7 +5,7 @@ from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.http import JsonResponse
-from .models import User, Club, Membership, Event, Forum, ForumThread, ForumReply, DirectMessage
+from .models import User, Club, Membership, Event, Forum, ForumThread, ForumReply, DirectMessage, Announcement
 from .forms import EventForm
 from functools import wraps
 
@@ -42,6 +42,16 @@ class ClubDetailView(DetailView):
             rsvped_ids = set(self.request.user.rsvped_events.values_list('id', flat=True))
         context["events"] = events
         context["rsvped_ids"] = rsvped_ids
+
+        # Announcements: members see all, others see only 'everyone' visibility
+        all_announcements = self.object.announcements.select_related('author').order_by('-created_at')
+        if is_member:
+            visible_announcements = all_announcements
+        else:
+            visible_announcements = all_announcements.filter(visibility=Announcement.EVERYONE)
+        context["announcements"] = visible_announcements
+        context["latest_announcement"] = visible_announcements.first()
+
         return context
 
 def home(request):
@@ -135,6 +145,30 @@ def get_involved_page(request):
     return render(request, 'main/get_involved.html', {
         'clubs': clubs,  # pass clubs queryset to template
         'query': query,
+    })
+
+def global_search(request):
+    query = request.GET.get('q', '').strip()
+
+    clubs = Club.objects.none()
+    events = Event.objects.none()
+
+    if query:
+        clubs = Club.objects.filter(
+            Q(name__icontains=query) | Q(description__icontains=query)
+        ).order_by('name')
+
+        events = Event.objects.select_related('club').filter(
+            Q(title__icontains=query) |
+            Q(description__icontains=query) |
+            Q(location__icontains=query) |
+            Q(club__name__icontains=query)
+        ).order_by('date', 'time')
+
+    return render(request, 'main/global_search.html', {
+        'query': query,
+        'clubs': clubs,
+        'events': events,
     })
 
 @login_required
@@ -290,6 +324,28 @@ def upload_club_image(request, slug):
     if request.method == 'POST' and request.FILES.get('club_image'):
         club.image = request.FILES['club_image']
         club.save()
+    return redirect('club_detail', slug=slug)
+
+@login_required
+def post_announcement(request, slug):
+    club = get_object_or_404(Club, slug=slug)
+    is_exec = Membership.objects.filter(user=request.user, club=club, role=Membership.EXECUTIVE).exists()
+    if not is_exec:
+        return redirect('club_detail', slug=slug)
+    if request.method == 'POST':
+        title = request.POST.get('title', '').strip()
+        content = request.POST.get('content', '').strip()
+        visibility = request.POST.get('visibility', Announcement.EVERYONE)
+        if visibility not in (Announcement.MEMBERS, Announcement.EVERYONE):
+            visibility = Announcement.EVERYONE
+        if content:
+            Announcement.objects.create(
+                club=club,
+                author=request.user,
+                title=title,
+                content=content,
+                visibility=visibility,
+            )
     return redirect('club_detail', slug=slug)
 
 # ──────────────────────────────────────────────

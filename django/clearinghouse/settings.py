@@ -27,7 +27,6 @@ print("DATABASE_URL loaded:", os.environ.get('DATABASE_URL'))
 print("ENV_PATH:", ENV_PATH)
 print("ENV_PATH exists:", ENV_PATH.exists())
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
@@ -144,11 +143,31 @@ AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
 AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
 AWS_STORAGE_BUCKET_NAME = os.getenv('AWS_STORAGE_BUCKET_NAME')
 AWS_S3_REGION_NAME = os.getenv('AWS_S3_REGION_NAME', 'us-east-2')
-AWS_DEFAULT_ACL = 'public-read'
+
 AWS_S3_FILE_OVERWRITE = False
 
-DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+#DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+DEFAULT_FILE_STORAGE = 'storages.backends.s3.S3Storage'
 MEDIA_URL = f'https://{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com/'
+
+# https://django-storages.readthedocs.io/en/latest/backends/amazon-S3.html
+STORAGES = {
+    "default": {
+        "BACKEND": "storages.backends.s3.S3Storage",
+        "OPTIONS": {
+          "bucket_name":AWS_STORAGE_BUCKET_NAME,
+           "region_name":AWS_S3_REGION_NAME
+        }
+    },
+    # https://stackoverflow.com/questions/78608996/django-storages-staticfiles-storage-key-attribute-error
+    "staticfiles": {
+        "BACKEND": "storages.backends.s3.S3Storage",
+        "OPTIONS": {
+          "bucket_name":AWS_STORAGE_BUCKET_NAME,
+           "region_name":AWS_S3_REGION_NAME
+        }
+    }
+}
 
 AUTH_USER_MODEL = 'main.User'
 

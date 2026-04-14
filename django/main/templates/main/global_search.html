@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Search Results</title>
+
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    font-family: Helvetica, Arial, sans-serif;
+    background-color: #FFFFFF;
+    color: #232D4B;
+}
+
+nav {
+    background-color: #232D4B;
+    padding: 0 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+nav .logo {
+    color: #FFFFFF;
+    font-size: 1.4rem;
+    font-weight: bold;
+    letter-spacing: 1px;
+}
+
+nav ul {
+    list-style: none;
+    display: flex;
+    gap: 32px;
+}
+
+nav ul li a {
+    color: #FFFFFF;
+    text-decoration: none;
+    font-size: 1rem;
+    padding: 20px 0;
+    display: block;
+    border-bottom: 3px solid transparent;
+    transition: border-color 0.2s;
+}
+
+nav ul li a:hover {
+    border-bottom: 3px solid #E57200;
+}
+
+.nav-icon { position: relative; padding: 11px 0px; }
+.icon-btn { background: none; border: none; cursor: pointer; color: #FFFFFF; padding: 4px; display: flex; align-items: center; }
+.icon-btn svg { width: 28px; height: 28px; }
+.dropdown { display: none; position: absolute; right: 0; top: calc(100% + 8px); background: #FFFFFF; border: 1.5px solid #232D4B; border-radius: 6px; min-width: 130px; z-index: 100; overflow: hidden; }
+.dropdown a, .dropdown button { display: block; width: 100%; text-align: left; padding: 10px 16px; font-size: 0.95rem; color: #232D4B; text-decoration: none; background: none; border: none; cursor: pointer; font-family: inherit; }
+.dropdown a:hover, .dropdown button:hover { background-color: #f0f0f0; }
+.nav-icon.open .dropdown { display: block; }
+
+.page-wrap {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 40px 24px 60px;
+}
+
+.page-wrap h1 {
+    font-size: 2rem;
+    margin-bottom: 10px;
+}
+
+.page-wrap p.subtext {
+    color: #555;
+    margin-bottom: 28px;
+}
+
+.section-title {
+    margin: 28px 0 16px;
+    font-size: 1.35rem;
+}
+
+.results-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+}
+
+.result-card {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+    border: 1px solid #e5e5e5;
+    border-radius: 10px;
+    padding: 20px;
+    background: #f8f8f8;
+}
+
+.result-card:hover {
+    border-color: #E57200;
+}
+
+.result-card h3 {
+    margin-bottom: 8px;
+}
+
+.result-meta {
+    color: #E57200;
+    font-size: 0.9rem;
+    font-weight: bold;
+    margin-bottom: 8px;
+}
+
+.empty {
+    padding: 16px 0;
+    color: #666;
+}
+</style>
+
+<script>
+function toggleNav() {
+    document.getElementById('navIcon').classList.toggle('open');
+}
+document.addEventListener('click', function(e) {
+    const nav = document.getElementById('navIcon');
+    if (nav && !nav.contains(e.target)) nav.classList.remove('open');
+});
+</script>
+</head>
+<body>
+
+{% include 'main/navbar.html' %}
+
+<div class="page-wrap">
+    <h1>Search Results</h1>
+
+    <p class="subtext">
+        {% if query %}
+            Showing results for "{{ query }}"
+        {% else %}
+            Type something in the search bar to search clubs and events.
+        {% endif %}
+    </p>
+
+    <h2 class="section-title">Clubs</h2>
+    {% if clubs %}
+        <div class="results-grid">
+            {% for club in clubs %}
+                <a href="{% url 'club_detail' club.slug %}" class="result-card">
+                    <div class="result-meta">Club</div>
+                    <h3>{{ club.name }}</h3>
+                    <p>{{ club.description|default:"No description available."|truncatewords:25 }}</p>
+                </a>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p class="empty">No clubs matched your search.</p>
+    {% endif %}
+
+    <h2 class="section-title">Events</h2>
+    {% if events %}
+        <div class="results-grid">
+            {% for event in events %}
+                <a href="{% url 'club_detail' event.club.slug %}" class="result-card">
+                    <div class="result-meta">{{ event.club.name }} • {{ event.date }} at {{ event.time }}</div>
+                    <h3>{{ event.title }}</h3>
+                    <p>{{ event.location }}{% if event.description %} — {{ event.description|truncatewords:20 }}{% endif %}</p>
+                </a>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p class="empty">No events matched your search.</p>
+    {% endif %}
+</div>
+
+{% include 'main/chat_widget.html' %}
+</body>
+</html>

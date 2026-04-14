@@ -325,6 +325,287 @@ nav ul li a:hover {
     max-width: 420px;
 }
 
+.announcement-card {
+    padding: 18px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    margin-bottom: 14px;
+    border-left: 4px solid #E57200;
+}
+
+.announcement-title {
+    font-weight: bold;
+    font-size: 1rem;
+    color: #232D4B;
+    margin-bottom: 6px;
+}
+
+.announcement-content {
+    font-size: 0.95rem;
+    color: #444;
+    line-height: 1.6;
+    margin-bottom: 10px;
+    white-space: pre-wrap;
+}
+
+.announcement-meta {
+    font-size: 0.8rem;
+    color: #888;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.visibility-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 0.75rem;
+    font-weight: bold;
+}
+
+.visibility-badge.members {
+    background-color: #e8eaf6;
+    color: #3949ab;
+}
+
+.visibility-badge.everyone {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+}
+
+.modal select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-family: inherit;
+    font-size: 0.95rem;
+}
+
+.radio-group {
+    display: flex;
+    gap: 20px;
+    margin-top: 6px;
+}
+
+.radio-group label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: normal;
+    margin-top: 0;
+    cursor: pointer;
+}
+
+/* Announcement chat section */
+
+.ann-chat-section {
+    margin-top: 28px;
+    margin-bottom: 0;
+}
+
+.ann-chat-label {
+    font-size: 0.78rem;
+    font-weight: bold;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #888;
+    margin-bottom: 10px;
+}
+
+.chat-bubble-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    margin-bottom: 14px;
+}
+
+.chat-bubble {
+    background-color: #232D4B;
+    color: #fff;
+    border-radius: 18px 18px 18px 4px;
+    padding: 14px 18px;
+    max-width: 75%;
+    word-break: break-word;
+}
+
+.chat-bubble-title {
+    font-weight: bold;
+    font-size: 0.95rem;
+    margin-bottom: 5px;
+}
+
+.chat-bubble-body {
+    font-size: 0.9rem;
+    line-height: 1.55;
+    white-space: pre-wrap;
+    opacity: 0.92;
+}
+
+.chat-bubble-meta {
+    font-size: 0.75rem;
+    color: #aaa;
+    margin-top: 5px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.chat-empty {
+    font-size: 0.9rem;
+    color: #aaa;
+    font-style: italic;
+    margin-bottom: 14px;
+}
+
+.compose-box {
+    border: 1.5px solid #e0e0e0;
+    border-radius: 14px;
+    overflow: hidden;
+    background: #fafafa;
+}
+
+.compose-title-row {
+    padding: 10px 14px 0 14px;
+}
+
+.compose-title-input {
+    width: 100%;
+    border: none;
+    background: transparent;
+    font-family: inherit;
+    font-size: 0.9rem;
+    font-weight: bold;
+    color: #232D4B;
+    outline: none;
+}
+
+.compose-title-input::placeholder { font-weight: normal; color: #aaa; }
+
+.compose-textarea-row {
+    display: flex;
+    align-items: flex-end;
+    padding: 6px 8px 8px 14px;
+    gap: 8px;
+}
+
+.compose-textarea {
+    flex: 1;
+    border: none;
+    background: transparent;
+    font-family: inherit;
+    font-size: 0.9rem;
+    color: #232D4B;
+    outline: none;
+    resize: none;
+    line-height: 1.5;
+    max-height: 120px;
+    min-height: 36px;
+}
+
+.compose-textarea::placeholder { color: #aaa; }
+
+.compose-send-btn {
+    background-color: #E57200;
+    border: none;
+    border-radius: 50%;
+    width: 34px;
+    height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    flex-shrink: 0;
+    color: #fff;
+    transition: background-color 0.15s;
+}
+
+.compose-send-btn:hover { background-color: #c86100; }
+
+.compose-visibility-row {
+    border-top: 1px solid #e8e8e8;
+    padding: 6px 14px;
+    display: flex;
+    gap: 18px;
+}
+
+.compose-visibility-row label {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.78rem;
+    color: #666;
+    cursor: pointer;
+    font-weight: normal;
+}
+
+.ann-item {
+    display: flex;
+    gap: 12px;
+    padding: 14px 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.ann-item:last-child { border-bottom: none; }
+
+.ann-avatar {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
+.ann-body { flex: 1; min-width: 0; }
+
+.ann-header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 4px;
+    flex-wrap: wrap;
+}
+
+.ann-author {
+    font-weight: bold;
+    font-size: 0.9rem;
+    color: #232D4B;
+}
+
+.ann-audience {
+    font-size: 0.85rem;
+    color: #888;
+}
+
+.ann-date {
+    font-size: 0.8rem;
+    color: #aaa;
+    margin-left: auto;
+}
+
+.ann-text {
+    font-size: 0.9rem;
+    color: #444;
+    line-height: 1.55;
+    white-space: pre-wrap;
+}
+
+.action-section {
+    margin-bottom: 24px;
+}
+
+.action-section-label {
+    font-size: 0.72rem;
+    font-weight: bold;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: #888;
+    margin-bottom: 8px;
+}
+
 </style>
 </head>
 
@@ -375,60 +656,125 @@ nav ul li a:hover {
         </p>
         {% endfor %}
 
-        <div class="button-row">
-
-            {% if user.is_authenticated %}
-                {% if not is_member %}
-                <form method="post" action="{% url 'join_club' club.slug %}">
-                    {% csrf_token %}
-                    <button type="submit" class="club-btn">Become Member</button>
-                </form>
-                {% endif %}
-
-                {% if not is_exec %}
-                <form method="post" action="{% url 'verify_exec' club.slug %}" style="display:flex;gap:8px;align-items:center;">
-                    {% csrf_token %}
-                    <input type="text" name="executive_code" placeholder="Executive code" maxlength="8"
-                           style="padding:10px;border:1px solid #ccc;border-radius:6px;font-size:1rem;width:160px;">
-                    <button type="submit" class="club-btn secondary-btn">Verify Exec</button>
-                </form>
-                {% endif %}
-
-                {% if is_exec %}
+        {% if is_exec %}
+        <div class="action-section">
+            <div class="action-section-label">Exec EZ-Access</div>
+            <div class="button-row">
                 <button type="button" class="club-btn" onclick="document.getElementById('createEventModal').classList.add('open')">
                     Create Event
                 </button>
+                <button type="button" class="club-btn secondary-btn" onclick="openNewAnnouncement()">
+                    New Announcement
+                </button>
+            </div>
+        </div>
+        {% else %}
+        <div class="action-section">
+            <div class="action-section-label">Actions</div>
+            <div class="button-row">
+                {% if user.is_authenticated %}
+                    {% if not is_member %}
+                    <form method="post" action="{% url 'join_club' club.slug %}">
+                        {% csrf_token %}
+                        <button type="submit" class="club-btn">Become Member</button>
+                    </form>
+                    {% endif %}
+                    <form method="post" action="{% url 'verify_exec' club.slug %}" style="display:flex;gap:8px;align-items:center;">
+                        {% csrf_token %}
+                        <input type="text" name="executive_code" placeholder="Executive code" maxlength="8"
+                               style="padding:10px;border:1px solid #ccc;border-radius:6px;font-size:1rem;width:160px;">
+                        <button type="submit" class="club-btn secondary-btn">Verify Exec</button>
+                    </form>
+                {% else %}
+                    <button type="button" class="club-btn" disabled>Become Member</button>
+                    <button type="button" class="club-btn secondary-btn" disabled>Verify Exec</button>
+                    <p class="login-warning">
+                        You must be signed in to join organizations or verify executive membership.
+                    </p>
                 {% endif %}
-
-            {% else %}
-                <button type="button" class="club-btn" disabled>
-                    Become Member
-                </button>
-                
-                <button type="button" class="club-btn secondary-btn" disabled>
-                    Verify Exec
-                </button>
-
-                <p class="login-warning">
-                    You must be signed in to join organizations or verify executive membership.
-                </p>
-
-            
-
+            </div>
+        </div>
         {% endif %}
 
+        {% if announcements or is_exec %}
+        <div class="ann-chat-section">
+            <div class="ann-chat-label">Latest Announcement</div>
+
+            {% if latest_announcement %}
+            <div class="ann-item">
+                {% load static %}
+                <img class="ann-avatar"
+                     src="{% if latest_announcement.author.profile_picture %}{{ latest_announcement.author.profile_picture.url }}{% else %}{% static 'defaultpfp.jpg' %}{% endif %}"
+                     alt="{{ latest_announcement.author.first_name }}">
+                <div class="ann-body">
+                    <div class="ann-header">
+                        <span class="ann-author">{{ latest_announcement.author.first_name }} {{ latest_announcement.author.last_name }}</span>
+                        <span class="ann-audience">to {% if latest_announcement.visibility == 'members' %}Club{% else %}Everyone{% endif %}</span>
+                        <span class="ann-date">{{ latest_announcement.created_at|date:"M d, Y" }}</span>
+                    </div>
+                    <div class="ann-text">{{ latest_announcement.content }}</div>
+                </div>
+            </div>
+            {% else %}
+            <p class="chat-empty">No announcements yet.</p>
+            {% endif %}
+
         </div>
+        {% endif %}
 
         <hr style="border:none;border-top:1px solid #e0e0e0;margin:32px 0;">
 
         <!-- Tab buttons -->
         <div class="tab-bar">
-            <button class="tab-btn active" onclick="switchTab('discussion', this)">Discussion</button>
+            <button class="tab-btn active" onclick="switchTab('announcements', this)">Announcements</button>
+            <button class="tab-btn" onclick="switchTab('discussion', this)">Discussion</button>
             <button class="tab-btn" onclick="switchTab('events', this)">Events</button>
         </div>
 
+        <!-- Announcements tab -->
+        <div id="tab-announcements" class="tab-content">
+            {% if announcements %}
+                {% for ann in announcements %}
+                <div class="ann-item">
+                    {% load static %}
+                    <img class="ann-avatar"
+                         src="{% if ann.author.profile_picture %}{{ ann.author.profile_picture.url }}{% else %}{% static 'defaultpfp.jpg' %}{% endif %}"
+                         alt="{{ ann.author.first_name }}">
+                    <div class="ann-body">
+                        <div class="ann-header">
+                            <span class="ann-author">{{ ann.author.first_name }} {{ ann.author.last_name }}</span>
+                            <span class="ann-audience">to {% if ann.visibility == 'members' %}Club{% else %}Everyone{% endif %}</span>
+                            <span class="ann-date">{{ ann.created_at|date:"M d, Y" }}</span>
+                        </div>
+                        <div class="ann-text">{{ ann.content }}</div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <p style="color:#888;">No announcements yet.</p>
+            {% endif %}
+
+            {% if is_exec %}
+            <form method="post" action="{% url 'post_announcement' club.slug %}" class="compose-box" id="ann-compose" style="margin-top:16px;">
+                {% csrf_token %}
+                <div class="compose-textarea-row">
+                    <textarea name="content" class="compose-textarea" placeholder="Write a message to your members..." rows="2" required></textarea>
+                    <button type="submit" class="compose-send-btn" title="Post announcement">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width:16px;height:16px;">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 12 3.269 3.125A59.769 59.769 0 0 1 21.485 12 59.768 59.768 0 0 1 3.27 20.875L5.999 12Zm0 0h7.5" />
+                        </svg>
+                    </button>
+                </div>
+                <div class="compose-visibility-row">
+                    <label><input type="radio" name="visibility" value="everyone" checked> Everyone</label>
+                    <label><input type="radio" name="visibility" value="members"> Members Only</label>
+                </div>
+            </form>
+            {% endif %}
+        </div>
+
         <!-- Discussion tab -->
-        <div id="tab-discussion" class="tab-content">
+        <div id="tab-discussion" class="tab-content" style="display:none;">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px;">
                 <div class="search-bar">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width:18px;height:18px;">
@@ -537,6 +883,15 @@ function switchTab(name, btn) {
     document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
     document.getElementById('tab-' + name).style.display = 'block';
     btn.classList.add('active');
+}
+
+function openNewAnnouncement() {
+    const annBtn = document.querySelector('.tab-btn[onclick*="announcements"]');
+    switchTab('announcements', annBtn);
+    setTimeout(() => {
+        const compose = document.getElementById('ann-compose');
+        if (compose) compose.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 50);
 }
 </script>
 <script>
