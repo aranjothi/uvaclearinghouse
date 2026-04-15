@@ -171,6 +171,16 @@
         .google-btn:hover {
             background-color: #f0f0f0;
         }
+        .alert-banner {
+            background-color: #ffe5e5;
+            color: #b00020;
+            border: 1px solid #ffb3b3;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: 500;
+        }
     </style>
 </head>
 <body>
@@ -181,6 +191,11 @@
         <div class="login-box">
             <h1>Hoos<span>Linked</span></h1>
             <p>Sign in to your account</p>
+            {% if request.GET.next %}
+                <div class="alert-banner">
+                    You are not logged in yet. Please sign in or signup to continue.
+                </div>
+            {% endif %}
             <form method="post">
                 {% csrf_token %}
                 {% if error %}<p style="color:red;margin-bottom:16px;">{{ error }}</p>{% endif %}

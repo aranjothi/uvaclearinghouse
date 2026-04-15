@@ -4,17 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="00a4688b-7249-4d35-9273-226e29aacd18" name="Changes" comment="Edit events page">
-      <change afterPath="$PROJECT_DIR$/django/main/templates/main/event_detail.html" afterDir="false" />
+    <list default="true" id="00a4688b-7249-4d35-9273-226e29aacd18" name="Changes" comment="Create Event Details Page">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/django/main/forms.py" beforeDir="false" afterPath="$PROJECT_DIR$/django/main/forms.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/django/main/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/django/main/models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/django/main/templates/main/Events.html" beforeDir="false" afterPath="$PROJECT_DIR$/django/main/templates/main/Events.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/django/main/templates/main/create_event.html" beforeDir="false" afterPath="$PROJECT_DIR$/django/main/templates/main/create_event.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/django/main/templates/main/executive_club_events.html" beforeDir="false" afterPath="$PROJECT_DIR$/django/main/templates/main/executive_club_events.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/django/main/templates/main/executive_edit_event.html" beforeDir="false" afterPath="$PROJECT_DIR$/django/main/templates/main/executive_edit_event.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/django/main/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/django/main/urls.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/django/main/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/django/main/views.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/django/main/templates/main/login.html" beforeDir="false" afterPath="$PROJECT_DIR$/django/main/templates/main/login.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -284,7 +276,15 @@
       <option name="project" value="LOCAL" />
       <updated>1776183247808</updated>
     </task>
-    <option name="localTasksCounter" value="9" />
+    <task id="LOCAL-00009" summary="Create Event Details Page">
+      <option name="closed" value="true" />
+      <created>1776195640460</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1776195640460</updated>
+    </task>
+    <option name="localTasksCounter" value="10" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -336,6 +336,7 @@
     <MESSAGE value="Make all the nav bar the same across pages" />
     <MESSAGE value="fix minor stuff" />
     <MESSAGE value="Edit events page" />
-    <option name="LAST_COMMIT_MESSAGE" value="Edit events page" />
+    <MESSAGE value="Create Event Details Page" />
+    <option name="LAST_COMMIT_MESSAGE" value="Create Event Details Page" />
   </component>
 </project>
