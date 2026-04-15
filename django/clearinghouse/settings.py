@@ -35,6 +35,7 @@ SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "django-insecure-local-dev-key-12345
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
+DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 
 ALLOWED_HOSTS = ["clearinghouse-b05-48721624d34f.herokuapp.com", "127.0.0.1", "localhost"]
 
