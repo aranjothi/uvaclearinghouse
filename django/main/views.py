@@ -8,6 +8,7 @@ from django.http import JsonResponse
 from .models import User, Club, Membership, Event, Forum, ForumThread, ForumReply, DirectMessage, Announcement
 from .forms import EventForm
 from functools import wraps
+import datetime
 
 class ClubDetailView(DetailView):
     model = Club
@@ -218,19 +219,45 @@ def create_event(request, slug):
     if not is_exec:
         return redirect('executive_page')
     if request.method == 'POST':
-        form = EventForm(request.POST, request.FILES)
-        if form.is_valid():
-            event = form.save(commit=False)
-            event.club = club
-            event.created_by = request.user
-            event.save()
-            return redirect('executive_club_events', slug=club.slug)
-    else:
-        form = EventForm()
-    return render(request, 'main/create_event.html', {'club': club, 'form': form})
+        event = Event()
+        event.club = club
+        event.created_by = request.user
+        event.title = request.POST.get('title', '')
+        event.description = request.POST.get('description', '')
+
+        date_val = request.POST.get('date')
+        if date_val:
+            event.date = date_val
+
+        end_date_val = request.POST.get('end_date')
+        event.end_date = end_date_val if end_date_val else None
+
+        start_time_val = request.POST.get('start_time')
+        if start_time_val:
+            event.start_time = start_time_val
+        else:
+            event.start_time = '00:00:00'
+
+        event.time = event.start_time
+
+        end_time_val = request.POST.get('end_time')
+        event.end_time = end_time_val if end_time_val else None
+
+        location_val = request.POST.get('location', '')
+        event.location = location_val
+
+        event.category = request.POST.get('category', '')
+
+        if request.FILES.get('image'):
+            event.image = request.FILES['image']
+
+        event.save()
+        return redirect('executive_club_events', slug=club.slug)
+
+    return render(request, 'main/create_event.html', {'club': club})
 
 def Events_page(request):
-    events = Event.objects.all().order_by('date')  # fetch all events ordered by soonest first
+    events = Event.objects.all().order_by('-date','-start_time')  # fetch all events ordered by soonest first
     return render(request, 'main/Events.html', {'events': events})  # pass events to template
 
 @login_required
@@ -568,7 +595,11 @@ def executive_club_events(request, slug):
     ).exists()
     if not is_exec:
         return redirect('executive_page')
-    events = club.events.order_by('date', 'time')
+    #This helps to order the events by the latest
+    today = datetime.date.today()
+    upcoming = club.events.filter(date__gte=today).order_by('date', 'start_time')
+    past = club.events.filter(date__lt=today).order_by('-start_time')
+    events = list(upcoming) + list(past)
     return render(request, 'main/executive_club_events.html', {
         'club': club,
         'events': events,
@@ -584,15 +615,53 @@ def executive_edit_event(request, slug, event_id):
         return redirect('executive_page')
     event = get_object_or_404(Event, id=event_id, club=club)
     if request.method == 'POST':
-        form = EventForm(request.POST, request.FILES, instance=event)
-        if form.is_valid():
-            form.save()
-            return redirect('executive_club_events', slug=club.slug)
-    else:
-        form = EventForm(instance=event)
+        event.title = request.POST.get('title') or event.title
+        event.description = request.POST.get('description', '')
+
+        date_val = request.POST.get('date')
+        if date_val:
+            event.date = date_val
+
+        end_date_val = request.POST.get('end_date')
+        event.end_date = end_date_val if end_date_val else None
+
+        start_time_val = request.POST.get('start_time')
+        if start_time_val:
+            event.start_time = start_time_val
+
+        event.time = event.start_time
+
+        end_time_val = request.POST.get('end_time')
+        event.end_time = end_time_val if end_time_val else None
+
+        location_val = request.POST.get('location')
+        if location_val:
+            event.location = location_val
+
+        event.category = request.POST.get('category', '')
+
+        if request.FILES.get('image'):
+            event.image = request.FILES['image']
+
+        event.save()
+        return redirect('executive_club_events', slug=club.slug)
+
     return render(request, 'main/executive_edit_event.html', {
-        'club': club, 'event': event, 'form': form
+        'club': club, 'event': event
     })
+#Delete events
+@login_required
+def executive_delete_event(request, slug, event_id):
+    club = get_object_or_404(Club, slug=slug)
+    is_exec = Membership.objects.filter(
+        user=request.user, club=club, role=Membership.EXECUTIVE
+    ).exists()
+    if not is_exec:
+        return redirect('executive_page')
+    event = get_object_or_404(Event, id=event_id, club=club)
+    if request.method == 'POST':
+        event.delete()
+    return redirect('executive_club_events', slug=slug)
 
 # ──────────────────────────────────────────────
 # Event Details

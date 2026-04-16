@@ -32,6 +32,8 @@
         .form-group textarea:focus,
         .form-group select:focus { outline: none; border-color: #E57200; }
         .form-group textarea { resize: vertical; min-height: 100px; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.25rem; }
+        .section-divider { font-size: 11px; font-weight: bold; color: #aaa; text-transform: uppercase; letter-spacing: 0.08em; margin: 1.5rem 0 1rem; padding-bottom: 6px; border-bottom: 1px solid #f0f0f0; }
         .location-wrapper { position: relative; }
         .location-search { width: 100%; padding: 10px 12px; border: 1px solid #e0e0e0; border-radius: 6px; font-size: 14px; font-family: inherit; color: #232D4B; }
         .location-search:focus { outline: none; border-color: #E57200; }
@@ -101,7 +103,7 @@
 
         <div class="body">
             <div class="form-card">
-                <form method="post" id="eventForm">
+                <form method="post" id="eventForm" enctype = "multipart/form-data">
                     {% csrf_token %}
 
                     <div class="form-group">
@@ -113,7 +115,6 @@
                         <label for="id_description">Description</label>
                         <textarea name="description" id="id_description">{{ event.description }}</textarea>
                     </div>
-
                     <div class="section-divider">Dates</div>
                     <div class="form-row">
                         <div class="form-group">
@@ -193,6 +194,8 @@
                         </div>
                     </div>
 
+                    <div class="section-divider">Details</div>
+
                     <div class="form-group">
                         <label>Location</label>
                         <div class="location-wrapper">
@@ -203,6 +206,17 @@
                             <div class="location-dropdown" id="locationDropdown"></div>
                         </div>
                         <input type="hidden" name="location" id="id_location" value="{{ event.location }}">
+                    </div>
+                    <div class="form-group">
+                        <label>Event Image <span style="font-weight:normal; color:#aaa;">(optional)</span></label>
+                        {% if event.image %}
+                        <div style="margin-bottom:8px;">
+                            <img src="{{ event.image.url }}" alt="Current image" style="width:100%; max-height:150px; object-fit:cover; border-radius:6px; border:1px solid #e0e0e0;">
+                            <div style="font-size:11px; color:#888; margin-top:4px;">Current image — upload a new one to replace it</div>
+                        </div>
+                        {% endif %}
+                        <input type="file" name="image" id="id_image" accept="image/*"
+                               style="width:100%; padding:10px 12px; border:1px solid #e0e0e0; border-radius:6px; font-size:14px; font-family:inherit; color:#232D4B; background:#fff;">
                     </div>
 
                     <div class="form-actions">
