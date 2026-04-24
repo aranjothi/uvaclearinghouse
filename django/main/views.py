@@ -1,5 +1,5 @@
 from django.views.generic import DetailView
-from django.db.models import Q
+from django.db.models import Case, When, Value, IntegerField, Q
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.decorators import login_required
@@ -8,6 +8,7 @@ from django.http import JsonResponse
 from .models import User, Club, Membership, Event, Forum, ForumThread, ForumReply, DirectMessage, Announcement
 from .forms import EventForm
 from functools import wraps
+import datetime
 from datetime import date
 from django.core.exceptions import ValidationError
 
@@ -53,6 +54,18 @@ class ClubDetailView(DetailView):
             visible_announcements = all_announcements.filter(visibility=Announcement.EVERYONE)
         context["announcements"] = visible_announcements
         context["latest_announcement"] = visible_announcements.first()
+
+        #Contacts: Members/Execs see all members, others only see the exec team
+        exec_members = self.object.memberships.filter(
+            role=Membership.EXECUTIVE
+        ).select_related('user').order_by('user__first_name', 'user__last_name')
+
+        general_members = self.object.memberships.filter(
+            role=Membership.MEMBER
+        ).select_related('user').order_by('user__first_name', 'user__last_name')
+
+        context['exec_members'] = exec_members
+        context['general_members'] = general_members
 
         return context
 

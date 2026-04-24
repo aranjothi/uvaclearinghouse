@@ -729,6 +729,7 @@ nav ul li a:hover {
             <button class="tab-btn active" onclick="switchTab('announcements', this)">Announcements</button>
             <button class="tab-btn" onclick="switchTab('discussion', this)">Discussion</button>
             <button class="tab-btn" onclick="switchTab('events', this)">Events</button>
+            <button class="tab-btn" onclick="switchTab('contacts', this)">Contacts</button>
         </div>
 
         <!-- Announcements tab -->
@@ -860,6 +861,78 @@ nav ul li a:hover {
             {% endif %}
             </div><!-- end events-list -->
         </div>
+        <!-- Contacts tab -->
+        <div id="tab-contacts" class="tab-content" style="display:none;">
+            {% if is_member or is_exec %}
+            <!-- Show all members to members/execs -->
+            <div style="margin-bottom:16px;">
+                <div style="font-size:0.72rem;font-weight:bold;letter-spacing:0.09em;text-transform:uppercase;color:#888;margin-bottom:10px;">Executive Team</div>
+                {% for m in exec_members %}
+                <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #f0f0f0;">
+                    <div style="display:flex;align-items:center;gap:10px;">
+                        {% load static %}
+                        <img src="{% if m.user.profile_picture %}{{ m.user.profile_picture.url }}{% else %}{% static 'defaultpfp.jpg' %}{% endif %}"
+                             style="width:36px;height:36px;border-radius:50%;object-fit:cover;">
+                        <div>
+                            <div style="font-weight:bold;font-size:0.9rem;">{{ m.user.first_name }} {{ m.user.last_name }}</div>
+                            <div style="font-size:0.8rem;color:#888;">Executive</div>
+                        </div>
+                    </div>
+                    {% if user.is_authenticated and m.user != user %}
+                    <a href="{% url 'dm_conversation' m.user.username %}" class="club-btn secondary-btn" style="font-size:0.8rem;padding:6px 12px;">Message</a>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+
+            <div>
+                <div style="font-size:0.72rem;font-weight:bold;letter-spacing:0.09em;text-transform:uppercase;color:#888;margin-bottom:10px;">General Members</div>
+                {% for m in general_members %}
+                {% if m.role != 'executive' %}
+                <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #f0f0f0;">
+                    <div style="display:flex;align-items:center;gap:10px;">
+                        <img src="{% if m.user.profile_picture %}{{ m.user.profile_picture.url }}{% else %}{% static 'defaultpfp.jpg' %}{% endif %}"
+                             style="width:36px;height:36px;border-radius:50%;object-fit:cover;">
+                        <div>
+                            <div style="font-weight:bold;font-size:0.9rem;">{{ m.user.first_name }} {{ m.user.last_name }}</div>
+                            <div style="font-size:0.8rem;color:#888;">Member</div>
+                        </div>
+                    </div>
+                    {% if user.is_authenticated and m.user != user %}
+                    <a href="{% url 'dm_conversation' m.user.username %}" class="club-btn secondary-btn" style="font-size:0.8rem;padding:6px 12px;">Message</a>
+                    {% endif %}
+                </div>
+                {% endif %}
+                {% endfor %}
+            </div>
+
+            {% else %}
+            <!-- Non-members only see exec team -->
+            <div style="font-size:0.72rem;font-weight:bold;letter-spacing:0.09em;text-transform:uppercase;color:#888;margin-bottom:10px;">Executive Team</div>
+            {% for m in exec_members %}
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #f0f0f0;">
+                <div style="display:flex;align-items:center;gap:10px;">
+                    {% load static %}
+                    <img src="{% if m.user.profile_picture %}{{ m.user.profile_picture.url }}{% else %}{% static 'defaultpfp.jpg' %}{% endif %}"
+                         style="width:36px;height:36px;border-radius:50%;object-fit:cover;">
+                    <div>
+                        <div style="font-weight:bold;font-size:0.9rem;">{{ m.user.first_name }} {{ m.user.last_name }}</div>
+                        <div style="font-size:0.8rem;color:#888;">Executive</div>
+                    </div>
+                </div>
+                {% if user.is_authenticated and m.user != user %}
+                <a href="{% url 'dm_conversation' m.user.username %}" class="club-btn secondary-btn" style="font-size:0.8rem;padding:6px 12px;">Message</a>
+                {% endif %}
+            </div>
+            {% empty %}
+            <p style="color:#888;">No executive members listed yet.</p>
+            {% endfor %}
+            {% if not user.is_authenticated %}
+            <p style="color:#888;margin-top:12px;font-size:0.9rem;">Sign in to message the executive team.</p>
+            {% endif %}
+            {% endif %}
+        </div>
+
 
         </div><!-- end club-content -->
 
