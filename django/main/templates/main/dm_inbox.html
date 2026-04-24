@@ -1,51 +1,56 @@
-
 <!DOCTYPE html>
 {% load dict_extras %}
 <html lang="en">
 <head>
-  
     <meta charset="UTF-8">
     <title>Messages — HoosLinked</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: Helvetica, Arial, sans-serif; background: #f4f6fa; color: #232D4B; }
-        nav { background: #232D4B; padding: 0 40px; display: flex; align-items: center; justify-content: space-between; height: 60px; }
-        nav .logo { color: #fff; font-size: 1.4rem; font-weight: bold; }
-        nav ul { list-style: none; display: flex; gap: 24px; }
-        nav ul li a { color: #fff; text-decoration: none; font-size: 0.95rem; }
-        .container { max-width: 700px; margin: 40px auto; padding: 0 20px; }
-        h1 { font-size: 1.5rem; margin-bottom: 24px; }
-        .convo-card { background: #fff; border-radius: 8px; padding: 16px 22px; margin-bottom: 12px; box-shadow: 0 1px 4px rgba(0,0,0,0.07); display: flex; justify-content: space-between; align-items: center; text-decoration: none; color: inherit; }
-        .convo-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.12); }
-        .name { font-weight: 600; font-size: 0.95rem; }
-        .unread-badge { background: #E57200; color: #fff; border-radius: 20px; padding: 2px 9px; font-size: 0.75rem; font-weight: bold; }
-        .new-dm { background: #fff; border-radius: 8px; padding: 22px; margin-top: 30px; box-shadow: 0 1px 4px rgba(0,0,0,0.07); }
-        .new-dm h2 { font-size: 1rem; margin-bottom: 14px; }
+        body { font-family: Helvetica, Arial, sans-serif; background: #f4f5f7; color: #232D4B; }
+        nav { background-color: #232D4B; padding: 0 40px; display: flex; align-items: center; justify-content: space-between; }
+        nav .logo { color: #FFFFFF; font-size: 1.4rem; font-weight: bold; letter-spacing: 1px; }
+        nav ul { list-style: none; display: flex; gap: 32px; }
+        nav ul li a { color: #FFFFFF; text-decoration: none; font-size: 1rem; padding: 20px 0; display: block; border-bottom: 3px solid transparent; transition: border-color 0.2s; }
+        nav ul li a:hover { border-bottom: 3px solid #E57200; }
+        .nav-icon { position: relative; padding: 11px 0px; }
+        .icon-btn { background: none; border: none; cursor: pointer; color: #FFFFFF; padding: 4px; display: flex; align-items: center; }
+        .icon-btn svg { width: 28px; height: 28px; }
+        .dropdown { display: none; position: absolute; right: 0; top: calc(100% + 8px); background: #FFFFFF; border: 1.5px solid #232D4B; border-radius: 6px; min-width: 130px; z-index: 100; overflow: hidden; }
+        .dropdown a, .dropdown button { display: block; width: 100%; text-align: left; padding: 10px 16px; font-size: 0.95rem; color: #232D4B; text-decoration: none; background: none; border: none; cursor: pointer; font-family: inherit; }
+        .dropdown a:hover, .dropdown button:hover { background-color: #f0f0f0; }
+        .nav-icon.open .dropdown { display: block; }
+        .container { max-width: 700px; margin: 2.5rem auto; padding: 0 1.5rem; }
+        .page-title { font-size: 22px; font-weight: bold; color: #232D4B; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 10px; }
+        .convo-card { background: #fff; border-radius: 12px; border: 1px solid #e0e0e0; padding: 14px 20px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; text-decoration: none; color: inherit; transition: border-color 0.15s; }
+        .convo-card:hover { border-color: #E57200; }
+        .convo-name { font-weight: bold; font-size: 14px; color: #232D4B; }
+        .convo-username { color: #aaa; font-weight: normal; font-size: 13px; }
+        .unread-badge { background: #E57200; color: #fff; border-radius: 99px; padding: 3px 10px; font-size: 11px; font-weight: bold; }
+        .new-dm-card { background: #fff; border-radius: 12px; border: 1px solid #e0e0e0; padding: 1.25rem; margin-top: 1.5rem; }
+        .new-dm-card h2 { font-size: 12px; font-weight: bold; color: #aaa; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.05em; }
         .row { display: flex; gap: 10px; }
-        .row input { flex: 1; padding: 11px 14px; border: 1px solid #ddd; border-radius: 6px; font-size: 0.95rem; font-family: inherit; }
-        .row button { padding: 11px 22px; background: #232D4B; color: #fff; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 0.9rem; }
+        .row input { flex: 1; padding: 10px 12px; border: 1px solid #e0e0e0; border-radius: 6px; font-size: 14px; font-family: inherit; color: #232D4B; }
+        .row input:focus { outline: none; border-color: #E57200; }
+        .row button { padding: 10px 20px; background: #232D4B; color: #fff; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 13px; transition: background 0.15s; }
         .row button:hover { background: #1a2238; }
-        .empty { color: #888; font-style: italic; }
+        .empty { color: #888; font-style: italic; font-size: 14px; }
+        .error-msg { color: #c0392b; font-size: 13px; font-weight: bold; margin-bottom: 10px; }
     </style>
 </head>
 <body>
-<nav>
-    <span class="logo">HoosLinked</span>
-    <ul>
-        <li><a href="{% url 'home' %}">Home</a></li>
-        <li><a href="{% url 'get_involved' %}">Get Involved</a></li>
-        <li><a href="{% url 'dm_inbox' %}">Messages</a></li>
-        <li><a href="{% url 'profile' %}">Profile</a></li>
-        <li><a href="{% url 'logout' %}">Logout</a></li>
-    </ul>
-</nav>
+
+{% include 'main/navbar.html' %}
+
 <div class="container">
-    <h1>💬 Direct Messages</h1>
+    <div class="page-title">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#232D4B" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        Direct Messages
+    </div>
 
     {% if convo_users %}
         {% for u in convo_users %}
         <a class="convo-card" href="{% url 'dm_conversation' username=u.username %}">
-            <span class="name">{{ u.first_name }} {{ u.last_name }} <span style="color:#aaa;font-weight:400;">@{{ u.username }}</span></span>
+            <span class="convo-name">{{ u.first_name }} {{ u.last_name }} <span class="convo-username">@{{ u.username }}</span></span>
             {% with count=unread_counts|get_item:u.id %}
                 {% if count %}<span class="unread-badge">{{ count }} new</span>{% endif %}
             {% endwith %}
@@ -55,28 +60,34 @@
         <p class="empty">No conversations yet. Start one below!</p>
     {% endif %}
 
-    <div class="new-dm">
+    <div class="new-dm-card">
         <h2>Start a new conversation</h2>
-            {% if messages %}
-                {% for message in messages %}
-                    <p style="color:#c62828; margin-bottom:12px; font-weight:600;">
-                        {{ message }}
-                    </p>
-                {% endfor %}
-            {% endif %}
-        <form method="get" action="">
-            <div class="row">
-                <input type="text" name="to" placeholder="Enter email..." id="to_input">
-                <button type="button" onclick="startDM()">Open Chat</button>
-            </div>
-        </form>
+        {% if messages %}
+            {% for message in messages %}
+            <p class="error-msg">{{ message }}</p>
+            {% endfor %}
+        {% endif %}
+        <div class="row">
+            <input type="text" placeholder="Enter email..." id="to_input">
+            <button type="button" onclick="startDM()">Open Chat</button>
+        </div>
     </div>
 </div>
+
 <script>
 function startDM() {
     const val = document.getElementById('to_input').value.trim();
     if (val) window.location.href = `/messages/${val}/`;
 }
+function toggleNav() {
+    document.getElementById('navIcon').classList.toggle('open');
+}
+document.addEventListener('click', function(e) {
+    const nav = document.getElementById('navIcon');
+    if (!nav.contains(e.target)) nav.classList.remove('open');
+});
 </script>
+
+{% include 'main/chat_widget.html' %}
 </body>
 </html>
