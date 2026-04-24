@@ -310,16 +310,23 @@ nav ul li a:hover { border-bottom: 3px solid #E57200; }
 <div class="modal-overlay" id="editProfileModal">
     <div class="modal">
         <h2>Edit Profile</h2>
+
+        {% if messages %}
+        {% for message in messages %}
+        <div style="background:#fde8e8; color:#c0392b; padding:10px 12px; border-radius:6px; margin-bottom:1rem; font-size:13px;">
+            {{ message }}
+        </div>
+        {% endfor %}
+        {% endif %}
+
         <form method="post" enctype="multipart/form-data" action="{% url 'create_profile' %}">
             {% csrf_token %}
             <label for="profile_picture">Profile Picture</label>
             <input type="file" name="profile_picture" id="profile_picture" accept="image/*">
 
-            <label for="age">Age</label>
-            <input type="number" name="age" id="age" value="{{ user.age|default:'' }}">
 
             <label for="birthday">Birthday</label>
-            <input type="date" name="birthday" id="birthday" value="{{ user.birthday|date:'Y-m-d'|default:'' }}">
+            <input type="date" name="birthday" id="birthday" value="{{ user.birthday|date:'Y-m-d'|default:'' }}" max="{{ today|date:'Y-m-d' }}">
 
             <label for="year">Year</label>
             <select name="year" id="year">
@@ -366,6 +373,10 @@ document.addEventListener('click', function(e) {
     const nav = document.getElementById('navIcon');
     if (!nav.contains(e.target)) nav.classList.remove('open');
 });
+
+{% if messages %}
+document.getElementById('editProfileModal').classList.add('open');
+{% endif %}
 </script>
 
 {% include 'main/chat_widget.html' %}

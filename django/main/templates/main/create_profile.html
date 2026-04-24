@@ -194,8 +194,6 @@
             <label for="profile_picture">Profile Picture</label>
             <input type="file" name="profile_picture" id="profile_picture" accept="image/*">
 
-            <label for="age">Age</label>
-            <input type="number" name="age" id="age" value="{{ user.age|default:'' }}" required>
 
             <label for="birthday">Birthday</label>
             <input type="date" name="birthday" id="birthday" value="{{ user.birthday|date:'Y-m-d'|default:'' }}" required>

@@ -6,11 +6,9 @@
   <component name="ChangeListManager">
     <list default="true" id="00a4688b-7249-4d35-9273-226e29aacd18" name="Changes" comment="Create Event Details Page">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/django/main/templates/main/Events.html" beforeDir="false" afterPath="$PROJECT_DIR$/django/main/templates/main/Events.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/django/main/templates/main/event_detail.html" beforeDir="false" afterPath="$PROJECT_DIR$/django/main/templates/main/event_detail.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/django/main/templates/main/executive_club_events.html" beforeDir="false" afterPath="$PROJECT_DIR$/django/main/templates/main/executive_club_events.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/django/main/templates/main/executive_edit_event.html" beforeDir="false" afterPath="$PROJECT_DIR$/django/main/templates/main/executive_edit_event.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/django/main/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/django/main/urls.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/django/main/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/django/main/models.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/django/main/templates/main/create_profile.html" beforeDir="false" afterPath="$PROJECT_DIR$/django/main/templates/main/create_profile.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/django/main/templates/main/profile.html" beforeDir="false" afterPath="$PROJECT_DIR$/django/main/templates/main/profile.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/django/main/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/django/main/views.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -57,31 +55,31 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;DefaultHtmlFileTemplate&quot;: &quot;HTML File&quot;,
-    &quot;Django Server.project-b-05.executor&quot;: &quot;Run&quot;,
-    &quot;RunOnceActivity.MCP Project settings loaded&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.OpenDjangoStructureViewOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
-    &quot;ai.playground.ignore.import.keys.banner.in.settings&quot;: &quot;true&quot;,
-    &quot;com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1&quot;: &quot;true&quot;,
-    &quot;django.template.preview.state&quot;: &quot;SHOW_EDITOR_AND_PREVIEW&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;Executive-page&quot;,
-    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
-    &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;to.speed.mode.migration.done&quot;: &quot;true&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "DefaultHtmlFileTemplate": "HTML File",
+    "Django Server.project-b-05.executor": "Run",
+    "RunOnceActivity.MCP Project settings loaded": "true",
+    "RunOnceActivity.OpenDjangoStructureViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
+    "ai.playground.ignore.import.keys.banner.in.settings": "true",
+    "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
+    "django.template.preview.state": "SHOW_EDITOR_AND_PREVIEW",
+    "git-widget-placeholder": "Executive-page",
+    "ignore.virus.scanning.warn.message": "true",
+    "junie.onboarding.icon.badge.shown": "true",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "to.speed.mode.migration.done": "true",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="RunManager">
     <configuration name="project-b-05" type="Python.DjangoServer" factoryName="Django server">
       <module name="project-b-05" />
@@ -246,7 +244,15 @@
       <option name="project" value="LOCAL" />
       <updated>1776195640460</updated>
     </task>
-    <option name="localTasksCounter" value="10" />
+    <task id="LOCAL-00010" summary="Modified some stuff with the events and exec_events.">
+      <option name="closed" value="true" />
+      <created>1776307797985</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1776307797985</updated>
+    </task>
+    <option name="localTasksCounter" value="11" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -272,19 +278,7 @@
       <map>
         <entry key="MAIN">
           <value>
-            <State>
-              <option name="FILTERS">
-                <map>
-                  <entry key="user">
-                    <value>
-                      <list>
-                        <option value="Aran Jothi" />
-                      </list>
-                    </value>
-                  </entry>
-                </map>
-              </option>
-            </State>
+            <State />
           </value>
         </entry>
       </map>
@@ -299,6 +293,7 @@
     <MESSAGE value="fix minor stuff" />
     <MESSAGE value="Edit events page" />
     <MESSAGE value="Create Event Details Page" />
-    <option name="LAST_COMMIT_MESSAGE" value="Create Event Details Page" />
+    <MESSAGE value="Modified some stuff with the events and exec_events." />
+    <option name="LAST_COMMIT_MESSAGE" value="Modified some stuff with the events and exec_events." />
   </component>
 </project>

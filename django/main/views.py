@@ -8,7 +8,8 @@ from django.http import JsonResponse
 from .models import User, Club, Membership, Event, Forum, ForumThread, ForumReply, DirectMessage, Announcement
 from .forms import EventForm
 from functools import wraps
-import datetime
+from datetime import date
+from django.core.exceptions import ValidationError
 
 class ClubDetailView(DetailView):
     model = Club
@@ -105,8 +106,24 @@ def create_profile_page(request):
     if request.user.is_user_admin:
         return redirect('user_admin')
     if request.method == 'POST':
-        request.user.age = request.POST.get('age') or None
-        request.user.birthday = request.POST.get('birthday') or None
+        birthday_str = request.POST.get('birthday')
+        if birthday_str:
+            from datetime import date
+            try:
+                birthday = date.fromisoformat(birthday_str)
+                today = date.today()
+                age = today.year - birthday.year - ((today.month, today.day) < (birthday.month, birthday.day))
+                if age > 118:
+                    messages.error(request, 'Please enter a valid birthday. Age cannot exceed 118 years.')
+                    return redirect('profile')
+                if birthday > today:
+                    messages.error(request, 'Birthday cannot be in the future.')
+                    return redirect('profile')
+                request.user.birthday = birthday
+            except ValueError:
+                messages.error(request, 'Invalid birthday format.')
+                return redirect('profile')
+
         request.user.year = request.POST.get('year')
         request.user.school = request.POST.get('school')
         if request.FILES.get('profile_picture'):
@@ -123,7 +140,7 @@ def profile_page(request):
         return redirect('user_admin')
     memberships = request.user.memberships.select_related("club")
     rsvped_events = request.user.rsvped_events.select_related('club').order_by('date', 'time')
-    return render(request, 'main/profile.html', {"memberships": memberships, "rsvped_events": rsvped_events})
+    return render(request, 'main/profile.html', {"memberships": memberships, "rsvped_events": rsvped_events,"today": date.today()})
 
 
 def logout_page(request):
