@@ -40,7 +40,7 @@
 {% include 'main/navbar.html' %}
 
 <div class="chat-header">
-    <a href="{% url 'dm_inbox' %}">← Inbox</a>
+    <a href="{{ request.GET.next|default:'/messages/' }}">← Back</a>
     <span class="name">{{ other_user.first_name }} {{ other_user.last_name }}</span>
     <span class="username">@{{ other_user.username }}</span>
 </div>

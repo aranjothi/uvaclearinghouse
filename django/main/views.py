@@ -5,7 +5,7 @@ from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.http import JsonResponse
-from .models import User, Club, Membership, Event, Forum, ForumThread, ForumReply, DirectMessage, Announcement
+from .models import User, Club, Membership, Event, Forum, ForumThread, ForumReply, DirectMessage, Announcement, ClubSettings, JoinRequest, Ban
 from .forms import EventForm
 from functools import wraps
 import datetime
@@ -204,13 +204,36 @@ def global_search(request):
 
 @login_required
 def join_club(request, slug):
+    club = get_object_or_404(Club, slug=slug)
+
     if request.method == "POST":
-        club = get_object_or_404(Club, slug=slug)
-        Membership.objects.get_or_create(
-            user=request.user,
-            club=club,
-            defaults={"role": Membership.MEMBER}
-        )
+        # Do not allow banned users to join
+        if Ban.objects.filter(user=request.user, club=club).exists():
+            messages.error(request, "You are banned from joining this club.")
+            return redirect("club_detail", slug=slug)
+
+        # If already a member, do nothing
+        if Membership.objects.filter(user=request.user, club=club).exists():
+            messages.info(request, "You are already a member of this club.")
+            return redirect("club_detail", slug=slug)
+
+        settings, _ = ClubSettings.objects.get_or_create(club=club)
+
+        if settings.require_approval:
+            JoinRequest.objects.get_or_create(
+                user=request.user,
+                club=club,
+                status=JoinRequest.PENDING
+            )
+            messages.success(request, "Your join request has been submitted for approval.")
+        else:
+            Membership.objects.get_or_create(
+                user=request.user,
+                club=club,
+                defaults={"role": Membership.MEMBER}
+            )
+            messages.success(request, f"You joined {club.name}.")
+
     return redirect("club_detail", slug=slug)
 
 @login_required
@@ -650,6 +673,49 @@ def executive_club_people(request, slug):
     })
 
 @login_required
+def executive_club_manage(request, slug):
+    club = get_object_or_404(Club, slug=slug)
+    is_exec = Membership.objects.filter(
+        user=request.user,
+        club=club,
+        role=Membership.EXECUTIVE
+    ).exists() #check if they're exec
+    if not is_exec:
+        return redirect('executive_page')
+
+    settings, _ = ClubSettings.objects.get_or_create(club=club)
+    pending_requests = JoinRequest.objects.filter(club=club, status=JoinRequest.PENDING).select_related('user').order_by('created_at')
+    general_members = club.memberships.filter(role=Membership.MEMBER).select_related('user').order_by('user__first_name', 'user__last_name')
+    bans = Ban.objects.filter(club=club).select_related('user', 'banned_by').order_by('created_at')
+    all_exec_clubs = Club.objects.filter(memberships__user=request.user, memberships__role=Membership.EXECUTIVE)
+
+    return render(request, 'main/executive_club_manage.html', {
+        'club': club,
+        'settings': settings,
+        'pending_requests': pending_requests,
+        'general_members': general_members,
+        'bans': bans,
+        'all_exec_clubs': all_exec_clubs,
+    })
+
+@login_required
+def executive_toggle_approval(request, slug):
+    club = get_object_or_404(Club, slug=slug)
+    is_exec = Membership.objects.filter(
+        user=request.user,
+        club=club,
+        role=Membership.EXECUTIVE
+    ).exists()
+    if not is_exec:
+        return redirect('executive_page')
+    if request.method == 'POST':
+        settings, _ = ClubSettings.objects.get_or_create(club=club)
+        #flip the current approval setting
+        settings.require_approval = not settings.require_approval
+        settings.save()
+    return redirect('executive_club_manage', slug = slug)
+
+@login_required
 #This removes members from the club
 def executive_remove_member(request, slug, membership_id):
     club = get_object_or_404(Club, slug=slug)
@@ -666,6 +732,57 @@ def executive_remove_member(request, slug, membership_id):
             membership.delete()
     return redirect('executive_club_people', slug = slug)
 
+@login_required
+def executive_handle_request(request, slug, request_id, action):
+    club = get_object_or_404(Club, slug=slug)
+    is_exec = Membership.objects.filter(
+        user=request.user,
+        club=club,
+        role=Membership.EXECUTIVE
+    ).exists()
+    if not is_exec:
+        return redirect('executive_page')
+    if request.method == 'POST':
+        join_request = get_object_or_404(JoinRequest, id=request_id)
+        if action == 'approve':
+            join_request.status = JoinRequest.APPROVED
+            join_request.save()
+            membership = Membership.objects.get_or_create(user = join_request.user, club = club, defaults = {'role': Membership.MEMBER})
+        elif action == 'reject':
+            join_request.status = JoinRequest.REJECTED
+            join_request.save()
+        return redirect('executive_club_manage', slug = slug)
+
+@login_required
+def executive_ban_member(request, slug, membership_id):
+    club = get_object_or_404(Club, slug=slug)
+    is_exec = Membership.objects.filter(
+        user=request.user, club=club, role=Membership.EXECUTIVE
+    ).exists()
+    if not is_exec:
+        return redirect('executive_page')
+    if request.method == 'POST':
+        membership = get_object_or_404(Membership, id=membership_id, club=club)
+        # Prevent execs from banning themselves
+        if membership.user != request.user:
+            # get_or_create prevents duplicate bans
+            Ban.objects.get_or_create(user=membership.user, club=club, defaults={'banned_by': request.user})
+            membership.delete()
+    return redirect('executive_club_manage', slug=slug)
+
+@login_required
+def executive_unban_member(request, slug, ban_id):
+    club = get_object_or_404(Club, slug=slug)
+    is_exec = Membership.objects.filter(
+        user=request.user, club=club, role=Membership.EXECUTIVE
+    ).exists()
+    if not is_exec:
+        return redirect('executive_page')
+    if request.method == 'POST':
+        ban = get_object_or_404(Ban, id=ban_id, club=club)
+        # Deleting the ban record lifts the ban
+        ban.delete()
+    return redirect('executive_club_manage', slug=slug)
 
 #Club events for the exec
 @login_required

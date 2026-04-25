@@ -210,3 +210,32 @@ class DirectMessage(models.Model):
         return f"DM from {self.sender} to {self.recipient}"
     
     
+# ──────────────────────────────────────────────
+# Club Management Models
+# ──────────────────────────────────────────────
+
+class ClubSettings(models.Model):
+    club = models.OneToOneField(Club, on_delete=models.CASCADE, related_name = 'settings')
+    require_approval = models.BooleanField(default=False) #toggle button basically
+
+class JoinRequest(models.Model):
+    #This tracks the pending/approved/rejected requested when approval is required
+    PENDING = 'pending'
+    APPROVED = 'approved'
+    REJECTED = 'rejected'
+    STATUS_CHOICES = [(PENDING, 'Pending'), (APPROVED, 'Approved'), (REJECTED, 'Rejected')]
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='join_requests')
+    club = models.ForeignKey(Club, on_delete=models.CASCADE, related_name='join_requests')
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=PENDING)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+class Ban(models.Model):
+    # Records who banned whom and when
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='bans')
+    club = models.ForeignKey(Club, on_delete=models.CASCADE, related_name='bans')
+    banned_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='bans_issued')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = (('user', 'club'),)
+

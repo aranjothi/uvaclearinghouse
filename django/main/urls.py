@@ -50,6 +50,17 @@ urlpatterns = [
     path('executives/<slug:slug>/events/<int:event_id>/delete/', views.executive_delete_event, name='executive_delete_event'),
     path('executives/<slug:slug>/people/', views.executive_club_people, name='executive_club_people'),
     path('executives/<slug:slug>/people/<int:membership_id>/', views.executive_remove_member, name='executive_remove_member'),
+    path('executives/<slug:slug>/manage/', views.executive_club_manage, name='executive_club_manage'),
+    path('executives/<slug:slug>/manage/toggle-approval/', views.executive_toggle_approval,
+         name='executive_toggle_approval'),
+    path('executives/<slug:slug>/manage/request/<int:request_id>/<str:action>/', views.executive_handle_request,
+         name='executive_handle_request'),
+    path('executives/<slug:slug>/manage/ban/<int:membership_id>/', views.executive_ban_member,
+         name='executive_ban_member'),
+    path('executives/<slug:slug>/manage/unban/<int:ban_id>/', views.executive_unban_member,
+         name='executive_unban_member'),
+    path('executives/<slug:slug>/manage/remove/<int:membership_id>/', views.executive_remove_member,
+         name='executive_remove_member'),
     #search bar
     path('search/', views.global_search, name='global_search'),
 ]
