@@ -47,8 +47,9 @@ urlpatterns = [
     path('executives/<slug:slug>/', views.executive_club_page, name='executive_club_page'),
     path('executives/<slug:slug>/events/', views.executive_club_events, name='executive_club_events'),
     path('executives/<slug:slug>/events/<int:event_id>/edit/', views.executive_edit_event, name='executive_edit_event'),
-path('executives/<slug:slug>/events/<int:event_id>/delete/', views.executive_delete_event, name='executive_delete_event'),
-
+    path('executives/<slug:slug>/events/<int:event_id>/delete/', views.executive_delete_event, name='executive_delete_event'),
+    path('executives/<slug:slug>/people/', views.executive_club_people, name='executive_club_people'),
+    path('executives/<slug:slug>/people/<int:membership_id>/', views.executive_remove_member, name='executive_remove_member'),
     #search bar
     path('search/', views.global_search, name='global_search'),
 ]

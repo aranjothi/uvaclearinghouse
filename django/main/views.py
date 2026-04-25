@@ -616,6 +616,57 @@ def executive_club_page(request, slug):
         'total_events': total_events,
     })
 
+@login_required
+def executive_club_people(request, slug):
+    club = get_object_or_404(Club, slug=slug)
+    is_exec = Membership.objects.filter(
+        user=request.user,
+        club=club,
+        role=Membership.EXECUTIVE
+    ).exists() # check if they're exec
+    if not is_exec:
+        return redirect('executive_page')
+
+    all_exec_clubs = Club.objects.filter(
+        memberships__user=request.user,
+        memberships__role=Membership.EXECUTIVE
+    )
+    #differentiate between exec and non-exec and order than by alphabetical order
+    exec_members = club.memberships.filter(
+        role=Membership.EXECUTIVE
+    ).select_related('user').order_by(
+        'user__first_name', 'user__last_name'
+    )
+    general_members = club.memberships.filter(
+        role = Membership.MEMBER
+    ).select_related('user').order_by(
+        'user__first_name', 'user__last_name'
+    )
+    return render(request, 'main/executive_club_people.html', {
+        'club': club,
+        'all_exec_clubs': all_exec_clubs,
+        'exec_members': exec_members,
+        'general_members': general_members,
+    })
+
+@login_required
+#This removes members from the club
+def executive_remove_member(request, slug, membership_id):
+    club = get_object_or_404(Club, slug=slug)
+    is_exec = Membership.objects.filter(
+        user=request.user,
+        club=club,
+        role=Membership.EXECUTIVE
+    ).exists()  # check if they're exec
+    if not is_exec:
+        return redirect('executive_page')
+    if request.method == 'POST':
+        membership = get_object_or_404(Membership, id=membership_id)
+        if membership.user != request.user:
+            membership.delete()
+    return redirect('executive_club_people', slug = slug)
+
+
 #Club events for the exec
 @login_required
 def executive_club_events(request, slug):
