@@ -210,6 +210,20 @@ def logout_page(request):
     return redirect('home')
 
 
+@login_required
+def delete_account(request):
+    if request.method != 'POST':
+        return redirect('profile')
+    password = request.POST.get('password', '')
+    user = authenticate(username=request.user.username, password=password)
+    if user is None:
+        messages.error(request, 'Incorrect password. Account not deleted.')
+        return redirect('profile')
+    logout(request)
+    user.delete()
+    return redirect('home')
+
+
 def google_signup(request):
     role = request.GET.get('role', 'member')
     request.session['signup_role'] = role

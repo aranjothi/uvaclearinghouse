@@ -127,9 +127,6 @@ nav ul li a:hover { border-bottom: 3px solid #E57200; }
     font-size: 1.05rem;
     font-weight: bold;
     color: #232D4B;
-    margin-bottom: 16px;
-    padding-bottom: 10px;
-    border-bottom: 1px solid #e8e8e8;
 }
 
 .detail-row {
@@ -355,9 +352,6 @@ nav ul li a:hover { border-bottom: 3px solid #E57200; }
         </div>
 
         <div class="profile-card-actions">
-            {% if is_own_profile %}
-            <button class="btn-primary" onclick="document.getElementById('editProfileModal').classList.add('open')">Edit Profile</button>
-            {% endif %}
             <button class="contact-link" onclick="document.getElementById('contactModal').classList.add('open')">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 9v.906a2.25 2.25 0 0 1-1.183 1.981l-6.478 3.488M2.25 9v.906a2.25 2.25 0 0 0 1.183 1.981l6.478 3.488m8.839 2.51-4.66-2.51m0 0-1.023-.55a2.25 2.25 0 0 0-2.134 0l-1.022.55m0 0-4.661 2.51m16.5 1.615a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V8.844a2.25 2.25 0 0 1 1.183-1.981l7.5-4.039a2.25 2.25 0 0 1 2.134 0l7.5 4.039a2.25 2.25 0 0 1 1.183 1.98V19.5Z" />
@@ -369,7 +363,15 @@ nav ul li a:hover { border-bottom: 3px solid #E57200; }
 
     <!-- About card -->
     <div class="details-card">
-        <h2>About</h2>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid #e8e8e8;">
+            <h2 style="margin:0;padding:0;border:none;">About</h2>
+            {% if is_own_profile %}
+            <div style="display:flex;gap:8px;">
+                <button class="btn-primary" style="font-size:0.82rem;padding:6px 14px;" onclick="document.getElementById('editProfileModal').classList.add('open')">Edit Profile</button>
+                <button class="cancel-btn" style="font-size:0.82rem;padding:6px 14px;" onclick="document.getElementById('settingsModal').classList.add('open')">Settings</button>
+            </div>
+            {% endif %}
+        </div>
         {% if profile_user.birthday %}
         <div class="detail-row">
             <span class="detail-label">Birthday</span>
@@ -556,6 +558,38 @@ nav ul li a:hover { border-bottom: 3px solid #E57200; }
             <div class="modal-footer">
                 <button type="button" class="cancel-btn" onclick="document.getElementById('editProfileModal').classList.remove('open')">Cancel</button>
                 <button type="submit" class="btn-primary">Save</button>
+            </div>
+        </form>
+    </div>
+</div>
+<!-- Settings Modal -->
+<div class="modal-overlay" id="settingsModal">
+    <div class="modal">
+        <h2>Settings</h2>
+        <div style="border:1px solid #f0e0e0;border-radius:8px;padding:20px;margin-top:8px;">
+            <div style="font-weight:bold;color:#232D4B;margin-bottom:4px;">Delete Account</div>
+            <div style="font-size:0.9rem;color:#666;margin-bottom:14px;">Permanently delete your account and all associated data. This cannot be undone.</div>
+            <button class="btn-primary" style="background:#c0392b;" onclick="document.getElementById('settingsModal').classList.remove('open'); document.getElementById('deleteAccountModal').classList.add('open')">Delete Account</button>
+        </div>
+        <div class="modal-footer">
+            <button class="cancel-btn" onclick="document.getElementById('settingsModal').classList.remove('open')">Close</button>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Account Confirmation Modal -->
+<div class="modal-overlay" id="deleteAccountModal">
+    <div class="modal">
+        <h2>Confirm Account Deletion</h2>
+        <p style="color:#666;font-size:0.95rem;margin-bottom:20px;">Enter your password to permanently delete your account. This action cannot be undone.</p>
+        <form method="post" action="{% url 'delete_account' %}" id="deleteAccountForm">
+            {% csrf_token %}
+            <label for="delete_password">Password</label>
+            <input type="password" name="password" id="delete_password" placeholder="Enter your password" required>
+            <div id="delete-error" style="color:#c0392b;font-size:0.85rem;margin-top:8px;display:none;"></div>
+            <div class="modal-footer">
+                <button type="button" class="cancel-btn" onclick="document.getElementById('deleteAccountModal').classList.remove('open'); document.getElementById('settingsModal').classList.add('open')">Back</button>
+                <button type="submit" class="btn-primary" style="background:#c0392b;">Delete My Account</button>
             </div>
         </form>
     </div>
