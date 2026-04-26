@@ -190,6 +190,7 @@ nav ul li a:hover { border-bottom: 3px solid #E57200; }
     transition: transform 0.15s, box-shadow 0.15s, background-color 0.15s;
     cursor: pointer;
     overflow: visible;
+    position: relative;
 }
 
 .club-card:hover {
@@ -379,11 +380,16 @@ nav ul li a:hover { border-bottom: 3px solid #E57200; }
         {% endif %}
     </div>
 
-    <!-- Clubs / Events tabs -->
+    <!-- Clubs / Events / Saved tabs -->
     <div class="tab-section">
         <div class="tab-bar">
             <button class="tab-btn active" onclick="switchTab('clubs', this)">Clubs</button>
             <button class="tab-btn" onclick="switchTab('events', this)">Events</button>
+            {% if is_own_profile %}
+            <button class="tab-btn" onclick="switchTab('saved', this)">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width:15px;height:15px;display:inline;vertical-align:middle;margin-right:4px;margin-top:-2px;"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" /></svg>Saved
+            </button>
+            {% endif %}
         </div>
 
         <div id="tab-clubs">
@@ -391,6 +397,14 @@ nav ul li a:hover { border-bottom: 3px solid #E57200; }
             <div class="cards-grid">
                 {% for membership in memberships %}
                 <a href="{% url 'club_detail' membership.club.slug %}" class="club-card">
+                    {% if user.is_authenticated %}
+                    <button class="save-btn {% if membership.club.slug in saved_slugs %}saved{% endif %}"
+                            title="{% if membership.club.slug in saved_slugs %}Unsave{% else %}Save{% endif %}"
+                            onclick="event.preventDefault(); event.stopPropagation(); toggleSave(this, '{{ membership.club.slug }}')">
+                        <svg class="icon-save" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0 1 11.186 0Z" /></svg>
+                        <svg class="icon-unsave" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m3 3 1.664 1.664M21 21l-1.5-1.5m-5.485-1.242L12 17.25 4.5 21V8.742m.164-4.078a2.15 2.15 0 0 1 1.743-1.342 48.507 48.507 0 0 1 11.186 0c1.1.128 1.907 1.077 1.907 2.185V19.5M4.664 4.664 19.5 19.5" /></svg>
+                    </button>
+                    {% endif %}
                     <div class="club-card-banner">
                         {% if membership.club.image %}
                         <img src="{{ membership.club.image.url }}" alt="{{ membership.club.name }} banner">
@@ -447,6 +461,44 @@ nav ul li a:hover { border-bottom: 3px solid #E57200; }
             <p style="color:#888;text-align:center;padding:24px 0;">{% if is_own_profile %}No RSVPs yet. Check out your clubs' events!{% else %}No events yet.{% endif %}</p>
             {% endif %}
         </div>
+
+        {% if is_own_profile %}
+        <div id="tab-saved" style="display:none;">
+            {% if saved_clubs %}
+            <div class="cards-grid">
+                {% for club in saved_clubs %}
+                <a href="{% url 'club_detail' club.slug %}" class="club-card">
+                    <button class="save-btn saved"
+                            title="Unsave"
+                            onclick="event.preventDefault(); event.stopPropagation(); toggleSave(this, '{{ club.slug }}'); this.closest('.club-card').style.opacity='0.4'; setTimeout(() => this.closest('.club-card').remove(), 300);">
+                        <svg class="icon-save" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0 1 11.186 0Z" /></svg>
+                        <svg class="icon-unsave" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m3 3 1.664 1.664M21 21l-1.5-1.5m-5.485-1.242L12 17.25 4.5 21V8.742m.164-4.078a2.15 2.15 0 0 1 1.743-1.342 48.507 48.507 0 0 1 11.186 0c1.1.128 1.907 1.077 1.907 2.185V19.5M4.664 4.664 19.5 19.5" /></svg>
+                    </button>
+                    <div class="club-card-banner">
+                        {% if club.image %}
+                        <img src="{{ club.image.url }}" alt="{{ club.name }} banner">
+                        {% else %}
+                        <img src="{% static 'defaultclubimage.jpg' %}" alt="Default banner">
+                        {% endif %}
+                    </div>
+                    <div class="club-card-pfp-wrap">
+                        <img src="{% static 'defaultclubpfp.png' %}" alt="{{ club.name }} logo" class="club-card-pfp">
+                    </div>
+                    <div class="club-card-body">
+                        <h3>{{ club.name }}</h3>
+                        <p>{{ club.description|default:"No description available."|truncatewords:20 }}</p>
+                        <div class="club-card-footer">
+                            <span class="view-club-link">View Club &rarr;</span>
+                        </div>
+                    </div>
+                </a>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p style="color:#888;text-align:center;padding:24px 0;">No saved clubs yet. Browse <a href="{% url 'get_involved' %}" style="color:#E57200;font-weight:bold;">clubs</a> and save ones you're interested in!</p>
+            {% endif %}
+        </div>
+        {% endif %}
     </div>
 
 </div>

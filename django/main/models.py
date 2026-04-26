@@ -48,6 +48,7 @@ class User(AbstractUser):
     birthday = models.DateField(null=True, blank=True)
     year = models.CharField(max_length = 1, choices = YEAR_CHOICES, blank=True, null=True)
     school = models.CharField(max_length = 50, choices = SCHOOL_CHOICES, blank=True, null=True)
+    saved_clubs = models.ManyToManyField('Club', blank=True, related_name='saved_by')
 
     @property
     def age(self):

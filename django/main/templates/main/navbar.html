@@ -50,6 +50,31 @@ M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
 </nav>
 
 <style>
+/* Save button on club cards */
+.save-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    z-index: 3;
+    background: rgba(255,255,255,0.92);
+    border: none;
+    border-radius: 50%;
+    width: 34px;
+    height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    padding: 0;
+    transition: background 0.15s, transform 0.1s;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+}
+.save-btn:hover { background: #fff; transform: scale(1.08); }
+.save-btn svg { width: 18px; height: 18px; color: #232D4B; display: block; }
+.save-btn .icon-unsave { display: none; }
+.save-btn.saved .icon-save { display: none; }
+.save-btn.saved .icon-unsave { display: block; }
+
 .search-section { padding: 10px 14px 4px; }
 .search-section-label {
     font-size: 0.7rem;
@@ -83,6 +108,23 @@ M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
 </style>
 
 <script>
+function getCsrf() {
+    const m = document.cookie.match(/csrftoken=([^;]+)/);
+    return m ? m[1] : '';
+}
+
+function toggleSave(btn, slug) {
+    fetch('/clubs/' + slug + '/save/', {
+        method: 'POST',
+        headers: { 'X-CSRFToken': getCsrf() },
+    })
+    .then(r => r.json())
+    .then(data => {
+        btn.classList.toggle('saved', data.saved);
+        btn.title = data.saved ? 'Unsave' : 'Save';
+    });
+}
+
 (function() {
     const input = document.getElementById('searchInput');
     const dropdown = document.getElementById('searchDropdown');

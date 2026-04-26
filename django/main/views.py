@@ -67,6 +67,11 @@ class ClubDetailView(DetailView):
         context['exec_members'] = exec_members
         context['general_members'] = general_members
 
+        is_saved = False
+        if self.request.user.is_authenticated:
+            is_saved = self.request.user.saved_clubs.filter(slug=self.object.slug).exists()
+        context['is_saved'] = is_saved
+
         return context
 
 def home(request):
@@ -153,11 +158,15 @@ def profile_page(request):
         return redirect('user_admin')
     memberships = request.user.memberships.select_related("club")
     rsvped_events = request.user.rsvped_events.select_related('club').order_by('date', 'time')
+    saved_clubs = request.user.saved_clubs.all()
+    saved_slugs = set(saved_clubs.values_list('slug', flat=True))
     return render(request, 'main/profile.html', {
         'profile_user': request.user,
         'is_own_profile': True,
         'memberships': memberships,
         'rsvped_events': rsvped_events,
+        'saved_clubs': saved_clubs,
+        'saved_slugs': saved_slugs,
         'today': date.today(),
     })
 
@@ -172,12 +181,28 @@ def user_profile_page(request, username):
         return redirect('profile')
     memberships = profile_user.memberships.select_related('club').filter(role__in=['member', 'executive'])
     rsvped_events = profile_user.rsvped_events.select_related('club').order_by('date', 'time')
+    saved_slugs = set(request.user.saved_clubs.values_list('slug', flat=True)) if request.user.is_authenticated else set()
     return render(request, 'main/profile.html', {
         'profile_user': profile_user,
         'is_own_profile': False,
         'memberships': memberships,
         'rsvped_events': rsvped_events,
+        'saved_slugs': saved_slugs,
     })
+
+
+@login_required
+def toggle_save_club(request, slug):
+    if request.method != 'POST':
+        return JsonResponse({'error': 'POST required'}, status=405)
+    club = get_object_or_404(Club, slug=slug)
+    if request.user.saved_clubs.filter(slug=slug).exists():
+        request.user.saved_clubs.remove(club)
+        saved = False
+    else:
+        request.user.saved_clubs.add(club)
+        saved = True
+    return JsonResponse({'saved': saved})
 
 
 def logout_page(request):
@@ -192,14 +217,16 @@ def google_signup(request):
 
 def get_involved_page(request):
     query = request.GET.get('q', '').strip()
-    clubs = Club.objects.all().order_by('name') # fetch all club records from db and alphabetical order
+    clubs = Club.objects.all().order_by('name')
     if query:
         clubs = clubs.filter(
             Q(name__icontains=query) | Q(description__icontains=query)
         )
+    saved_slugs = set(request.user.saved_clubs.values_list('slug', flat=True)) if request.user.is_authenticated else set()
     return render(request, 'main/get_involved.html', {
-        'clubs': clubs,  # pass clubs queryset to template
+        'clubs': clubs,
         'query': query,
+        'saved_slugs': saved_slugs,
     })
 
 def global_search(request):
@@ -228,12 +255,14 @@ def global_search(request):
             Q(club__name__icontains=query)
         ).order_by('date', 'time')
 
+    saved_slugs = set(request.user.saved_clubs.values_list('slug', flat=True)) if request.user.is_authenticated else set()
     return render(request, 'main/global_search.html', {
         'query': query,
         'users': users,
         'clubs': clubs,
         'events': events,
         'active_filter': active_filter,
+        'saved_slugs': saved_slugs,
     })
 
 

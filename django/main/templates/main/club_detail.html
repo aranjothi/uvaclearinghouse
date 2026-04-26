@@ -666,6 +666,15 @@ nav ul li a:hover {
                 <button type="button" class="club-btn secondary-btn" onclick="openNewAnnouncement()">
                     New Announcement
                 </button>
+                {% if user.is_authenticated %}
+                <button type="button" class="club-btn secondary-btn save-club-detail-btn {% if is_saved %}saved{% endif %}"
+                        onclick="toggleSaveDetail(this, '{{ club.slug }}')"
+                        title="{% if is_saved %}Unsave club{% else %}Save club{% endif %}">
+                    <svg class="icon-save" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width:16px;height:16px;display:inline;vertical-align:middle;margin-right:6px;margin-top:-2px;"><path stroke-linecap="round" stroke-linejoin="round" d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0 1 11.186 0Z" /></svg>
+                    <svg class="icon-unsave" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width:16px;height:16px;display:none;vertical-align:middle;margin-right:6px;margin-top:-2px;"><path stroke-linecap="round" stroke-linejoin="round" d="m3 3 1.664 1.664M21 21l-1.5-1.5m-5.485-1.242L12 17.25 4.5 21V8.742m.164-4.078a2.15 2.15 0 0 1 1.743-1.342 48.507 48.507 0 0 1 11.186 0c1.1.128 1.907 1.077 1.907 2.185V19.5M4.664 4.664 19.5 19.5" /></svg>
+                    <span class="save-label">{% if is_saved %}Saved{% else %}Save{% endif %}</span>
+                </button>
+                {% endif %}
             </div>
         </div>
         {% else %}
@@ -685,6 +694,13 @@ nav ul li a:hover {
                                style="padding:10px;border:1px solid #ccc;border-radius:6px;font-size:1rem;width:160px;">
                         <button type="submit" class="club-btn secondary-btn">Verify Exec</button>
                     </form>
+                    <button type="button" class="club-btn secondary-btn save-club-detail-btn {% if is_saved %}saved{% endif %}"
+                            onclick="toggleSaveDetail(this, '{{ club.slug }}')"
+                            title="{% if is_saved %}Unsave club{% else %}Save club{% endif %}">
+                        <svg class="icon-save" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width:16px;height:16px;display:inline;vertical-align:middle;margin-right:6px;margin-top:-2px;"><path stroke-linecap="round" stroke-linejoin="round" d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0 1 11.186 0Z" /></svg>
+                        <svg class="icon-unsave" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width:16px;height:16px;display:none;vertical-align:middle;margin-right:6px;margin-top:-2px;"><path stroke-linecap="round" stroke-linejoin="round" d="m3 3 1.664 1.664M21 21l-1.5-1.5m-5.485-1.242L12 17.25 4.5 21V8.742m.164-4.078a2.15 2.15 0 0 1 1.743-1.342 48.507 48.507 0 0 1 11.186 0c1.1.128 1.907 1.077 1.907 2.185V19.5M4.664 4.664 19.5 19.5" /></svg>
+                        <span class="save-label">{% if is_saved %}Saved{% else %}Save{% endif %}</span>
+                    </button>
                 {% else %}
                     <button type="button" class="club-btn" disabled>Become Member</button>
                     <button type="button" class="club-btn secondary-btn" disabled>Verify Exec</button>
@@ -968,6 +984,20 @@ function openNewAnnouncement() {
 }
 </script>
 <script>
+function toggleSaveDetail(btn, slug) {
+    fetch('/clubs/' + slug + '/save/', {
+        method: 'POST',
+        headers: { 'X-CSRFToken': getCsrf() },
+    })
+    .then(r => r.json())
+    .then(data => {
+        btn.classList.toggle('saved', data.saved);
+        btn.querySelector('.icon-save').style.display = data.saved ? 'none' : 'inline';
+        btn.querySelector('.icon-unsave').style.display = data.saved ? 'inline' : 'none';
+        btn.querySelector('.save-label').textContent = data.saved ? 'Saved' : 'Save';
+    });
+}
+
 function toggleNav() {
     document.getElementById('navIcon').classList.toggle('open');
 }
