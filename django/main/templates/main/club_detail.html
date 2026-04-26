@@ -726,6 +726,7 @@ nav ul li a:hover {
                     <div class="ann-header">
                         <span class="ann-author">{{ latest_announcement.author.first_name }} {{ latest_announcement.author.last_name }}</span>
                         <span class="ann-audience">to {% if latest_announcement.visibility == 'members' %}Club{% else %}Everyone{% endif %}</span>
+                        {% if latest_announcement.type == 'poll' %}<span style="font-size:0.75rem;background:#E57200;color:#fff;border-radius:99px;padding:2px 8px;font-weight:bold;">Poll</span>{% else %}<span style="font-size:0.75rem;background:#232D4B;color:#fff;border-radius:99px;padding:2px 8px;font-weight:bold;">Announcement</span>{% endif %}
                         <span class="ann-date">{{ latest_announcement.created_at|date:"M d, Y" }}</span>
                     </div>
                     <div class="ann-text">{{ latest_announcement.content }}</div>
@@ -750,9 +751,63 @@ nav ul li a:hover {
 
         <!-- Announcements tab -->
         <div id="tab-announcements" class="tab-content">
+            {% if is_exec %}
+            <form method="post" action="{% url 'post_announcement' club.slug %}" class="compose-box" id="ann-compose">
+                {% csrf_token %}
+                <input type="hidden" name="post_type" id="ann-post-type" value="message">
+                <!-- Message mode -->
+                <div id="ann-message-fields">
+                    <div class="compose-textarea-row">
+                        <textarea name="content" id="ann-content" class="compose-textarea" placeholder="Write a message to your members..." rows="2" required></textarea>
+                        <button type="submit" class="compose-send-btn" title="Post announcement">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width:16px;height:16px;">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 12 3.269 3.125A59.769 59.769 0 0 1 21.485 12 59.768 59.768 0 0 1 3.27 20.875L5.999 12Zm0 0h7.5" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <!-- Poll mode -->
+                <div id="ann-poll-fields" style="display:none;">
+                    <div class="compose-textarea-row">
+                        <textarea name="poll_question" id="ann-poll-question" class="compose-textarea" placeholder="Ask your members a question..." rows="2" oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'" style="resize:none;overflow:hidden;"></textarea>
+                        <button type="submit" class="compose-send-btn" title="Post poll">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width:16px;height:16px;">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 12 3.269 3.125A59.769 59.769 0 0 1 21.485 12 59.768 59.768 0 0 1 3.27 20.875L5.999 12Zm0 0h7.5" />
+                            </svg>
+                        </button>
+                    </div>
+                    <div style="border-top:1px solid #e8e8e8;padding:10px 14px 12px;">
+                        <div id="poll-options-list" style="display:flex;flex-direction:column;gap:6px;margin-bottom:8px;"></div>
+                        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+                            <input type="text" id="poll-option-input" placeholder="Add an option..." style="width:220px;padding:7px 10px;border:1px solid #ddd;border-radius:6px;font-size:0.88rem;font-family:inherit;">
+                            <button type="button" onclick="addPollOption()" style="background:#232D4B;color:#fff;border:none;border-radius:6px;padding:7px 14px;font-size:0.85rem;font-weight:bold;cursor:pointer;font-family:inherit;">Add</button>
+                        </div>
+                        <label style="display:flex;align-items:center;gap:6px;font-size:0.85rem;color:#555;cursor:pointer;padding-left:0.5px;">
+                            <input type="checkbox" name="allow_other" id="ann-allow-other" value="1"> Add "Other" Response (Free Response)
+                        </label>
+                    </div>
+                </div>
+                <div class="compose-visibility-row">
+                    <label><input type="radio" name="post_type_display" id="toggle-message" onclick="setAnnType('message')" checked> Message</label>
+                    <label><input type="radio" name="post_type_display" id="toggle-poll" onclick="setAnnType('poll')"> Poll</label>
+                    <span style="width:1px;background:#e8e8e8;margin:0 4px;"></span>
+                    <label><input type="radio" name="visibility" value="everyone" checked> Everyone</label>
+                    <label><input type="radio" name="visibility" value="members"> Members Only</label>
+                </div>
+            </form>
+            {% endif %}
+
+            <div class="search-bar" style="margin-bottom:16px;{% if is_exec %}margin-top:16px;{% endif %}">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width:18px;height:18px;">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+                </svg>
+                <input type="text" placeholder="Search announcements..." oninput="filterAnnouncements(this.value)">
+            </div>
+
+            <div id="announcements-list">
             {% if announcements %}
                 {% for ann in announcements %}
-                <div class="ann-item">
+                <div class="ann-item" data-content="{{ ann.content|lower }}">
                     {% load static %}
                     <img class="ann-avatar"
                          src="{% if ann.author.profile_picture %}{{ ann.author.profile_picture.url }}{% else %}{% static 'defaultpfp.jpg' %}{% endif %}"
@@ -761,33 +816,72 @@ nav ul li a:hover {
                         <div class="ann-header">
                             <span class="ann-author">{{ ann.author.first_name }} {{ ann.author.last_name }}</span>
                             <span class="ann-audience">to {% if ann.visibility == 'members' %}Club{% else %}Everyone{% endif %}</span>
+                            {% if ann.type == 'poll' %}<span style="font-size:0.75rem;background:#E57200;color:#fff;border-radius:99px;padding:2px 8px;font-weight:bold;">Poll</span>{% else %}<span style="font-size:0.75rem;background:#232D4B;color:#fff;border-radius:99px;padding:2px 8px;font-weight:bold;">Announcement</span>{% endif %}
                             <span class="ann-date">{{ ann.created_at|date:"M d, Y" }}</span>
                         </div>
                         <div class="ann-text">{{ ann.content }}</div>
+
+                        {% if ann.type == 'poll' %}
+                        <div class="poll-block" id="poll-{{ ann.id }}" style="margin-top:12px;">
+                            {% if ann.user_vote %}
+                            <!-- Results view -->
+                            <div class="poll-results" id="poll-results-{{ ann.id }}">
+                                {% for opt in ann.poll_data_options %}
+                                <div style="margin-bottom:8px;">
+                                    <div style="display:flex;justify-content:space-between;font-size:0.85rem;margin-bottom:3px;">
+                                        <span {% if ann.user_vote == opt.id %}style="font-weight:bold;color:#232D4B;"{% endif %}>{{ opt.text }}{% if ann.user_vote == opt.id %} <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width:14px;height:14px;display:inline;vertical-align:middle;color:#232D4B;"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg>{% endif %}</span>
+                                        <span style="color:#888;">{{ opt.vote_count }} ({{ opt.pct }}%)</span>
+                                    </div>
+                                    <div style="background:#f0f0f0;border-radius:99px;height:8px;overflow:hidden;">
+                                        <div style="background:#232D4B;height:100%;width:{{ opt.pct }}%;border-radius:99px;transition:width 0.4s;"></div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                                {% if ann.allow_other %}
+                                <div style="margin-bottom:8px;">
+                                    <div style="display:flex;justify-content:space-between;font-size:0.85rem;margin-bottom:3px;">
+                                        <span {% if ann.user_vote == 'other' %}style="font-weight:bold;color:#232D4B;"{% endif %}>Other{% if ann.user_vote == 'other' %}: {{ ann.user_other_text }} <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width:14px;height:14px;display:inline;vertical-align:middle;color:#232D4B;"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg>{% endif %}</span>
+                                        <span style="color:#888;">{{ ann.other_votes }} ({{ ann.other_pct }}%)</span>
+                                    </div>
+                                    <div style="background:#f0f0f0;border-radius:99px;height:8px;overflow:hidden;">
+                                        <div style="background:#232D4B;height:100%;width:{{ ann.other_pct }}%;border-radius:99px;"></div>
+                                    </div>
+                                </div>
+                                {% endif %}
+                                <div style="font-size:0.78rem;color:#aaa;margin-top:6px;">{{ ann.total_votes }} vote{{ ann.total_votes|pluralize }}</div>
+                            </div>
+                            {% else %}
+                            <!-- Voting view -->
+                            <div class="poll-vote-form" id="poll-vote-{{ ann.id }}" data-ann="{{ ann.id }}" data-slug="{{ club.slug }}">
+                                {% for opt in ann.poll_data_options %}
+                                <label style="display:flex;align-items:center;gap:8px;font-size:0.88rem;margin-bottom:8px;cursor:pointer;">
+                                    <input type="radio" name="poll-{{ ann.id }}" value="{{ opt.id }}" onchange="onPollChange({{ ann.id }})"> {{ opt.text }}{% if ann.user_vote == opt.id %} <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width:14px;height:14px;display:inline;vertical-align:middle;color:#232D4B;"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg>{% endif %}
+                                </label>
+                                {% endfor %}
+                                {% if ann.allow_other %}
+                                <label style="display:flex;align-items:center;gap:8px;font-size:0.88rem;margin-bottom:6px;cursor:pointer;">
+                                    <input type="radio" name="poll-{{ ann.id }}" value="other" onchange="onPollChange({{ ann.id }})"> Other
+                                </label>
+                                <input type="text" id="poll-other-{{ ann.id }}" placeholder="Your answer..." style="display:none;width:100%;padding:7px 10px;border:1px solid #ddd;border-radius:6px;font-size:0.85rem;font-family:inherit;margin-bottom:6px;">
+                                {% endif %}
+                                {% if user.is_authenticated %}
+                                <button type="button" id="poll-vote-btn-{{ ann.id }}" onclick="submitVote({{ ann.id }}, '{{ club.slug }}')"
+                                    style="margin-top:4px;background:#232D4B;color:#fff;border:none;border-radius:6px;padding:7px 18px;font-size:0.85rem;font-weight:bold;cursor:pointer;font-family:inherit;opacity:0.4;pointer-events:none;">Vote</button>
+                                {% else %}
+                                <p style="font-size:0.82rem;color:#888;margin-top:4px;">Log in to vote.</p>
+                                {% endif %}
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% endif %}
                     </div>
                 </div>
                 {% endfor %}
             {% else %}
-                <p style="color:#888;">No announcements yet.</p>
+                <p id="ann-empty" style="color:#888;">No announcements yet.</p>
             {% endif %}
-
-            {% if is_exec %}
-            <form method="post" action="{% url 'post_announcement' club.slug %}" class="compose-box" id="ann-compose" style="margin-top:16px;">
-                {% csrf_token %}
-                <div class="compose-textarea-row">
-                    <textarea name="content" class="compose-textarea" placeholder="Write a message to your members..." rows="2" required></textarea>
-                    <button type="submit" class="compose-send-btn" title="Post announcement">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width:16px;height:16px;">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 12 3.269 3.125A59.769 59.769 0 0 1 21.485 12 59.768 59.768 0 0 1 3.27 20.875L5.999 12Zm0 0h7.5" />
-                        </svg>
-                    </button>
-                </div>
-                <div class="compose-visibility-row">
-                    <label><input type="radio" name="visibility" value="everyone" checked> Everyone</label>
-                    <label><input type="radio" name="visibility" value="members"> Members Only</label>
-                </div>
-            </form>
-            {% endif %}
+            </div>
+            <p id="ann-no-results" style="display:none;color:#888;">No announcements match your search.</p>
         </div>
 
         <!-- Discussion tab -->
@@ -981,6 +1075,113 @@ function openNewAnnouncement() {
         const compose = document.getElementById('ann-compose');
         if (compose) compose.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }, 50);
+}
+
+function filterAnnouncements(query) {
+    const q = query.toLowerCase().trim();
+    const items = document.querySelectorAll('#announcements-list .ann-item');
+    let visible = 0;
+    items.forEach(item => {
+        const matches = !q || item.dataset.content.includes(q);
+        item.style.display = matches ? '' : 'none';
+        if (matches) visible++;
+    });
+    const empty = document.getElementById('ann-empty');
+    const noResults = document.getElementById('ann-no-results');
+    if (noResults) noResults.style.display = (items.length > 0 && visible === 0) ? 'block' : 'none';
+    if (empty) empty.style.display = (items.length === 0 && !q) ? 'block' : 'none';
+}
+
+// ── Compose toggle ──
+let pollOptionCount = 0;
+function setAnnType(type) {
+    document.getElementById('ann-post-type').value = type;
+    const msgFields = document.getElementById('ann-message-fields');
+    const pollFields = document.getElementById('ann-poll-fields');
+    if (!msgFields) return;
+    if (type === 'message') {
+        msgFields.style.display = ''; pollFields.style.display = 'none';
+        document.getElementById('ann-content').required = true;
+        document.getElementById('ann-poll-question').required = false;
+        document.getElementById('ann-poll-question').name = '';
+    } else {
+        msgFields.style.display = 'none'; pollFields.style.display = '';
+        document.getElementById('ann-content').required = false;
+        document.getElementById('ann-poll-question').required = true;
+        document.getElementById('ann-poll-question').name = 'poll_question';
+    }
+}
+
+function addPollOption() {
+    const input = document.getElementById('poll-option-input');
+    const text = input.value.trim();
+    if (!text) return;
+    const list = document.getElementById('poll-options-list');
+    const idx = pollOptionCount++;
+    const row = document.createElement('div');
+    row.style.cssText = 'display:flex;align-items:center;gap:8px;';
+    row.innerHTML = `<input type="hidden" name="poll_options" value="${text.replace(/"/g,'&quot;')}">
+        <span style="color:#888;font-size:1rem;line-height:1;flex-shrink:0;">•</span>
+        <span style="background:#f4f5f7;border-radius:6px;padding:6px 10px;font-size:0.87rem;width:220px;">${text}</span>
+        <button type="button" onclick="this.parentElement.remove()" style="background:none;border:none;color:#aaa;cursor:pointer;font-size:1rem;padding:0 4px;">&times;</button>`;
+    list.appendChild(row);
+    input.value = '';
+    input.focus();
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const optInput = document.getElementById('poll-option-input');
+    if (optInput) optInput.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); addPollOption(); } });
+});
+
+// ── Poll voting ──
+function onPollChange(annId) {
+    const selected = document.querySelector(`input[name="poll-${annId}"]:checked`);
+    const btn = document.getElementById(`poll-vote-btn-${annId}`);
+    const otherInput = document.getElementById(`poll-other-${annId}`);
+    if (otherInput) otherInput.style.display = selected && selected.value === 'other' ? 'block' : 'none';
+    if (btn) { btn.style.opacity = selected ? '1' : '0.4'; btn.style.pointerEvents = selected ? 'auto' : 'none'; }
+}
+
+async function submitVote(annId, slug) {
+    const selected = document.querySelector(`input[name="poll-${annId}"]:checked`);
+    if (!selected) return;
+    const optionId = selected.value;
+    const otherText = optionId === 'other' ? (document.getElementById(`poll-other-${annId}`)?.value.trim() || '') : '';
+    const res = await fetch(`/clubs/${slug}/announcements/${annId}/vote/`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json', 'X-CSRFToken': getCsrf()},
+        body: JSON.stringify({option_id: optionId, other_text: otherText}),
+    });
+    const data = await res.json();
+    if (!data.ok) return;
+    // Replace vote form with results
+    const voteForm = document.getElementById(`poll-vote-${annId}`);
+    let html = '';
+    data.results.forEach(opt => {
+        const isVoted = String(opt.id) === String(optionId);
+        html += `<div style="margin-bottom:8px;">
+            <div style="display:flex;justify-content:space-between;font-size:0.85rem;margin-bottom:3px;">
+                <span ${isVoted ? 'style="font-weight:bold;color:#232D4B;"' : ''}>${opt.text}${isVoted ? ' <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width:14px;height:14px;display:inline;vertical-align:middle;"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg>' : ''}</span>
+                <span style="color:#888;">${opt.count} (${opt.pct}%)</span>
+            </div>
+            <div style="background:#f0f0f0;border-radius:99px;height:8px;overflow:hidden;">
+                <div style="background:#232D4B;height:100%;width:${opt.pct}%;border-radius:99px;transition:width 0.4s;"></div>
+            </div></div>`;
+    });
+    if (data.other_votes !== undefined) {
+        const isOther = optionId === 'other';
+        html += `<div style="margin-bottom:8px;">
+            <div style="display:flex;justify-content:space-between;font-size:0.85rem;margin-bottom:3px;">
+                <span ${isOther ? 'style="font-weight:bold;color:#232D4B;"' : ''}>Other${isOther && otherText ? ': ' + otherText : ''}${isOther ? ' <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width:14px;height:14px;display:inline;vertical-align:middle;"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg>' : ''}</span>
+                <span style="color:#888;">${data.other_votes} (${data.other_pct}%)</span>
+            </div>
+            <div style="background:#f0f0f0;border-radius:99px;height:8px;overflow:hidden;">
+                <div style="background:#232D4B;height:100%;width:${data.other_pct}%;border-radius:99px;"></div>
+            </div></div>`;
+    }
+    html += `<div style="font-size:0.78rem;color:#aaa;margin-top:6px;">${data.total} vote${data.total !== 1 ? 's' : ''}</div>`;
+    voteForm.outerHTML = `<div class="poll-results" id="poll-results-${annId}">${html}</div>`;
 }
 </script>
 <script>

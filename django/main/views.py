@@ -5,7 +5,7 @@ from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.http import JsonResponse
-from .models import User, Club, Membership, Event, Forum, ForumThread, ForumReply, DirectMessage, Announcement, ClubSettings, JoinRequest, Ban
+from .models import User, Club, Membership, Event, Forum, ForumThread, ForumReply, DirectMessage, Announcement, ClubSettings, JoinRequest, Ban, PollOption, PollVote
 from .forms import EventForm
 from functools import wraps
 import datetime
@@ -52,8 +52,29 @@ class ClubDetailView(DetailView):
             visible_announcements = all_announcements
         else:
             visible_announcements = all_announcements.filter(visibility=Announcement.EVERYONE)
-        context["announcements"] = visible_announcements
-        context["latest_announcement"] = visible_announcements.first()
+        announcements_list = list(visible_announcements.prefetch_related('poll_options', 'poll_votes'))
+        for ann in announcements_list:
+            if ann.type == Announcement.POLL:
+                options = list(ann.poll_options.all())
+                total_votes = ann.poll_votes.count()
+                other_votes = ann.poll_votes.filter(option__isnull=True).count()
+                for opt in options:
+                    opt.vote_count = ann.poll_votes.filter(option=opt).count()
+                    opt.pct = round(opt.vote_count / total_votes * 100) if total_votes else 0
+                other_pct = round(other_votes / total_votes * 100) if total_votes else 0
+                ann.poll_data_options = options
+                ann.total_votes = total_votes
+                ann.other_votes = other_votes
+                ann.other_pct = other_pct
+                ann.user_vote = None
+                ann.user_other_text = ''
+                if self.request.user.is_authenticated:
+                    vote = ann.poll_votes.filter(user=self.request.user).first()
+                    if vote:
+                        ann.user_vote = vote.option_id if vote.option_id else 'other'
+                        ann.user_other_text = vote.other_text
+        context["announcements"] = announcements_list
+        context["latest_announcement"] = announcements_list[0] if announcements_list else None
 
         #Contacts: Members/Execs see all members, others only see the exec team
         exec_members = self.object.memberships.filter(
@@ -573,20 +594,74 @@ def post_announcement(request, slug):
     if not is_exec:
         return redirect('club_detail', slug=slug)
     if request.method == 'POST':
-        title = request.POST.get('title', '').strip()
-        content = request.POST.get('content', '').strip()
+        post_type = request.POST.get('post_type', Announcement.MESSAGE)
+        if post_type not in (Announcement.MESSAGE, Announcement.POLL):
+            post_type = Announcement.MESSAGE
+        if post_type == Announcement.POLL:
+            content = request.POST.get('poll_question', '').strip()
+        else:
+            content = request.POST.get('content', '').strip()
         visibility = request.POST.get('visibility', Announcement.EVERYONE)
         if visibility not in (Announcement.MEMBERS, Announcement.EVERYONE):
             visibility = Announcement.EVERYONE
         if content:
-            Announcement.objects.create(
+            ann = Announcement.objects.create(
                 club=club,
                 author=request.user,
-                title=title,
                 content=content,
                 visibility=visibility,
+                type=post_type,
+                allow_other=request.POST.get('allow_other') == '1',
             )
+            if post_type == Announcement.POLL:
+                options = request.POST.getlist('poll_options')
+                for i, opt_text in enumerate(options):
+                    opt_text = opt_text.strip()
+                    if opt_text:
+                        PollOption.objects.create(announcement=ann, text=opt_text, order=i)
     return redirect('club_detail', slug=slug)
+
+
+@login_required
+def vote_poll(request, slug, ann_id):
+    import json
+    if request.method != 'POST':
+        return JsonResponse({'error': 'POST required'}, status=405)
+    ann = get_object_or_404(Announcement, id=ann_id, club__slug=slug, type=Announcement.POLL)
+    if ann.visibility == Announcement.MEMBERS:
+        is_member = Membership.objects.filter(user=request.user, club__slug=slug).exists()
+        if not is_member:
+            return JsonResponse({'error': 'Members only'}, status=403)
+    data = json.loads(request.body)
+    option_id = data.get('option_id')
+    other_text = data.get('other_text', '').strip()
+    option = None
+    if option_id and option_id != 'other':
+        option = get_object_or_404(PollOption, id=option_id, announcement=ann)
+    PollVote.objects.update_or_create(
+        announcement=ann, user=request.user,
+        defaults={'option': option, 'other_text': other_text if option_id == 'other' else ''},
+    )
+    # Return updated counts
+    options = list(ann.poll_options.all())
+    total = ann.poll_votes.count()
+    other_votes = ann.poll_votes.filter(option__isnull=True).count()
+    results = [
+        {
+            'id': opt.id,
+            'text': opt.text,
+            'count': ann.poll_votes.filter(option=opt).count(),
+            'pct': round(ann.poll_votes.filter(option=opt).count() / total * 100) if total else 0,
+        }
+        for opt in options
+    ]
+    return JsonResponse({
+        'ok': True,
+        'total': total,
+        'other_votes': other_votes,
+        'other_pct': round(other_votes / total * 100) if total else 0,
+        'results': results,
+    })
 
 # ──────────────────────────────────────────────
 # USER ADMIN VIEWS

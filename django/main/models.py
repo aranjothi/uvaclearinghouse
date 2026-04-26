@@ -178,12 +178,17 @@ class Announcement(models.Model):
         (MEMBERS, 'Club Members Only'),
         (EVERYONE, 'Everyone'),
     ]
+    MESSAGE = 'message'
+    POLL = 'poll'
+    TYPE_CHOICES = [(MESSAGE, 'Message'), (POLL, 'Poll')]
 
     club = models.ForeignKey(Club, on_delete=models.CASCADE, related_name='announcements')
     author = models.ForeignKey(User, on_delete=models.CASCADE)
     title = models.CharField(max_length=200, blank=True)
     content = models.TextField()
     visibility = models.CharField(max_length=10, choices=VISIBILITY_CHOICES, default=EVERYONE)
+    type = models.CharField(max_length=10, choices=TYPE_CHOICES, default=MESSAGE)
+    allow_other = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -191,6 +196,28 @@ class Announcement(models.Model):
 
     def __str__(self):
         return f"{self.club.name}: {self.title}"
+
+
+class PollOption(models.Model):
+    announcement = models.ForeignKey(Announcement, on_delete=models.CASCADE, related_name='poll_options')
+    text = models.CharField(max_length=300)
+    order = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ['order']
+
+    def __str__(self):
+        return self.text
+
+
+class PollVote(models.Model):
+    announcement = models.ForeignKey(Announcement, on_delete=models.CASCADE, related_name='poll_votes')
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    option = models.ForeignKey(PollOption, on_delete=models.SET_NULL, null=True, blank=True)
+    other_text = models.CharField(max_length=500, blank=True)
+
+    class Meta:
+        unique_together = ('announcement', 'user')
 
 # ──────────────────────────────────────────────
 # MESSAGING MODELS
