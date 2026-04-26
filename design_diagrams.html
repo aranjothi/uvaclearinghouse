@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>HoosLinked — Design Diagrams</title>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f5f5;
+      padding: 30px;
+      color: #222;
+    }
+    h1 {
+      text-align: center;
+      color: #232D4B;
+      margin-bottom: 8px;
+    }
+    .subtitle {
+      text-align: center;
+      color: #666;
+      margin-bottom: 40px;
+      font-size: 14px;
+    }
+    .diagram-section {
+      background: white;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      padding: 30px;
+      margin-bottom: 50px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    }
+    .diagram-section h2 {
+      color: #232D4B;
+      border-bottom: 3px solid #E57200;
+      padding-bottom: 8px;
+      margin-top: 0;
+    }
+    .diagram-section p {
+      color: #555;
+      margin-bottom: 20px;
+      font-size: 14px;
+    }
+    .mermaid {
+      display: flex;
+      justify-content: center;
+    }
+    .note {
+      margin-top: 16px;
+      background: #fff8e1;
+      border-left: 4px solid #E57200;
+      padding: 10px 14px;
+      font-size: 13px;
+      color: #555;
+      border-radius: 0 4px 4px 0;
+    }
+    .writeup {
+      margin-top: 24px;
+      padding-top: 20px;
+      border-top: 1px solid #e0e0e0;
+    }
+    .writeup h3 {
+      color: #232D4B;
+      font-size: 15px;
+      margin-bottom: 10px;
+    }
+    .writeup p {
+      font-size: 14px;
+      line-height: 1.7;
+      color: #444;
+      margin-bottom: 12px;
+    }
+  </style>
+</head>
+<body>
+
+<h1>HoosLinked — Application Design Diagrams</h1>
+<p class="subtitle">Before and After: Addition of the User Administrator Role</p>
+
+<!-- ======================== BEFORE ======================== -->
+<div class="diagram-section">
+  <h2>Before — No User Administrator Role</h2>
+  <p>
+    Three actor types exist: Anonymous visitors, regular logged-in users, and Club Executives
+    (who gain elevated access by entering a club's executive code).
+  </p>
+
+  <div class="mermaid">
+flowchart TD
+    AnonUser([Anonymous User])
+    LoggedIn([User Login])
+
+    AnonUser -->|"No account needed"| AnonActions
+    subgraph AnonActions["Public Access"]
+        Home[Home Page]
+        Browse[Browse / Get Involved]
+        Search[Global Search]
+        Events[View All Events]
+        ClubDetail[Club Detail Page\n'everyone' announcements only]
+    end
+
+    LoggedIn --> RoleCheck{User Role?}
+
+    RoleCheck -->|Regular User| RegActions
+    subgraph RegActions["Regular User"]
+        ProfileMyClubs[Profile & My Clubs]
+        JoinVerify[Join Club /\nVerify as Executive]
+        RSVPMsg[RSVP Events &\nDirect Messaging]
+        Forum[Club Forum\nPost & Like Threads\nif club member]
+    end
+
+    RoleCheck -->|Club Executive\nvia executive code| ExecActions
+    subgraph ExecActions["Club Executive"]
+        ExecDash[Executive Dashboard]
+        CreateEvent[Create Event]
+        PostAnnounce[Post Announcement\neveryone or members only]
+        UploadImage[Upload Club Image]
+        ExecEvents[View All Club Events]
+    end
+
+    JoinVerify -->|"Upgrades membership\nto Executive"| ExecActions
+  </div>
+
+  <div class="writeup">
+    <h3>Diagram Description</h3>
+    <p>
+      In the original design, HoosLinked supports three categories of users. <strong>Anonymous visitors</strong>
+      can browse the site without an account — they can view the home page, search for clubs, browse the
+      Get Involved listing, see upcoming events, and read public announcements on club detail pages.
+      However, they cannot interact with any club content or access any personalized features.
+    </p>
+    <p>
+      Once a user creates an account and logs in, they become a <strong>Regular Member</strong>. Members
+      can manage their profile, view and join clubs, RSVP to events, send direct messages to other users,
+      and participate in club forums — but only for clubs they have already joined. They can also enter
+      an executive code to self-upgrade their membership to Club Executive status for a specific club.
+    </p>
+    <p>
+      A <strong>Club Executive</strong> retains all regular member capabilities and gains a set of
+      club management tools scoped to the clubs they oversee: they can create events, post announcements
+      (visible to everyone or members only), upload a club banner image, and access the executive
+      dashboard which summarizes club membership and event statistics.
+    </p>
+  </div>
+</div>
+
+<!-- ======================== AFTER ======================== -->
+<div class="diagram-section">
+  <h2>After — User Administrator Role Added</h2>
+  <p>
+    A fourth actor type is introduced: the <strong>User Administrator</strong>.
+    This account is created exclusively through the Django admin panel and has a dedicated
+    dashboard for managing user membership roles across all clubs.
+    User Admins are redirected away from normal user pages and have no access to club content.
+  </p>
+
+  <div class="mermaid">
+flowchart TD
+    DjangoAdmin([Django Admin Panel])
+    AnonUser([Anonymous User])
+    LoggedIn([User Login])
+
+    DjangoAdmin -->|"Set is_user_admin = True\non User record"| CreateAdmin["User Admin Account\ncreated"]
+
+    AnonUser -->|"No account needed"| AnonActions
+    subgraph AnonActions["Public Access"]
+        Home[Home Page]
+        Browse[Browse / Get Involved]
+        Search[Global Search]
+        Events[View All Events]
+        ClubDetail[Club Detail Page\n'everyone' announcements only]
+    end
+
+    LoggedIn --> RoleCheck{User Role?}
+
+    RoleCheck -->|Regular User| RegActions
+    subgraph RegActions["Regular User"]
+        ProfileMyClubs2[Profile & My Clubs]
+        JoinVerify2[Join Club /\nVerify as Executive]
+        RSVPMsg2[RSVP Events &\nDirect Messaging]
+        Forum2[Club Forum\nPost & Like Threads\nif club member]
+    end
+
+    RoleCheck -->|Club Executive\nvia executive code| ExecActions
+    subgraph ExecActions["Club Executive"]
+        ExecDash[Executive Dashboard]
+        CreateEvent[Create Event]
+        PostAnnounce[Post Announcement\neveryone or members only]
+        UploadImage[Upload Club Image]
+        ExecEvents[View All Club Events]
+    end
+
+    RoleCheck -->|"User Admin\nis_user_admin = True"| AdminActions
+    subgraph AdminActions["User Administrator"]
+        AdminPanel[User Admin Panel\n/user-admin/]
+        ViewUsers[View All Non-Admin Users\nwith club memberships]
+        ChangeRole[Change Membership Role\nmember ↔ executive]
+    end
+
+    CreateAdmin -->|"Logs in normally"| LoggedIn
+    AdminPanel --> ViewUsers
+    AdminPanel --> ChangeRole
+    JoinVerify2 -->|"Upgrades membership\nto Executive"| ExecActions
+  </div>
+
+  <div class="note">
+    <strong>Key change:</strong> The User Administrator is the only role created outside the application UI —
+    it requires a Django superuser to set <code>is_user_admin = True</code> on a user record in the Django
+    admin panel. Once logged in, the User Admin is automatically redirected to <code>/user-admin/</code>
+    and cannot access profile pages, club pages, or messaging features.
+  </div>
+
+  <div class="writeup">
+    <h3>Diagram Description</h3>
+    <p>
+      The updated design introduces a fourth user role: the <strong>User Administrator</strong>. The
+      three existing roles — Anonymous Visitor, Regular Member, and Club Executive — remain identical
+      in behavior to the original design. Anonymous users can still browse public content without
+      logging in. Regular members can join clubs, participate in forums, RSVP to events, and message
+      other users. Club Executives retain their club management capabilities including creating events,
+      posting announcements, and uploading club images.
+    </p>
+    <p>
+      The new <strong>User Administrator</strong> role is a privileged, staff-only account created
+      entirely outside of the normal application flow. Rather than signing up through the website, a
+      User Admin account is provisioned by a superuser setting the <code>is_user_admin</code> flag
+      directly in the Django admin panel. This deliberate separation ensures that no regular user can
+      elevate themselves to administrator status. Once a User Admin logs in, the application
+      automatically redirects them to a dedicated admin dashboard at <code>/user-admin/</code>, bypassing
+      all standard user pages. From this dashboard, the administrator can view every non-admin user along
+      with their club memberships, and can promote or demote any user between the Member and Executive
+      roles for any club. The User Admin has no access to club content, forums, messaging, or events —
+      their sole purpose is role governance across the platform.
+    </p>
+  </div>
+</div>
+
+<script>
+  mermaid.initialize({ startOnLoad: true, theme: 'default', flowchart: { curve: 'linear' } });
+</script>
+</body>
+</html>

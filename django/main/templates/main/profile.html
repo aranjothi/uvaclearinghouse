@@ -311,14 +311,6 @@ nav ul li a:hover { border-bottom: 3px solid #E57200; }
     <div class="modal">
         <h2>Edit Profile</h2>
 
-        {% if messages %}
-        {% for message in messages %}
-        <div style="background:#fde8e8; color:#c0392b; padding:10px 12px; border-radius:6px; margin-bottom:1rem; font-size:13px;">
-            {{ message }}
-        </div>
-        {% endfor %}
-        {% endif %}
-
         <form method="post" enctype="multipart/form-data" action="{% url 'create_profile' %}">
             {% csrf_token %}
             <label for="profile_picture">Profile Picture</label>
@@ -374,9 +366,6 @@ document.addEventListener('click', function(e) {
     if (!nav.contains(e.target)) nav.classList.remove('open');
 });
 
-{% if messages %}
-document.getElementById('editProfileModal').classList.add('open');
-{% endif %}
 </script>
 
 {% include 'main/chat_widget.html' %}
