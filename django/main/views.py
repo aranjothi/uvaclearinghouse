@@ -84,6 +84,7 @@ def signup_page(request):
         email = request.POST.get('email')
         password = request.POST.get('password')
         membership = request.POST.get('membership')
+        exec_codes = request.POST.getlist('exec_codes')
 
         if User.objects.filter(email=email).exists():
             return render(request, 'main/signup.html', {'error': 'An account with this email already exists.'})
@@ -95,14 +96,37 @@ def signup_page(request):
             last_name=last_name,
         )
         user.set_password(password)
-        if hasattr(user, 'membership'):
-            user.membership = membership
         user.save()
+
+        if membership == 'executive' and exec_codes:
+            for code in exec_codes:
+                club = Club.objects.filter(executive_code=code).first()
+                if club:
+                    Membership.objects.get_or_create(user=user, club=club, defaults={'role': Membership.EXECUTIVE})
 
         login(request, user, backend='django.contrib.auth.backends.ModelBackend')
         return redirect('create_profile')
 
     return render(request, 'main/signup.html')
+
+
+def validate_exec_code(request):
+    code = request.GET.get('code', '').strip()
+    club = Club.objects.filter(executive_code=code).first()
+    if club:
+        return JsonResponse({'valid': True, 'club_name': club.name})
+    return JsonResponse({'valid': False})
+
+
+def store_exec_codes(request):
+    import json
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        codes = data.get('codes', [])
+        valid_codes = list(Club.objects.filter(executive_code__in=codes).values_list('executive_code', flat=True))
+        request.session['pending_exec_codes'] = valid_codes
+        return JsonResponse({'ok': True})
+    return JsonResponse({'ok': False})
 
 
 def login_page(request):

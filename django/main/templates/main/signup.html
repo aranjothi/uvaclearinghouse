@@ -131,8 +131,13 @@
             margin-top: 8px;
         }
 
-        .login-btn:hover {
+        .login-btn:hover:not(:disabled) {
             background-color: #c96200;
+        }
+
+        .login-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
         }
 
         .membership-options {
@@ -264,7 +269,7 @@
         <div class="login-box">
             <h1>Hoos<span>Linked</span></h1>
             <p>Sign up for an account</p>
-            <form method="post">
+            <form method="post" id="signupForm">
                 {% csrf_token %}
                 {% if messages %}{% for message in messages %}
                 <div style="display:flex;align-items:center;gap:10px;background:rgba(192,57,43,0.12);color:#c0392b;border:1px solid rgba(192,57,43,0.25);border-radius:8px;padding:12px 16px;margin-bottom:16px;font-size:0.9rem;">
@@ -294,6 +299,18 @@
                     <input type="radio" id="no_club" name="membership" value="general">
                     <label for="no_club">I'm currently not in a club</label>
                 </div>
+
+                <!-- Executive code section -->
+                <div id="exec-code-section" style="display:none;margin-bottom:16px;">
+                    <label style="font-weight:bold;font-size:0.9rem;color:#232D4B;display:block;margin-bottom:8px;">Club Executive Code</label>
+                    <div style="display:flex;gap:8px;">
+                        <input type="text" id="exec-code-input" placeholder="Enter your club's executive code" style="flex:1;padding:10px 12px;border:1px solid #ccc;border-radius:6px;font-size:0.9rem;font-family:inherit;">
+                        <button type="button" id="exec-add-btn" onclick="addExecCode()" style="background:#232D4B;color:#fff;border:none;border-radius:6px;padding:10px 16px;font-weight:bold;font-size:0.85rem;cursor:pointer;font-family:inherit;white-space:nowrap;">Add</button>
+                    </div>
+                    <div id="exec-code-error" style="display:none;color:#c0392b;font-size:0.82rem;margin-top:6px;"></div>
+                    <div id="exec-clubs-list" style="margin-top:10px;display:flex;flex-direction:column;gap:6px;"></div>
+                </div>
+
                 <div class="name-row">
                     <div class="form-group">
                         <label for="first_name">First Name</label>
@@ -312,10 +329,10 @@
                     <label for="password">Password</label>
                     <input type="password" id="password" name="password" placeholder="Enter your password">
                 </div>
-                <button type="submit" class="login-btn">Sign up</button>
+                <button type="submit" id="signupBtn" class="login-btn disabled" disabled>Sign up</button>
             </form>
             <div class="divider">or</div>
-            <a id="googleBtn" href="#" class="google-btn disabled">
+            <button type="button" id="googleBtn" class="google-btn disabled" onclick="handleGoogleSignup()">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="20px" height="20px">
                     <path fill="#EA4335" d="M24 9.5c3.15 0 5.64 1.08 7.56 2.85l5.64-5.64C33.6 3.6 29.1 1.5 24 1.5 14.82 1.5 7.08 7.14 3.9 15.06l6.57 5.1C12.12 13.98 17.58 9.5 24 9.5z"/>
                     <path fill="#4285F4" d="M46.5 24c0-1.56-.15-3.06-.42-4.5H24v8.52h12.72c-.57 2.97-2.22 5.46-4.68 7.14l7.14 5.55C43.38 36.9 46.5 30.9 46.5 24z"/>
@@ -323,7 +340,7 @@
                     <path fill="#34A853" d="M24 46.5c5.1 0 9.42-1.68 12.54-4.56l-7.14-5.55c-1.74 1.17-3.99 1.86-5.4 1.86-6.42 0-11.88-4.32-13.53-10.14l-6.57 6.04C7.08 40.86 14.82 46.5 24 46.5z"/>
                 </svg>
                 Sign up with Google
-            </a>
+            </button>
         </div>
     </div>
 
@@ -333,16 +350,110 @@
         }
         document.addEventListener('click', function(e) {
             const nav = document.getElementById('navIcon');
+            if (!nav) return;
             if (!nav.contains(e.target)) nav.classList.remove('open');
         });
 
+        const addedCodes = [];
+
+        function getSelectedRole() {
+            const checked = document.querySelector('input[name="membership"]:checked');
+            return checked ? checked.value : null;
+        }
+
+        function updateButtonState() {
+            const role = getSelectedRole();
+            const signupBtn = document.getElementById('signupBtn');
+            const googleBtn = document.getElementById('googleBtn');
+            const enabled = role && (role !== 'executive' || addedCodes.length > 0);
+            signupBtn.disabled = !enabled;
+            signupBtn.classList.toggle('disabled', !enabled);
+            googleBtn.classList.toggle('disabled', !enabled);
+        }
+
         document.querySelectorAll('input[name="membership"]').forEach(function(radio) {
             radio.addEventListener('change', function() {
-                const btn = document.getElementById('googleBtn');
-                btn.href = "{% url 'google_signup' %}?role=" + this.value;
-                btn.classList.remove('disabled');
+                const execSection = document.getElementById('exec-code-section');
+                execSection.style.display = this.value === 'executive' ? 'block' : 'none';
+                updateButtonState();
             });
         });
+
+        async function addExecCode() {
+            const input = document.getElementById('exec-code-input');
+            const errorEl = document.getElementById('exec-code-error');
+            const code = input.value.trim();
+            errorEl.style.display = 'none';
+
+            if (!code) return;
+            if (addedCodes.includes(code)) {
+                errorEl.textContent = 'You already added this code.';
+                errorEl.style.display = 'block';
+                return;
+            }
+
+            const res = await fetch('/signup/validate-exec-code/?code=' + encodeURIComponent(code));
+            const data = await res.json();
+
+            if (!data.valid) {
+                errorEl.textContent = 'Invalid code. Please check with your club executive.';
+                errorEl.style.display = 'block';
+                return;
+            }
+
+            addedCodes.push(code);
+
+            // Add hidden input
+            const hidden = document.createElement('input');
+            hidden.type = 'hidden';
+            hidden.name = 'exec_codes';
+            hidden.value = code;
+            hidden.id = 'hidden-code-' + code;
+            document.getElementById('signupForm').appendChild(hidden);
+
+            // Add club chip to list
+            const chip = document.createElement('div');
+            chip.id = 'chip-' + code;
+            chip.style.cssText = 'display:flex;align-items:center;justify-content:space-between;background:#f0f2f5;border:1px solid #dde1e8;border-radius:6px;padding:8px 12px;font-size:0.88rem;color:#232D4B;';
+            chip.innerHTML = `<span><strong>${data.club_name}</strong></span>
+                <button type="button" onclick="removeExecCode('${code}')" style="background:none;border:none;color:#888;cursor:pointer;font-size:1rem;line-height:1;padding:0 0 0 8px;">&times;</button>`;
+            document.getElementById('exec-clubs-list').appendChild(chip);
+
+            input.value = '';
+            updateButtonState();
+        }
+
+        function removeExecCode(code) {
+            const idx = addedCodes.indexOf(code);
+            if (idx > -1) addedCodes.splice(idx, 1);
+            const hidden = document.getElementById('hidden-code-' + code);
+            if (hidden) hidden.remove();
+            const chip = document.getElementById('chip-' + code);
+            if (chip) chip.remove();
+            updateButtonState();
+        }
+
+        document.getElementById('exec-code-input').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') { e.preventDefault(); addExecCode(); }
+        });
+
+        async function handleGoogleSignup() {
+            if (document.getElementById('googleBtn').classList.contains('disabled')) return;
+            const role = getSelectedRole();
+            if (role === 'executive' && addedCodes.length > 0) {
+                await fetch('/signup/store-exec-codes/', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json', 'X-CSRFToken': getCsrfToken()},
+                    body: JSON.stringify({codes: addedCodes}),
+                });
+            }
+            window.location.href = "{% url 'google_signup' %}?role=" + role;
+        }
+
+        function getCsrfToken() {
+            const m = document.cookie.match(/csrftoken=([^;]+)/);
+            return m ? m[1] : '';
+        }
     </script>
 </body>
 </html>
