@@ -266,6 +266,28 @@ def global_search(request):
     })
 
 
+@login_required
+def user_suggest(request):
+    query = request.GET.get('q', '').strip()
+    if len(query) < 1:
+        return JsonResponse({'users': []})
+    users = User.objects.filter(is_user_admin=False).filter(
+        Q(username__icontains=query) |
+        Q(first_name__icontains=query) |
+        Q(last_name__icontains=query) |
+        Q(email__icontains=query)
+    ).exclude(pk=request.user.pk)[:8]
+    return JsonResponse({'users': [
+        {
+            'username': u.username,
+            'name': f'{u.first_name} {u.last_name}'.strip() or u.username,
+            'email': u.email,
+            'avatar': u.profile_picture.url if u.profile_picture else None,
+        }
+        for u in users
+    ]})
+
+
 def search_suggest(request):
     query = request.GET.get('q', '').strip()
     if len(query) < 2:

@@ -35,6 +35,34 @@
         .row button:hover { background: #1a2238; }
         .empty { color: #888; font-style: italic; font-size: 14px; }
         .error-msg { color: #c0392b; font-size: 13px; font-weight: bold; margin-bottom: 10px; }
+        .dm-search-wrap { position: relative; flex: 1; min-width: 0; }
+        .dm-search-wrap input { width: 100%; padding: 10px 12px; border: 1px solid #e0e0e0; border-radius: 6px; font-size: 14px; font-family: inherit; color: #232D4B; }
+        .dm-search-wrap input:focus { outline: none; border-color: #E57200; }
+        .user-suggest-dropdown {
+            display: none;
+            position: absolute;
+            top: calc(100% + 4px);
+            left: 0; right: 0;
+            background: #fff;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+            z-index: 200;
+            overflow: hidden;
+        }
+        .user-suggest-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 14px;
+            cursor: pointer;
+            font-size: 13px;
+            color: #232D4B;
+        }
+        .user-suggest-item:hover { background: #f4f5f7; }
+        .user-suggest-item img { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; flex-shrink: 0; }
+        .user-suggest-item .suggest-name { font-weight: bold; }
+        .user-suggest-item .suggest-handle { color: #888; font-size: 12px; }
     </style>
 </head>
 <body>
@@ -68,24 +96,64 @@
             {% endfor %}
         {% endif %}
         <div class="row">
-            <input type="text" placeholder="Enter email..." id="to_input">
+            <div class="dm-search-wrap">
+                <input type="text" placeholder="Search by name, username, or email..." id="to_input" autocomplete="off" oninput="inboxSuggest(this.value)">
+                <div class="user-suggest-dropdown" id="inbox-suggest-dropdown"></div>
+            </div>
             <button type="button" onclick="startDM()">Open Chat</button>
         </div>
     </div>
 </div>
 
 <script>
+let inboxSuggestTimer;
+let selectedUsername = null;
+
+function inboxSuggest(q) {
+    selectedUsername = null;
+    clearTimeout(inboxSuggestTimer);
+    const dd = document.getElementById('inbox-suggest-dropdown');
+    if (q.length < 1) { dd.style.display = 'none'; return; }
+    inboxSuggestTimer = setTimeout(() => {
+        fetch('/users/suggest/?q=' + encodeURIComponent(q))
+            .then(r => r.json())
+            .then(data => {
+                if (!data.users.length) { dd.style.display = 'none'; return; }
+                dd.innerHTML = data.users.map(u => `
+                    <div class="user-suggest-item" onclick="selectInboxUser('${u.username}', '${escapeAttr(u.name)}')">
+                        <img src="${u.avatar || '/static/defaultpfp.jpg'}" onerror="this.src='/static/defaultpfp.jpg'">
+                        <div>
+                            <div class="suggest-name">${escapeHtml(u.name)}</div>
+                            <div class="suggest-handle">@${u.username}</div>
+                        </div>
+                    </div>`).join('');
+                dd.style.display = 'block';
+            });
+    }, 180);
+}
+
+function selectInboxUser(username, name) {
+    selectedUsername = username;
+    document.getElementById('to_input').value = name;
+    document.getElementById('inbox-suggest-dropdown').style.display = 'none';
+}
+
 function startDM() {
-    const val = document.getElementById('to_input').value.trim();
-    if (val) window.location.href = `/messages/${val}/`;
+    const target = selectedUsername || document.getElementById('to_input').value.trim();
+    if (target) window.location.href = `/messages/${target}/`;
 }
-function toggleNav() {
-    document.getElementById('navIcon').classList.toggle('open');
-}
+
+function escapeHtml(t) { return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function escapeAttr(t) { return t.replace(/'/g,"\\'"); }
+
 document.addEventListener('click', function(e) {
     const nav = document.getElementById('navIcon');
     if (!nav.contains(e.target)) nav.classList.remove('open');
+    const wrap = document.querySelector('.dm-search-wrap');
+    if (wrap && !wrap.contains(e.target)) document.getElementById('inbox-suggest-dropdown').style.display = 'none';
 });
+
+function toggleNav() { document.getElementById('navIcon').classList.toggle('open'); }
 </script>
 
 {% include 'main/chat_widget.html' %}

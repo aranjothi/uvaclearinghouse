@@ -9,9 +9,8 @@
 }
 
 #chat-bubble {
-    width: 56px;
-    height: 56px;
-    border-radius: 50%;
+    height: 44px;
+    border-radius: 999px;
     background-color: #232D4B;
     color: #fff;
     border: none;
@@ -19,12 +18,18 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    gap: 8px;
+    padding: 0 18px 0 14px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.2);
     margin-left: auto;
     position: relative;
+    font-family: Helvetica, Arial, sans-serif;
+    font-size: 0.9rem;
+    font-weight: bold;
+    letter-spacing: 0.01em;
 }
 
-#chat-bubble svg { width: 26px; height: 26px; }
+#chat-bubble svg { width: 20px; height: 20px; flex-shrink: 0; }
 
 #chat-unread-badge {
     display: none;
@@ -98,7 +103,36 @@
     gap: 8px;
     padding: 12px;
     border-bottom: 1px solid #e0e0e0;
+    position: relative;
 }
+
+#widget-suggest-dropdown {
+    display: none;
+    position: absolute;
+    top: calc(100% - 1px);
+    left: 0; right: 0;
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-top: none;
+    z-index: 50;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.widget-suggest-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    color: #232D4B;
+}
+
+.widget-suggest-item:hover { background: #f4f5f7; }
+.widget-suggest-item img { width: 26px; height: 26px; border-radius: 50%; object-fit: cover; flex-shrink: 0; }
+.widget-suggest-item .ws-name { font-weight: bold; }
+.widget-suggest-item .ws-handle { color: #888; font-size: 0.75rem; }
 
 #new-convo-email {
     flex: 1;
@@ -244,8 +278,9 @@
         <!-- Inbox screen -->
         <div id="chat-screen-inbox" class="active">
             <div id="new-convo-form">
-                <input type="text" id="new-convo-email" placeholder="Start chat by email...">
+                <input type="text" id="new-convo-email" placeholder="Search people..." autocomplete="off" oninput="widgetSuggest(this.value)">
                 <button id="new-convo-btn" onclick="startNewConvo()">Go</button>
+                <div id="widget-suggest-dropdown"></div>
             </div>
             <div id="convo-list"></div>
         </div>
@@ -265,12 +300,47 @@
             <path stroke-linecap="round" stroke-linejoin="round"
                 d="M8.625 12a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H8.25m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H12m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 0 1-2.555-.337A5.972 5.972 0 0 1 5.41 20.97a5.969 5.969 0 0 1-.474-.065 4.48 4.48 0 0 0 .978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25Z" />
         </svg>
+        Messages
         <span id="chat-unread-badge"></span>
     </button>
 </div>
 
 <script>
 let currentUsername = null;
+let widgetSuggestTimer;
+let widgetSelectedUsername = null;
+
+function widgetSuggest(q) {
+    widgetSelectedUsername = null;
+    clearTimeout(widgetSuggestTimer);
+    const dd = document.getElementById('widget-suggest-dropdown');
+    if (q.length < 1) { dd.style.display = 'none'; return; }
+    widgetSuggestTimer = setTimeout(() => {
+        fetch('/users/suggest/?q=' + encodeURIComponent(q))
+            .then(r => r.json())
+            .then(data => {
+                if (!data.users.length) { dd.style.display = 'none'; return; }
+                dd.innerHTML = data.users.map(u => `
+                    <div class="widget-suggest-item" onclick="widgetSelectUser('${u.username}', '${u.name.replace(/'/g,"\\'")}')">
+                        <img src="${u.avatar || '/static/defaultpfp.jpg'}" onerror="this.src='/static/defaultpfp.jpg'">
+                        <div>
+                            <div class="ws-name">${u.name}</div>
+                            <div class="ws-handle">@${u.username}</div>
+                        </div>
+                    </div>`).join('');
+                dd.style.display = 'block';
+            });
+    }, 180);
+}
+
+function widgetSelectUser(username, name) {
+    widgetSelectedUsername = username;
+    document.getElementById('new-convo-email').value = name;
+    document.getElementById('widget-suggest-dropdown').style.display = 'none';
+    openConvo(username, name);
+    document.getElementById('new-convo-email').value = '';
+    widgetSelectedUsername = null;
+}
 
 function toggleChat() {
     const panel = document.getElementById('chat-panel');
@@ -385,14 +455,16 @@ function sendMessage() {
 }
 
 function startNewConvo() {
-    const email = document.getElementById('new-convo-email').value.trim();
-    if (!email) return;
-    fetch(`/widget/conversation/${encodeURIComponent(email)}/`)
+    const target = widgetSelectedUsername || document.getElementById('new-convo-email').value.trim();
+    if (!target) return;
+    fetch(`/widget/conversation/${encodeURIComponent(target)}/`)
         .then(r => r.json())
         .then(data => {
-            if (data.error) { alert('No user found with that email.'); return; }
+            if (data.error) { alert('No user found.'); return; }
             document.getElementById('new-convo-email').value = '';
-            openConvo(email, data.name || email);
+            document.getElementById('widget-suggest-dropdown').style.display = 'none';
+            widgetSelectedUsername = null;
+            openConvo(target, data.name || target);
         });
 }
 
