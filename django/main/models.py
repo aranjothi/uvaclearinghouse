@@ -27,10 +27,10 @@ class User(AbstractUser):
     profile_slug = models.SlugField(unique=True, blank=True)
 
     YEAR_CHOICES = [
-        ('1', '1st year'),
-        ('2', '2nd year'),
-        ('3', '3rd year'),
-        ('4', '4th year'),]
+        ('1', '1st Year'),
+        ('2', '2nd Year'),
+        ('3', '3rd Year'),
+        ('4', '4th Year'),]
 
     SCHOOL_CHOICES = [
         ('engineering', 'School of Engineering and Applied Science'),

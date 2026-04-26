@@ -1,54 +1,24 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Search Results</title>
-
+<title>Search{% if query %}: {{ query }}{% endif %}</title>
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
 body {
     font-family: Helvetica, Arial, sans-serif;
-    background-color: #FFFFFF;
+    background-color: #f4f5f7;
     color: #232D4B;
 }
 
-nav {
-    background-color: #232D4B;
-    padding: 0 40px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-}
-
-nav .logo {
-    color: #FFFFFF;
-    font-size: 1.4rem;
-    font-weight: bold;
-    letter-spacing: 1px;
-}
-
-nav ul {
-    list-style: none;
-    display: flex;
-    gap: 32px;
-}
-
-nav ul li a {
-    color: #FFFFFF;
-    text-decoration: none;
-    font-size: 1rem;
-    padding: 20px 0;
-    display: block;
-    border-bottom: 3px solid transparent;
-    transition: border-color 0.2s;
-}
-
-nav ul li a:hover {
-    border-bottom: 3px solid #E57200;
-}
-
+nav { background-color: #232D4B; padding: 0 40px; display: flex; align-items: center; justify-content: space-between; }
+nav .logo { color: #FFFFFF; font-size: 1.4rem; font-weight: bold; letter-spacing: 1px; }
+nav ul { list-style: none; display: flex; gap: 32px; }
+nav ul li a { color: #FFFFFF; text-decoration: none; font-size: 1rem; padding: 20px 0; display: block; border-bottom: 3px solid transparent; transition: border-color 0.2s; }
+nav ul li a:hover { border-bottom: 3px solid #E57200; }
 .nav-icon { position: relative; padding: 11px 0px; }
 .icon-btn { background: none; border: none; cursor: pointer; color: #FFFFFF; padding: 4px; display: flex; align-items: center; }
 .icon-btn svg { width: 28px; height: 28px; }
@@ -60,116 +30,278 @@ nav ul li a:hover {
 .page-wrap {
     max-width: 1100px;
     margin: 0 auto;
-    padding: 40px 24px 60px;
+    padding: 36px 24px 60px;
 }
 
-.page-wrap h1 {
-    font-size: 2rem;
-    margin-bottom: 10px;
+.page-header {
+    margin-bottom: 24px;
 }
 
-.page-wrap p.subtext {
-    color: #555;
-    margin-bottom: 28px;
+.page-header h1 {
+    font-size: 1.8rem;
+    margin-bottom: 6px;
 }
 
-.section-title {
-    margin: 28px 0 16px;
-    font-size: 1.35rem;
+.page-header p {
+    color: #666;
+    font-size: 0.95rem;
 }
 
-.results-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 20px;
+/* Filter tabs */
+.filter-bar {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 32px;
+    flex-wrap: wrap;
 }
 
-.result-card {
-    display: block;
-    text-decoration: none;
-    color: inherit;
-    border: 1px solid #e5e5e5;
-    border-radius: 10px;
-    padding: 20px;
-    background: #f8f8f8;
-}
-
-.result-card:hover {
-    border-color: #E57200;
-}
-
-.result-card h3 {
-    margin-bottom: 8px;
-}
-
-.result-meta {
-    color: #E57200;
+.filter-btn {
+    padding: 8px 20px;
+    border-radius: 999px;
     font-size: 0.9rem;
     font-weight: bold;
-    margin-bottom: 8px;
+    font-family: inherit;
+    cursor: pointer;
+    text-decoration: none;
+    border: 2px solid #232D4B;
+    color: #232D4B;
+    background: transparent;
+    transition: background 0.15s, color 0.15s;
 }
 
-.empty {
-    padding: 16px 0;
-    color: #666;
+.filter-btn:hover { background: #232D4B; color: #fff; }
+.filter-btn.active { background: #232D4B; color: #fff; }
+
+/* Section header */
+.section-title {
+    font-size: 1.2rem;
+    font-weight: bold;
+    margin-bottom: 16px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #e0e0e0;
+    color: #232D4B;
 }
+
+.results-section { margin-bottom: 40px; }
+
+/* Cards grid */
+.cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 18px;
+}
+
+/* User cards */
+.user-card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: #fff;
+    border-radius: 10px;
+    padding: 16px 18px;
+    text-decoration: none;
+    color: inherit;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.07);
+    transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.user-card:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,0.11); }
+
+.user-card img {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #232D4B;
+    flex-shrink: 0;
+}
+
+.user-card-info h3 { font-size: 1rem; color: #232D4B; }
+.user-card-info .handle { font-size: 0.82rem; color: #888; margin-top: 2px; }
+.user-card-info .meta { font-size: 0.82rem; color: #232D4B; margin-top: 3px; }
+
+/* Club cards */
+.club-card {
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.07);
+    display: flex;
+    flex-direction: column;
+    text-decoration: none;
+    color: inherit;
+    transition: transform 0.15s, box-shadow 0.15s;
+    overflow: visible;
+}
+
+.club-card:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,0.11); }
+
+.club-card-banner { position: relative; width: 100%; height: 90px; border-radius: 10px 10px 0 0; overflow: hidden; flex-shrink: 0; }
+.club-card-banner img { width: 100%; height: 100%; object-fit: cover; }
+.club-card-pfp-wrap { position: relative; height: 28px; flex-shrink: 0; }
+.club-card-pfp { position: absolute; left: 16px; top: -28px; width: 56px; height: 56px; border-radius: 50%; object-fit: cover; border: 3px solid #fff; background: #fff; box-shadow: 0 2px 6px rgba(0,0,0,0.15); }
+.club-card-body { padding: 8px 16px 16px; display: flex; flex-direction: column; flex: 1; }
+.club-card-body h3 { font-size: 1.05rem; color: #232D4B; margin-bottom: 6px; }
+.club-card-body p { font-size: 0.88rem; line-height: 1.5; color: #555; flex: 1; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; }
+.club-card-footer { display: flex; justify-content: flex-end; margin-top: 10px; }
+.view-link { font-size: 0.83rem; font-weight: bold; color: #232D4B; }
+
+/* Event cards */
+.event-card {
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.07);
+    display: flex;
+    flex-direction: column;
+    text-decoration: none;
+    color: inherit;
+    transition: transform 0.15s, box-shadow 0.15s;
+    overflow: hidden;
+}
+
+.event-card:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,0.11); }
+.event-card-banner { position: relative; width: 100%; height: 120px; overflow: hidden; flex-shrink: 0; }
+.event-card-banner img { width: 100%; height: 100%; object-fit: cover; }
+.event-category { position: absolute; top: 8px; left: 8px; background: #E57200; color: #fff; font-size: 10px; font-weight: bold; padding: 3px 8px; border-radius: 99px; text-transform: uppercase; letter-spacing: 0.05em; }
+.event-card-body { padding: 12px 16px 14px; display: flex; flex-direction: column; flex: 1; }
+.event-meta { font-size: 0.8rem; color: #E57200; font-weight: bold; margin-bottom: 4px; }
+.event-card-body h3 { font-size: 1.05rem; color: #232D4B; margin-bottom: 4px; }
+.event-card-body p { font-size: 0.88rem; line-height: 1.5; color: #555; flex: 1; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; }
+.event-card-footer { display: flex; justify-content: flex-end; margin-top: 10px; }
+
+.empty { color: #888; font-size: 0.95rem; padding: 8px 0; }
 </style>
-
-<script>
-function toggleNav() {
-    document.getElementById('navIcon').classList.toggle('open');
-}
-document.addEventListener('click', function(e) {
-    const nav = document.getElementById('navIcon');
-    if (nav && !nav.contains(e.target)) nav.classList.remove('open');
-});
-</script>
 </head>
 <body>
 
 {% include 'main/navbar.html' %}
 
 <div class="page-wrap">
-    <h1>Search Results</h1>
+    <div class="page-header">
+        <h1>Search Results</h1>
+        <p>{% if query %}Results for "<strong>{{ query }}</strong>"{% else %}Type something in the search bar to find clubs, events, and people.{% endif %}</p>
+    </div>
 
-    <p class="subtext">
-        {% if query %}
-            Showing results for "{{ query }}"
-        {% else %}
-            Type something in the search bar to search clubs and events.
-        {% endif %}
-    </p>
-
-    <h2 class="section-title">Clubs</h2>
-    {% if clubs %}
-        <div class="results-grid">
-            {% for club in clubs %}
-                <a href="{% url 'club_detail' club.slug %}" class="result-card">
-                    <div class="result-meta">Club</div>
-                    <h3>{{ club.name }}</h3>
-                    <p>{{ club.description|default:"No description available."|truncatewords:25 }}</p>
-                </a>
-            {% endfor %}
-        </div>
-    {% else %}
-        <p class="empty">No clubs matched your search.</p>
+    {% if query %}
+    <div class="filter-bar">
+        <a href="?q={{ query }}&filter=all" class="filter-btn {% if active_filter == 'all' %}active{% endif %}">All</a>
+        <a href="?q={{ query }}&filter=users" class="filter-btn {% if active_filter == 'users' %}active{% endif %}">People</a>
+        <a href="?q={{ query }}&filter=clubs" class="filter-btn {% if active_filter == 'clubs' %}active{% endif %}">Clubs</a>
+        <a href="?q={{ query }}&filter=events" class="filter-btn {% if active_filter == 'events' %}active{% endif %}">Events</a>
+    </div>
     {% endif %}
 
-    <h2 class="section-title">Events</h2>
-    {% if events %}
-        <div class="results-grid">
-            {% for event in events %}
-                <a href="{% url 'club_detail' event.club.slug %}" class="result-card">
-                    <div class="result-meta">{{ event.club.name }} • {{ event.date }} at {{ event.time }}</div>
-                    <h3>{{ event.title }}</h3>
-                    <p>{{ event.location }}{% if event.description %} — {{ event.description|truncatewords:20 }}{% endif %}</p>
-                </a>
+    {% if not query %}
+    <p class="empty">Enter a search query to get started.</p>
+    {% else %}
+
+    {% if active_filter == 'all' or active_filter == 'users' %}
+    <div class="results-section">
+        <div class="section-title">People</div>
+        {% if users %}
+        <div class="cards-grid">
+            {% for u in users %}
+            <a href="{% url 'user_profile' u.username %}" class="user-card">
+                {% if u.profile_picture %}
+                <img src="{{ u.profile_picture.url }}" alt="{{ u.username }}">
+                {% else %}
+                <img src="{% static 'defaultpfp.jpg' %}" alt="{{ u.username }}">
+                {% endif %}
+                <div class="user-card-info">
+                    <h3>{{ u.first_name }} {{ u.last_name }}</h3>
+                    <div class="handle">@{{ u.username }}</div>
+                    {% if u.year or u.school %}
+                    <div class="meta">{% if u.year and u.school %}{{ u.get_year_display }} &bull; {{ u.get_school_display }}{% elif u.year %}{{ u.get_year_display }}{% else %}{{ u.get_school_display }}{% endif %}</div>
+                    {% endif %}
+                </div>
+            </a>
             {% endfor %}
         </div>
-    {% else %}
+        {% else %}
+        <p class="empty">No people matched your search.</p>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    {% if active_filter == 'all' or active_filter == 'clubs' %}
+    <div class="results-section">
+        <div class="section-title">Clubs</div>
+        {% if clubs %}
+        <div class="cards-grid">
+            {% for club in clubs %}
+            <a href="{% url 'club_detail' club.slug %}" class="club-card">
+                <div class="club-card-banner">
+                    {% if club.image %}
+                    <img src="{{ club.image.url }}" alt="{{ club.name }}">
+                    {% else %}
+                    <img src="{% static 'defaultclubimage.jpg' %}" alt="Default banner">
+                    {% endif %}
+                </div>
+                <div class="club-card-pfp-wrap">
+                    <img src="{% static 'defaultclubpfp.png' %}" alt="{{ club.name }}" class="club-card-pfp">
+                </div>
+                <div class="club-card-body">
+                    <h3>{{ club.name }}</h3>
+                    <p>{{ club.description|default:"No description available."|truncatewords:20 }}</p>
+                    <div class="club-card-footer">
+                        <span class="view-link">View Club &rarr;</span>
+                    </div>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="empty">No clubs matched your search.</p>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    {% if active_filter == 'all' or active_filter == 'events' %}
+    <div class="results-section">
+        <div class="section-title">Events</div>
+        {% if events %}
+        <div class="cards-grid">
+            {% for event in events %}
+            <a href="{% url 'event_detail' event.id %}" class="event-card">
+                <div class="event-card-banner">
+                    {% if event.image %}
+                    <img src="{{ event.image.url }}" alt="{{ event.title }}">
+                    {% else %}
+                    <img src="{% static 'defaultclubimage.jpg' %}" alt="Default event image">
+                    {% endif %}
+                    {% if event.category %}
+                    <span class="event-category">{{ event.get_category_display }}</span>
+                    {% endif %}
+                </div>
+                <div class="event-card-body">
+                    <div class="event-meta">{{ event.date|date:"F j, Y" }} &middot; {{ event.location }}</div>
+                    <h3>{{ event.title }}</h3>
+                    <p>{{ event.description|default:"No description available." }}</p>
+                    <div class="event-card-footer">
+                        <span class="view-link">View Event &rarr;</span>
+                    </div>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+        {% else %}
         <p class="empty">No events matched your search.</p>
+        {% endif %}
+    </div>
+    {% endif %}
+
     {% endif %}
 </div>
+
+<script>
+function toggleNav() {
+    document.getElementById('navIcon').classList.toggle('open');
+}
+
+document.addEventListener('click', function(e) {
+    const nav = document.getElementById('navIcon');
+    if (nav && !nav.contains(e.target)) nav.classList.remove('open');
+});
+</script>
 
 {% include 'main/chat_widget.html' %}
 </body>

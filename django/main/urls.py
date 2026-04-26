@@ -61,6 +61,8 @@ urlpatterns = [
          name='executive_unban_member'),
     path('executives/<slug:slug>/manage/remove/<int:membership_id>/', views.executive_remove_member,
          name='executive_remove_member'),
-    #search bar
+    path('users/<str:username>/', views.user_profile_page, name='user_profile'),
+
     path('search/', views.global_search, name='global_search'),
+    path('search/suggest/', views.search_suggest, name='search_suggest'),
 ]

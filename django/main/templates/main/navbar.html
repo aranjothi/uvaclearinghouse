@@ -1,22 +1,26 @@
-<nav style="position:relative;">
+<nav style="position:relative;z-index:99999;overflow:visible;">
 <a href="{% url 'home' %}" class="logo" style="text-decoration:none;">HoosLinked</a>
 
-<div style="position:absolute;left:50%;transform:translateX(-50%);width:340px;">
-    <form method="get" action="{% url 'global_search' %}" style="margin:0;">
+<div style="position:absolute;left:50%;transform:translateX(-50%);width:380px;" id="searchWrapper">
+    <form method="get" action="{% url 'global_search' %}" style="margin:0;" id="searchForm" autocomplete="off">
         <div style="display:flex;align-items:center;gap:8px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.25);border-radius:8px;padding:7px 14px;width:100%;">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width:18px;height:18px;color:#fff;flex-shrink:0;">
                 <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
             </svg>
-
             <input
                 type="text"
                 name="q"
+                id="searchInput"
                 value="{{ request.GET.q|default:'' }}"
-                placeholder="Search for clubs, events, etc."
+                placeholder="Search for clubs, events, people..."
                 style="background:none;border:none;outline:none;color:#fff;font-size:0.9rem;font-family:inherit;width:100%;"
             >
         </div>
     </form>
+
+    <!-- Live search dropdown -->
+    <div id="searchDropdown" style="display:none;position:absolute;top:calc(100% + 6px);left:0;width:100%;background:#fff;border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,0.18);z-index:99999;overflow:hidden;border:1px solid #e5e5e5;">
+    </div>
 </div>
 
 <ul>
@@ -44,3 +48,119 @@ M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
 </li>
 </ul>
 </nav>
+
+<style>
+.search-section { padding: 10px 14px 4px; }
+.search-section-label {
+    font-size: 0.7rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: #888;
+    margin-bottom: 4px;
+}
+.search-result-item {
+    display: block;
+    padding: 8px 14px;
+    text-decoration: none;
+    color: #232D4B;
+    font-size: 0.9rem;
+    transition: background 0.1s;
+}
+.search-result-item:hover { background: #f4f5f7; }
+.search-result-item .result-sub { font-size: 0.78rem; color: #888; margin-top: 1px; }
+.search-see-more {
+    display: block;
+    padding: 7px 14px 10px;
+    font-size: 0.82rem;
+    font-weight: bold;
+    color: #E57200;
+    text-decoration: none;
+    cursor: pointer;
+}
+.search-see-more:hover { text-decoration: underline; }
+.search-divider { border: none; border-top: 1px solid #f0f0f0; margin: 4px 0; }
+</style>
+
+<script>
+(function() {
+    const input = document.getElementById('searchInput');
+    const dropdown = document.getElementById('searchDropdown');
+    let debounceTimer;
+
+    if (!input) return;
+
+    input.addEventListener('input', function() {
+        clearTimeout(debounceTimer);
+        const q = this.value.trim();
+        if (q.length < 2) { dropdown.style.display = 'none'; return; }
+        debounceTimer = setTimeout(() => fetchSuggestions(q), 200);
+    });
+
+    input.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') dropdown.style.display = 'none';
+    });
+
+    document.addEventListener('click', function(e) {
+        if (!document.getElementById('searchWrapper').contains(e.target)) {
+            dropdown.style.display = 'none';
+        }
+    });
+
+    function fetchSuggestions(q) {
+        fetch('/search/suggest/?q=' + encodeURIComponent(q))
+            .then(r => r.json())
+            .then(data => renderDropdown(q, data));
+    }
+
+    function renderDropdown(q, data) {
+        const hasUsers = data.users.length > 0;
+        const hasClubs = data.clubs.length > 0;
+        const hasEvents = data.events.length > 0;
+
+        if (!hasUsers && !hasClubs && !hasEvents) {
+            dropdown.innerHTML = '<div style="padding:14px 16px;color:#888;font-size:0.9rem;">No results found.</div>';
+            dropdown.style.display = 'block';
+            return;
+        }
+
+        let html = '';
+        const searchUrl = '/search/?q=' + encodeURIComponent(q);
+
+        if (hasUsers) {
+            html += '<div class="search-section"><div class="search-section-label">People</div></div>';
+            data.users.forEach(u => {
+                html += `<a href="${u.url}" class="search-result-item">
+                    <div>${u.name}</div>
+                    <div class="result-sub">@${u.username}</div>
+                </a>`;
+            });
+            html += `<a href="${searchUrl}&filter=users" class="search-see-more">See more people &rarr;</a>`;
+            if (hasClubs || hasEvents) html += '<hr class="search-divider">';
+        }
+
+        if (hasClubs) {
+            html += '<div class="search-section"><div class="search-section-label">Clubs</div></div>';
+            data.clubs.forEach(c => {
+                html += `<a href="${c.url}" class="search-result-item">${c.name}</a>`;
+            });
+            html += `<a href="${searchUrl}&filter=clubs" class="search-see-more">See more clubs &rarr;</a>`;
+            if (hasEvents) html += '<hr class="search-divider">';
+        }
+
+        if (hasEvents) {
+            html += '<div class="search-section"><div class="search-section-label">Events</div></div>';
+            data.events.forEach(e => {
+                html += `<a href="${e.url}" class="search-result-item">
+                    <div>${e.title}</div>
+                    <div class="result-sub">${e.date} &middot; ${e.club}</div>
+                </a>`;
+            });
+            html += `<a href="${searchUrl}&filter=events" class="search-see-more">See more events &rarr;</a>`;
+        }
+
+        dropdown.innerHTML = html;
+        dropdown.style.display = 'block';
+    }
+})();
+</script>

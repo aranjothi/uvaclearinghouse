@@ -153,7 +153,31 @@ def profile_page(request):
         return redirect('user_admin')
     memberships = request.user.memberships.select_related("club")
     rsvped_events = request.user.rsvped_events.select_related('club').order_by('date', 'time')
-    return render(request, 'main/profile.html', {"memberships": memberships, "rsvped_events": rsvped_events,"today": date.today()})
+    return render(request, 'main/profile.html', {
+        'profile_user': request.user,
+        'is_own_profile': True,
+        'memberships': memberships,
+        'rsvped_events': rsvped_events,
+        'today': date.today(),
+    })
+
+
+def custom_404(request, exception=None):
+    return render(request, 'main/404.html', status=404)
+
+
+def user_profile_page(request, username):
+    profile_user = get_object_or_404(User, username=username, is_user_admin=False)
+    if request.user.is_authenticated and request.user.username == username:
+        return redirect('profile')
+    memberships = profile_user.memberships.select_related('club').filter(role__in=['member', 'executive'])
+    rsvped_events = profile_user.rsvped_events.select_related('club').order_by('date', 'time')
+    return render(request, 'main/profile.html', {
+        'profile_user': profile_user,
+        'is_own_profile': False,
+        'memberships': memberships,
+        'rsvped_events': rsvped_events,
+    })
 
 
 def logout_page(request):
@@ -180,11 +204,19 @@ def get_involved_page(request):
 
 def global_search(request):
     query = request.GET.get('q', '').strip()
+    active_filter = request.GET.get('filter', 'all')
 
+    users = User.objects.none()
     clubs = Club.objects.none()
     events = Event.objects.none()
 
     if query:
+        users = User.objects.filter(is_user_admin=False).filter(
+            Q(username__icontains=query) |
+            Q(first_name__icontains=query) |
+            Q(last_name__icontains=query)
+        )
+
         clubs = Club.objects.filter(
             Q(name__icontains=query) | Q(description__icontains=query)
         ).order_by('name')
@@ -198,8 +230,49 @@ def global_search(request):
 
     return render(request, 'main/global_search.html', {
         'query': query,
+        'users': users,
         'clubs': clubs,
         'events': events,
+        'active_filter': active_filter,
+    })
+
+
+def search_suggest(request):
+    query = request.GET.get('q', '').strip()
+    if len(query) < 2:
+        return JsonResponse({'users': [], 'clubs': [], 'events': []})
+
+    users = User.objects.filter(is_user_admin=False).filter(
+        Q(username__icontains=query) |
+        Q(first_name__icontains=query) |
+        Q(last_name__icontains=query)
+    )[:5]
+
+    clubs = Club.objects.filter(
+        Q(name__icontains=query) | Q(description__icontains=query)
+    )[:5]
+
+    events = Event.objects.select_related('club').filter(
+        Q(title__icontains=query) |
+        Q(description__icontains=query) |
+        Q(location__icontains=query)
+    ).order_by('date')[:5]
+
+    return JsonResponse({
+        'users': [
+            {'name': f'{u.first_name} {u.last_name}'.strip() or u.username,
+             'username': u.username,
+             'url': f'/users/{u.username}/'}
+            for u in users
+        ],
+        'clubs': [
+            {'name': c.name, 'url': f'/clubs/{c.slug}/'}
+            for c in clubs
+        ],
+        'events': [
+            {'title': e.title, 'date': e.date.strftime('%b %-d, %Y'), 'club': e.club.name, 'url': f'/events/{e.id}/'}
+            for e in events
+        ],
     })
 
 @login_required

@@ -1,0 +1,79 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Page Not Found</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    font-family: Helvetica, Arial, sans-serif;
+    background-color: #f4f5f7;
+    color: #232D4B;
+}
+
+nav { background-color: #232D4B; padding: 0 40px; display: flex; align-items: center; justify-content: space-between; }
+nav .logo { color: #FFFFFF; font-size: 1.4rem; font-weight: bold; letter-spacing: 1px; }
+nav ul { list-style: none; display: flex; gap: 32px; }
+nav ul li a { color: #FFFFFF; text-decoration: none; font-size: 1rem; padding: 20px 0; display: block; border-bottom: 3px solid transparent; transition: border-color 0.2s; }
+nav ul li a:hover { border-bottom: 3px solid #E57200; }
+.nav-icon { position: relative; padding: 11px 0px; }
+.icon-btn { background: none; border: none; cursor: pointer; color: #FFFFFF; padding: 4px; display: flex; align-items: center; }
+.icon-btn svg { width: 28px; height: 28px; }
+.dropdown { display: none; position: absolute; right: 0; top: calc(100% + 8px); background: #FFFFFF; border: 1.5px solid #232D4B; border-radius: 6px; min-width: 130px; z-index: 100; overflow: hidden; }
+.dropdown a, .dropdown button { display: block; width: 100%; text-align: left; padding: 10px 16px; font-size: 0.95rem; color: #232D4B; text-decoration: none; background: none; border: none; cursor: pointer; font-family: inherit; }
+.dropdown a:hover, .dropdown button:hover { background-color: #f0f0f0; }
+.nav-icon.open .dropdown { display: block; }
+
+.not-found-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: calc(100vh - 64px);
+    text-align: center;
+    padding: 40px 24px;
+    gap: 20px;
+}
+
+.not-found-container svg {
+    width: 64px;
+    height: 64px;
+    color: #888;
+}
+
+.not-found-container p {
+    font-size: 1.1rem;
+    color: #555;
+    max-width: 420px;
+    line-height: 1.6;
+}
+</style>
+</head>
+<body>
+
+{% include 'main/navbar.html' %}
+
+<div class="not-found-container">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />
+    </svg>
+    <p>Oops, looks like this page doesn't exist! Try using the search bar to find what you're looking for...</p>
+</div>
+
+<script>
+function toggleNav() {
+    document.getElementById('navIcon').classList.toggle('open');
+}
+
+document.addEventListener('click', function(e) {
+    const nav = document.getElementById('navIcon');
+    if (!nav.contains(e.target)) nav.classList.remove('open');
+});
+</script>
+
+{% include 'main/chat_widget.html' %}
+</body>
+</html>
