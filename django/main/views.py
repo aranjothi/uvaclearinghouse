@@ -663,6 +663,34 @@ def vote_poll(request, slug, ann_id):
         'results': results,
     })
 
+
+@login_required
+def unvote_poll(request, slug, ann_id):
+    if request.method != 'POST':
+        return JsonResponse({'error': 'POST required'}, status=405)
+    ann = get_object_or_404(Announcement, id=ann_id, club__slug=slug, type=Announcement.POLL)
+    PollVote.objects.filter(announcement=ann, user=request.user).delete()
+    options = list(ann.poll_options.all())
+    total = ann.poll_votes.count()
+    other_votes = ann.poll_votes.filter(option__isnull=True).count()
+    results = [
+        {
+            'id': opt.id,
+            'text': opt.text,
+            'count': ann.poll_votes.filter(option=opt).count(),
+            'pct': round(ann.poll_votes.filter(option=opt).count() / total * 100) if total else 0,
+        }
+        for opt in options
+    ]
+    return JsonResponse({
+        'ok': True,
+        'total': total,
+        'other_votes': other_votes,
+        'other_pct': round(other_votes / total * 100) if total else 0,
+        'results': results,
+        'allow_other': ann.allow_other,
+    })
+
 # ──────────────────────────────────────────────
 # USER ADMIN VIEWS
 # ──────────────────────────────────────────────

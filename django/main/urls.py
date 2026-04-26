@@ -22,6 +22,7 @@ urlpatterns = [
     path('clubs/<slug:slug>/upload-image/', views.upload_club_image, name='upload_club_image'),
     path('clubs/<slug:slug>/post-announcement/', views.post_announcement, name='post_announcement'),
     path('clubs/<slug:slug>/announcements/<int:ann_id>/vote/', views.vote_poll, name='vote_poll'),
+    path('clubs/<slug:slug>/announcements/<int:ann_id>/unvote/', views.unvote_poll, name='unvote_poll'),
     path('events/<int:event_id>/rsvp/', views.rsvp_event, name='rsvp_event'),
     path('my-clubs/', views.my_clubs_page, name='my_clubs'),
 
