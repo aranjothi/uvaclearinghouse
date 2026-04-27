@@ -26,6 +26,9 @@ urlpatterns = [
     path('clubs/<slug:slug>/announcements/<int:ann_id>/vote/', views.vote_poll, name='vote_poll'),
     path('clubs/<slug:slug>/announcements/<int:ann_id>/delete/', views.delete_announcement, name='delete_announcement'),
     path('clubs/<slug:slug>/announcements/<int:ann_id>/unvote/', views.unvote_poll, name='unvote_poll'),
+    path('clubs/<slug:slug>/highlights/add/', views.add_highlight, name='add_highlight'),
+    path('clubs/<slug:slug>/highlights/<int:highlight_id>/delete/', views.delete_highlight, name='delete_highlight'),
+    path('clubs/<slug:slug>/highlights/reorder/', views.reorder_highlights, name='reorder_highlights'),
     path('events/<int:event_id>/rsvp/', views.rsvp_event, name='rsvp_event'),
     path('my-clubs/', views.my_clubs_page, name='my_clubs'),
 

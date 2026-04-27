@@ -5,7 +5,7 @@ from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.http import JsonResponse
-from .models import User, Club, Membership, Event, Forum, ForumThread, ForumReply, DirectMessage, Announcement, ClubSettings, JoinRequest, Ban, PollOption, PollVote
+from .models import User, Club, Membership, Event, Forum, ForumThread, ForumReply, DirectMessage, Announcement, ClubSettings, JoinRequest, Ban, PollOption, PollVote, Highlight
 from .forms import EventForm
 from functools import wraps
 import datetime
@@ -92,6 +92,9 @@ class ClubDetailView(DetailView):
         if self.request.user.is_authenticated:
             is_saved = self.request.user.saved_clubs.filter(slug=self.object.slug).exists()
         context['is_saved'] = is_saved
+
+        context['highlights'] = list(self.object.highlights.all())
+        context['highlights_count'] = len(context['highlights'])
 
         return context
 
@@ -1189,6 +1192,56 @@ def event_detail(request, event_id):
         'attendees': attendees,
         'search_query': search_query,
     })
+
+
+def reorder_highlights(request, slug):
+    club = get_object_or_404(Club, slug=slug)
+    if not request.user.is_authenticated:
+        return JsonResponse({'ok': False}, status=403)
+    membership = Membership.objects.filter(user=request.user, club=club).first()
+    if not membership or membership.role != Membership.EXECUTIVE:
+        return JsonResponse({'ok': False}, status=403)
+    if request.method == 'POST':
+        import json
+        data = json.loads(request.body)
+        ids = data.get('order', [])
+        for i, hid in enumerate(ids, start=1):
+            Highlight.objects.filter(id=hid, club=club).update(order=i)
+        return JsonResponse({'ok': True})
+    return JsonResponse({'ok': False}, status=405)
+
+
+def add_highlight(request, slug):
+    club = get_object_or_404(Club, slug=slug)
+    if not request.user.is_authenticated:
+        return redirect('login')
+    membership = Membership.objects.filter(user=request.user, club=club).first()
+    if not membership or membership.role != Membership.EXECUTIVE:
+        return redirect('club_detail', slug=slug)
+    if request.method == 'POST':
+        image = request.FILES.get('image')
+        caption = request.POST.get('caption', '').strip()
+        if image and club.highlights.count() < 10:
+            order = club.highlights.count() + 1
+            Highlight.objects.create(club=club, image=image, caption=caption, order=order)
+    return redirect('club_detail', slug=slug)
+
+
+def delete_highlight(request, slug, highlight_id):
+    club = get_object_or_404(Club, slug=slug)
+    if not request.user.is_authenticated:
+        return redirect('login')
+    membership = Membership.objects.filter(user=request.user, club=club).first()
+    if not membership or membership.role != Membership.EXECUTIVE:
+        return redirect('club_detail', slug=slug)
+    if request.method == 'POST':
+        highlight = get_object_or_404(Highlight, id=highlight_id, club=club)
+        highlight.delete()
+        # Reorder remaining highlights
+        for i, h in enumerate(club.highlights.all(), start=1):
+            h.order = i
+            h.save()
+    return redirect('club_detail', slug=slug)
 
 
 def google_auth_cancelled(request):

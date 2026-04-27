@@ -153,6 +153,11 @@ nav ul li a:hover {
     justify-content: center;
 }
 
+.highlight-card.drag-over {
+    outline: 2px dashed #E57200;
+    outline-offset: 2px;
+}
+
 .tab-btn {
     background: none;
     border: none;
@@ -842,14 +847,92 @@ nav ul li a:hover {
 
         <!-- Tab buttons -->
         <div class="tab-bar">
-            <button class="tab-btn active" onclick="switchTab('announcements', this)">Announcements</button>
+            <button class="tab-btn active" onclick="switchTab('highlights', this)">Highlights</button>
+            <button class="tab-btn" onclick="switchTab('announcements', this)">Announcements</button>
             <button class="tab-btn" onclick="switchTab('discussion', this)">Discussion</button>
             <button class="tab-btn" onclick="switchTab('events', this)">Events</button>
             <button class="tab-btn" onclick="switchTab('contacts', this)">Contacts</button>
         </div>
 
+        <!-- Highlights tab -->
+        <div id="tab-highlights" class="tab-content">
+            {% if is_exec %}
+            {% if highlights_count < 10 %}
+            <form method="post" action="{% url 'add_highlight' club.slug %}" enctype="multipart/form-data"
+                  style="background:#f9f9f9;border:1px solid #e0e0e0;border-radius:10px;padding:20px;margin-bottom:28px;">
+                {% csrf_token %}
+                <div style="font-weight:bold;font-size:0.95rem;color:#232D4B;margin-bottom:14px;">
+                    Add a Highlight
+                    <span style="font-weight:normal;font-size:0.82rem;color:#888;margin-left:8px;">{{ highlights_count }}/10 used</span>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:12px;">
+                    <div>
+                        <div style="font-size:0.85rem;font-weight:600;color:#555;margin-bottom:6px;">Image</div>
+                        <label style="display:inline-flex;align-items:center;gap:8px;cursor:pointer;">
+                            <span id="highlight-file-btn" style="background:#232D4B;color:#fff;border-radius:6px;padding:7px 16px;font-size:0.88rem;font-family:inherit;font-weight:600;white-space:nowrap;">Choose Image</span>
+                            <span id="highlight-file-name" style="font-size:0.85rem;color:#888;">No file chosen</span>
+                            <input type="file" name="image" accept="image/*" required id="highlight-image-input"
+                                   style="position:absolute;opacity:0;width:0;height:0;" onchange="updateHighlightFileName(this)">
+                        </label>
+                    </div>
+                    <label style="font-size:0.85rem;font-weight:600;color:#555;">
+                        Caption <span style="font-weight:normal;color:#aaa;">(optional)</span>
+                        <input type="text" name="caption" maxlength="300" placeholder="Add a caption..."
+                               style="display:block;margin-top:4px;width:100%;padding:8px 10px;border:1px solid #ddd;border-radius:6px;font-size:0.9rem;font-family:inherit;">
+                    </label>
+                    <div>
+                        <button type="submit" class="club-btn" style="-webkit-appearance:none;appearance:none;font-size:0.95rem;padding:9px 20px;border-radius:6px;">
+                            Upload Highlight
+                        </button>
+                    </div>
+                </div>
+            </form>
+            {% else %}
+            <div style="background:#fff8e1;border:1px solid #ffe082;border-radius:8px;padding:12px 16px;margin-bottom:24px;font-size:0.88rem;color:#7a5c00;">
+                You've reached the 10-highlight limit. Delete an existing highlight to add a new one.
+            </div>
+            {% endif %}
+            {% endif %}
+
+            {% if highlights %}
+            {% if is_exec %}<p style="font-size:0.8rem;color:#aaa;margin-bottom:10px;">Drag highlights to reorder them.</p>{% endif %}
+            <div id="highlights-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:20px;">
+                {% for h in highlights %}
+                <div class="highlight-card" data-id="{{ h.id }}"
+                     {% if is_exec %}draggable="true"{% endif %}
+                     style="border-radius:10px;overflow:hidden;border:1px solid #e0e0e0;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,0.06);{% if is_exec %}cursor:grab;{% endif %}">
+                    <img src="{{ h.image.url }}" alt="Highlight {{ h.order }}"
+                         style="width:100%;height:180px;object-fit:cover;display:block;cursor:pointer;"
+                         onclick="openHighlightViewer('{{ h.image.url }}', {{ h.id }})">
+                    <div style="padding:10px 12px;display:flex;align-items:center;justify-content:space-between;gap:8px;">
+                        <p style="font-size:0.88rem;color:#444;margin:0;line-height:1.4;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;cursor:pointer;flex:1;min-width:0;"
+                           onclick="openHighlightViewer('{{ h.image.url }}', {{ h.id }})">{{ h.caption }}</p>
+                        {% if is_exec %}
+                        <button type="button" title="Delete highlight"
+                                style="background:none;border:none;cursor:pointer;padding:2px;color:#c0392b;display:flex;align-items:center;flex-shrink:0;"
+                                onclick="openDeleteHighlight('{% url 'delete_highlight' club.slug h.id %}')">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" style="width:17px;height:17px;">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+                            </svg>
+                        </button>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div style="text-align:center;padding:48px 0;color:#aaa;">
+                {% if is_exec %}
+                <p style="font-size:1rem;">No highlights yet. Upload your first one above!</p>
+                {% else %}
+                <p style="font-size:1rem;">This club hasn't added any highlights yet.</p>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+
         <!-- Announcements tab -->
-        <div id="tab-announcements" class="tab-content">
+        <div id="tab-announcements" class="tab-content" style="display:none;">
             {% if is_exec %}
             <form method="post" action="{% url 'post_announcement' club.slug %}" class="compose-box" id="ann-compose">
                 {% csrf_token %}
@@ -1330,6 +1413,79 @@ function openDeleteAnn(annId, slug) {
     document.getElementById('deleteAnnModal').classList.add('open');
 }
 
+function openDeleteHighlight(url) {
+    document.getElementById('deleteHighlightForm').action = url;
+    document.getElementById('deleteHighlightModal').classList.add('open');
+}
+
+function updateHighlightFileName(input) {
+    document.getElementById('highlight-file-name').textContent = input.files[0] ? input.files[0].name : 'No file chosen';
+}
+
+const _highlightCaptions = {
+    {% for h in highlights %}"{{ h.id }}": "{{ h.caption|escapejs }}"{% if not forloop.last %},{% endif %}{% endfor %}
+};
+
+function openHighlightViewer(imgUrl, highlightId) {
+    document.getElementById('highlight-viewer-img').src = imgUrl;
+    document.getElementById('highlight-viewer-caption').textContent = _highlightCaptions[String(highlightId)] || '';
+    document.getElementById('highlightViewerModal').classList.add('open');
+}
+
+function closeHighlightViewer() {
+    document.getElementById('highlightViewerModal').classList.remove('open');
+    document.getElementById('highlight-viewer-img').src = '';
+}
+
+{% if is_exec %}
+(function() {
+    const grid = document.getElementById('highlights-grid');
+    if (!grid) return;
+    let dragged = null;
+
+    grid.addEventListener('dragstart', e => {
+        dragged = e.target.closest('.highlight-card');
+        if (!dragged) return;
+        dragged.style.opacity = '0.4';
+        e.dataTransfer.effectAllowed = 'move';
+    });
+
+    grid.addEventListener('dragend', e => {
+        const card = e.target.closest('.highlight-card');
+        if (card) card.style.opacity = '';
+        document.querySelectorAll('.highlight-card').forEach(c => c.classList.remove('drag-over'));
+        dragged = null;
+    });
+
+    grid.addEventListener('dragover', e => {
+        e.preventDefault();
+        const target = e.target.closest('.highlight-card');
+        if (!target || target === dragged) return;
+        document.querySelectorAll('.highlight-card').forEach(c => c.classList.remove('drag-over'));
+        target.classList.add('drag-over');
+        const cards = [...grid.querySelectorAll('.highlight-card')];
+        const draggedIdx = cards.indexOf(dragged);
+        const targetIdx = cards.indexOf(target);
+        if (draggedIdx < targetIdx) {
+            grid.insertBefore(dragged, target.nextSibling);
+        } else {
+            grid.insertBefore(dragged, target);
+        }
+    });
+
+    grid.addEventListener('drop', e => {
+        e.preventDefault();
+        document.querySelectorAll('.highlight-card').forEach(c => c.classList.remove('drag-over'));
+        const ids = [...grid.querySelectorAll('.highlight-card')].map(c => c.dataset.id);
+        fetch('{% url "reorder_highlights" club.slug %}', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token }}'},
+            body: JSON.stringify({order: ids}),
+        });
+    });
+})();
+{% endif %}
+
 function addSocialRow() {
     const container = document.getElementById('socialsContainer');
     const row = document.createElement('div');
@@ -1376,10 +1532,24 @@ document.addEventListener('click', function(e) {
         <h2>Manage Club Media</h2>
         <form method="post" enctype="multipart/form-data" action="{% url 'upload_club_image' club.slug %}">
             {% csrf_token %}
-            <label for="club_profile_picture" style="display:block;margin-bottom:6px;font-weight:600;">Profile Picture</label>
-            <input type="file" name="club_profile_picture" id="club_profile_picture" accept="image/*" style="margin-bottom:18px;">
-            <label for="club_image" style="display:block;margin-bottom:6px;font-weight:600;">Banner Image</label>
-            <input type="file" name="club_image" id="club_image" accept="image/*">
+            <div style="margin-bottom:18px;">
+                <div style="font-weight:600;margin-bottom:6px;">Profile Picture</div>
+                <label style="display:inline-flex;align-items:center;gap:8px;cursor:pointer;">
+                    <span style="background:#232D4B;color:#fff;border-radius:6px;padding:7px 16px;font-size:0.88rem;font-family:inherit;font-weight:600;white-space:nowrap;">Choose Image</span>
+                    <span id="pfp-file-name" style="font-size:0.85rem;color:#888;">No file chosen</span>
+                    <input type="file" name="club_profile_picture" id="club_profile_picture" accept="image/*"
+                           style="position:absolute;opacity:0;width:0;height:0;" onchange="document.getElementById('pfp-file-name').textContent = this.files[0] ? this.files[0].name : 'No file chosen'">
+                </label>
+            </div>
+            <div>
+                <div style="font-weight:600;margin-bottom:6px;">Banner Image</div>
+                <label style="display:inline-flex;align-items:center;gap:8px;cursor:pointer;">
+                    <span style="background:#232D4B;color:#fff;border-radius:6px;padding:7px 16px;font-size:0.88rem;font-family:inherit;font-weight:600;white-space:nowrap;">Choose Image</span>
+                    <span id="banner-file-name" style="font-size:0.85rem;color:#888;">No file chosen</span>
+                    <input type="file" name="club_image" id="club_image" accept="image/*"
+                           style="position:absolute;opacity:0;width:0;height:0;" onchange="document.getElementById('banner-file-name').textContent = this.files[0] ? this.files[0].name : 'No file chosen'">
+                </label>
+            </div>
             <div class="modal-footer">
                 <button type="button" class="cancel-btn" onclick="document.getElementById('uploadImageModal').classList.remove('open')">Cancel</button>
                 <button type="submit" class="club-btn">Upload</button>
@@ -1388,6 +1558,29 @@ document.addEventListener('click', function(e) {
     </div>
 </div>
 {% endif %}
+
+<div class="modal-overlay" id="highlightViewerModal" onclick="if(event.target===this)closeHighlightViewer()" style="align-items:center;justify-content:center;">
+    <div style="background:#fff;border-radius:12px;max-width:720px;width:92%;max-height:90vh;overflow:hidden;display:flex;flex-direction:column;position:relative;">
+        <button onclick="closeHighlightViewer()" style="position:absolute;top:10px;right:12px;background:none;border:none;cursor:pointer;font-size:1.4rem;color:#888;line-height:1;z-index:1;">&#x2715;</button>
+        <img id="highlight-viewer-img" src="" alt="Highlight"
+             style="width:100%;max-height:60vh;object-fit:contain;background:#111;display:block;">
+        <div id="highlight-viewer-caption" style="padding:16px 20px;font-size:0.95rem;color:#333;line-height:1.5;white-space:pre-wrap;overflow-y:auto;max-height:160px;"></div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="deleteHighlightModal">
+    <div class="modal" style="max-width:420px;">
+        <h2>Delete Highlight</h2>
+        <p style="color:#555;margin-bottom:24px;">Are you sure you want to delete this highlight? This cannot be undone.</p>
+        <form id="deleteHighlightForm" method="POST" action="">
+            {% csrf_token %}
+            <div style="display:flex;gap:10px;justify-content:flex-end;">
+                <button type="button" class="cancel-btn" onclick="document.getElementById('deleteHighlightModal').classList.remove('open')">Cancel</button>
+                <button type="submit" style="-webkit-appearance:none;appearance:none;background:#e53935;color:#fff;border:none;padding:10px 18px;border-radius:6px;font-weight:bold;cursor:pointer;font-family:inherit;font-size:1rem;">Delete</button>
+            </div>
+        </form>
+    </div>
+</div>
 
 {% if is_exec %}
 <div class="modal-overlay" id="deleteAnnModal">

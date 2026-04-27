@@ -1,8 +1,23 @@
 from allauth.socialaccount.adapter import DefaultSocialAccountAdapter
+from allauth.account.adapter import DefaultAccountAdapter
 from allauth.exceptions import ImmediateHttpResponse
 from django.shortcuts import redirect
 from django.contrib import messages
 from django.urls import reverse
+
+
+class SilentAccountAdapter(DefaultAccountAdapter):
+    _SUPPRESSED = {
+        'account/messages/logged_in.txt',
+        'account/messages/logged_out.txt',
+        'account/messages/password_changed.txt',
+        'account/messages/signed_up.txt',
+    }
+
+    def add_message(self, request, level, message_template, message_context=None, extra_tags=''):
+        if message_template in self._SUPPRESSED:
+            return
+        super().add_message(request, level, message_template, message_context, extra_tags)
 
 
 class NoAutoSignupSocialAdapter(DefaultSocialAccountAdapter):

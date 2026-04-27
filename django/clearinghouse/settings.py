@@ -200,6 +200,7 @@ ACCOUNT_LOGOUT_REDIRECT_URL = '/'
 SOCIALACCOUNT_LOGIN_ON_GET = True
 ACCOUNT_EMAIL_VERIFICATION = 'none'
 SOCIALACCOUNT_AUTO_SIGNUP = False
+ACCOUNT_ADAPTER = 'main.adapters.SilentAccountAdapter'
 SOCIALACCOUNT_ADAPTER = 'main.adapters.NoAutoSignupSocialAdapter'
 ACCOUNT_SIGNUP_FIELDS = ['email*', 'password1*', 'password2*']
 ACCOUNT_LOGIN_METHODS = {'email'}

@@ -274,3 +274,17 @@ class Ban(models.Model):
     class Meta:
         unique_together = (('user', 'club'),)
 
+
+class Highlight(models.Model):
+    club = models.ForeignKey(Club, on_delete=models.CASCADE, related_name='highlights')
+    image = models.ImageField(upload_to='club_highlights/')
+    caption = models.CharField(max_length=300, blank=True)
+    order = models.PositiveIntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['order', 'created_at']
+
+    def __str__(self):
+        return f"Highlight for {self.club.name} #{self.order}"
+
