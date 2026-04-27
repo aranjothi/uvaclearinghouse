@@ -6,11 +6,7 @@
   <component name="ChangeListManager">
     <list default="true" id="00a4688b-7249-4d35-9273-226e29aacd18" name="Changes" comment="Quick fix so that the navbar resize when split screen occurs.">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/django/main/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/django/main/models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/django/main/templates/main/Events.html" beforeDir="false" afterPath="$PROJECT_DIR$/django/main/templates/main/Events.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/django/main/templates/main/create_event.html" beforeDir="false" afterPath="$PROJECT_DIR$/django/main/templates/main/create_event.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/django/main/templates/main/event_detail.html" beforeDir="false" afterPath="$PROJECT_DIR$/django/main/templates/main/event_detail.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/django/main/templates/main/executive_edit_event.html" beforeDir="false" afterPath="$PROJECT_DIR$/django/main/templates/main/executive_edit_event.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/django/main/templates/main/club_detail.html" beforeDir="false" afterPath="$PROJECT_DIR$/django/main/templates/main/club_detail.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/django/main/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/django/main/views.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -71,7 +67,7 @@
     "ai.playground.ignore.import.keys.banner.in.settings": "true",
     "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
     "django.template.preview.state": "SHOW_EDITOR_AND_PREVIEW",
-    "git-widget-placeholder": "Events",
+    "git-widget-placeholder": "features",
     "ignore.virus.scanning.warn.message": "true",
     "junie.onboarding.icon.badge.shown": "true",
     "node.js.detected.package.eslint": "true",
@@ -295,7 +291,15 @@
       <option name="project" value="LOCAL" />
       <updated>1777300637417</updated>
     </task>
-    <option name="localTasksCounter" value="16" />
+    <task id="LOCAL-00016" summary="Make the tags more search friendly for events">
+      <option name="closed" value="true" />
+      <created>1777324025999</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1777324025999</updated>
+    </task>
+    <option name="localTasksCounter" value="17" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -342,6 +346,7 @@
     <MESSAGE value="Added a People's tab into exec dashboard (included remove a member function)" />
     <MESSAGE value="Make it so that you can pin and delete threads for the forum" />
     <MESSAGE value="Quick fix so that the navbar resize when split screen occurs." />
-    <option name="LAST_COMMIT_MESSAGE" value="Quick fix so that the navbar resize when split screen occurs." />
+    <MESSAGE value="Make the tags more search friendly for events" />
+    <option name="LAST_COMMIT_MESSAGE" value="Make the tags more search friendly for events" />
   </component>
 </project>
