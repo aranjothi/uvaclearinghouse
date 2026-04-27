@@ -729,13 +729,62 @@ nav ul li a:hover {
         {% else %}
         <div class="action-section">
             <div class="action-section-label">Actions</div>
-            <div class="button-row">
+            <!-- How to Join -->
+            {% if not is_member %}
+            <div style="width:100%;background:#f9f9f9;border:1px solid #e0e0e0;border-radius:10px;padding:16px 20px;margin-bottom:12px;">
+                <div style="font-size:0.72rem;font-weight:bold;letter-spacing:0.09em;text-transform:uppercase;color:#888;margin-bottom:12px;">How to Join</div>
+                <div style="display:flex;flex-direction:column;gap:10px;">
+                    <div style="display:flex;align-items:flex-start;gap:10px;">
+                        <div style="width:22px;height:22px;border-radius:50%;background:#E57200;color:#fff;font-size:11px;font-weight:bold;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;">1</div>
+                        <div>
+                            <div style="font-size:13px;font-weight:bold;color:#232D4B;">{% if not user.is_authenticated %}Sign in to HoosLinked{% elif club_settings.require_approval %}Request to Join{% else %}Click "Become Member"{% endif %}</div>
+                            <div style="font-size:12px;color:#888;margin-top:2px;">{% if not user.is_authenticated %}Sign in to join clubs and access all the features.{% elif club_settings.require_approval %}Submit a membership request to the executive team.{% else %}Tap the button below to automatically join the club.{% endif %}</div>
+                        </div>
+                    </div>
+                    {% if not user.is_authenticated %}
+                    <div style="display:flex;align-items:flex-start;gap:10px;">
+                        <div style="width:22px;height:22px;border-radius:50%;background:#E57200;color:#fff;font-size:11px;font-weight:bold;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;">2</div>
+                        <div>
+                            <div style="font-size:13px;font-weight:bold;color:#232D4B;">{% if club_settings.require_approval %}Request to Join{% else %}Become a Member{% endif %}</div>
+                            <div style="font-size:12px;color:#888;margin-top:2px;">{% if club_settings.require_approval %}Submit a request — an executive will review and approve it.{% else %}Tap the button below to automatically join the club.{% endif %}</div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% if user.is_authenticated and club_settings.require_approval %}
+                    <div style="display:flex;align-items:flex-start;gap:10px;">
+                        <div style="width:22px;height:22px;border-radius:50%;background:#E57200;color:#fff;font-size:11px;font-weight:bold;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;">2</div>
+                        <div>
+                            <div style="font-size:13px;font-weight:bold;color:#232D4B;">Wait for approval</div>
+                            <div style="font-size:12px;color:#888;margin-top:2px;">An executive will review and accept or reject your request.</div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    <div style="display:flex;align-items:flex-start;gap:10px;">
+                        <div style="width:22px;height:22px;border-radius:50%;background:#E57200;color:#fff;font-size:11px;font-weight:bold;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;">
+                            {% if not user.is_authenticated %}3{% elif club_settings.require_approval %}3{% else %}2{% endif %}
+                        </div>
+                        <div>
+                            <div style="font-size:13px;font-weight:bold;color:#232D4B;">Start participating</div>
+                            <div style="font-size:12px;color:#888;margin-top:2px;">Access announcements, discussions, events, and message members.</div>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+            </div>
+            <div class="button-row" style="flex-wrap:wrap;margin-top:12px;align-items:center;">
                 {% if user.is_authenticated %}
                     {% if not is_member %}
-                    <form method="post" action="{% url 'join_club' club.slug %}">
-                        {% csrf_token %}
-                        <button type="submit" class="club-btn">Become Member</button>
-                    </form>
+                        {% if pending_request %}
+                        <div style="width:100%;background:#fff8f0;border:1px solid #fcd9b0;border-radius:8px;padding:10px 14px;margin-bottom:12px;display:flex;align-items:center;gap:8px;">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#E57200" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4m0 4h.01"/></svg>
+                            <span style="font-size:13px;color:#854F0B;font-weight:bold;">Your request is pending approval by the executive team.</span>
+                        </div>
+                        {% else %}
+                        <form method="post" action="{% url 'join_club' club.slug %}">
+                            {% csrf_token %}
+                            <button type="submit" class="club-btn">{% if club_settings.require_approval %}Request to Join{% else %}Become Member{% endif %}</button>
+                        </form>
+                        {% endif %}
                     {% endif %}
                     <form method="post" action="{% url 'verify_exec' club.slug %}" style="display:flex;gap:8px;align-items:center;">
                         {% csrf_token %}
@@ -751,15 +800,13 @@ nav ul li a:hover {
                         <span class="save-label">{% if is_saved %}Saved{% else %}Save{% endif %}</span>
                     </button>
                 {% else %}
-                    <button type="button" class="club-btn" disabled>Become Member</button>
-                    <button type="button" class="club-btn secondary-btn" disabled>Verify Exec</button>
-                    <p class="login-warning">
-                        You must be signed in to join organizations or verify executive membership.
-                    </p>
+                    <a href="{% url 'login' %}" class="club-btn">Sign In to Join</a>
+                    <p class="login-warning">You must be signed in to join organizations or verify executive membership.</p>
                 {% endif %}
             </div>
         </div>
         {% endif %}
+
 
         {% if announcements or is_exec %}
         <div class="ann-chat-section">

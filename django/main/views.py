@@ -24,10 +24,21 @@ class ClubDetailView(DetailView):
         is_member = False
         is_exec = False
         user_role = None
+        club_settings, _ = ClubSettings.objects.get_or_create(club=self.object)
+        context["club_settings"] = club_settings
+        pending_request = None
+
+        if self.request.user.is_authenticated:
+            pending_request = JoinRequest.objects.filter(
+                user = self.request.user,
+                club = self.object,
+                status = JoinRequest.PENDING,
+            ).first()
+
         if self.request.user.is_authenticated:
             membership = Membership.objects.filter(
                 user=self.request.user,
-                club=self.object
+                club=self.object,
             ).first()
             if membership:
                 is_member = True
@@ -45,6 +56,8 @@ class ClubDetailView(DetailView):
             rsvped_ids = set(self.request.user.rsvped_events.values_list('id', flat=True))
         context["events"] = events
         context["rsvped_ids"] = rsvped_ids
+        context['pending_request'] = pending_request
+
 
         # Announcements: members see all, others see only 'everyone' visibility
         all_announcements = self.object.announcements.select_related('author').order_by('-created_at')
@@ -409,19 +422,15 @@ def join_club(request, slug):
         settings, _ = ClubSettings.objects.get_or_create(club=club)
 
         if settings.require_approval:
-            JoinRequest.objects.get_or_create(
-                user=request.user,
-                club=club,
-                status=JoinRequest.PENDING
-            )
+           _, created = JoinRequest.objects.get_or_create(
+               user=request.user,
+               club=club,
+               defaults={'status': JoinRequest.PENDING}
+           )
+           if created:
             messages.success(request, "Your join request has been submitted for approval.")
         else:
-            Membership.objects.get_or_create(
-                user=request.user,
-                club=club,
-                defaults={"role": Membership.MEMBER}
-            )
-            messages.success(request, f"You joined {club.name}.")
+            messages.info(request, "You already jave a pending request for this club.")
 
     return redirect("club_detail", slug=slug)
 
