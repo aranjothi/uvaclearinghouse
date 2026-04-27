@@ -15,9 +15,9 @@ nav ul li a { color: #FFFFFF; text-decoration: none; font-size: 1rem; padding: 2
 nav ul li a:hover { border-bottom: 3px solid #E57200; }
 </style>
 <nav>
-<a href="{% url 'home' %}" class="logo" style="text-decoration:none;">HoosLinked</a>
+<a href="{% url 'home' %}" class="logo" style="text-decoration:none;flex-shrink:0;">HoosLinked</a>
 
-<div style="position:absolute;left:50%;transform:translateX(-50%);width:380px;" id="searchWrapper">
+<div style="flex:1;min-width:0;max-width:380px;margin:0 24px;position:relative;" id="searchWrapper">
     <form method="get" action="{% url 'global_search' %}" style="margin:0;" id="searchForm" autocomplete="off">
         <div style="display:flex;align-items:center;gap:8px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.25);border-radius:8px;padding:7px 14px;width:100%;">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width:18px;height:18px;color:#fff;flex-shrink:0;">
@@ -29,17 +29,16 @@ nav ul li a:hover { border-bottom: 3px solid #E57200; }
                 id="searchInput"
                 value="{{ request.GET.q|default:'' }}"
                 placeholder="Search for clubs, events, people..."
-                style="background:none;border:none;outline:none;color:#fff;font-size:0.9rem;font-family:inherit;width:100%;"
+                style="background:none;border:none;outline:none;color:#fff;font-size:0.9rem;font-family:inherit;width:100%;min-width:0;"
             >
         </div>
     </form>
 
-    <!-- Live search dropdown -->
     <div id="searchDropdown" style="display:none;position:absolute;top:calc(100% + 6px);left:0;width:100%;background:#fff;border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,0.18);z-index:99999;overflow:hidden;border:1px solid #e5e5e5;">
     </div>
 </div>
 
-<ul style="align-items:center;">
+<ul style="align-items:center;flex-shrink:0;">
 {% load static %}
 <li><a href="{% url 'get_involved' %}">Clubs</a></li>
 <li><a href="{% url 'events' %}">Events</a></li>
@@ -85,7 +84,6 @@ nav ul li a:hover { border-bottom: 3px solid #E57200; }
 </nav>
 
 <style>
-/* Save button on club cards */
 .save-btn {
     position: absolute;
     top: 8px;
