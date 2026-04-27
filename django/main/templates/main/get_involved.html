@@ -348,12 +348,50 @@ color: #555;
 </style>
 </head>
 <script>
+    let activeTag = '';
+
     function filterClubs(query) {
         const q = query.toLowerCase();
         document.querySelectorAll('.club-card').forEach(card => {
-            card.style.display = card.dataset.search.includes(q) ? '' : 'none';
+            const matchesSearch = q === '' || card.dataset.search.includes(q);
+            const matchesTag = activeTag === '' || (card.dataset.tags || '').split(',').map(t => t.trim()).includes(activeTag);
+            card.style.display = matchesSearch && matchesTag ? '' : 'none';
         });
     }
+
+    function applyTagFilter(tag) {
+        activeTag = activeTag === tag ? '' : tag;
+        filterClubs(document.getElementById('clubSearch').value);
+        document.getElementById('tagFilterInput').value = activeTag ? activeTag : '';
+        document.getElementById('tagSuggestDropdown').style.display = 'none';
+        document.getElementById('tagClearBtn').style.display = activeTag ? 'inline' : 'none';
+    }
+
+    function clearTagFilter() {
+        activeTag = '';
+        document.getElementById('tagFilterInput').value = '';
+        document.getElementById('tagClearBtn').style.display = 'none';
+        filterClubs(document.getElementById('clubSearch').value);
+    }
+
+    function onTagInput(val) {
+        const q = val.toLowerCase().trim();
+        const dropdown = document.getElementById('tagSuggestDropdown');
+        const input = document.getElementById('tagFilterInput');
+        const allTags = Array.from(document.querySelectorAll('.club-card')).flatMap(c => (c.dataset.tags || '').split(',').map(t => t.trim()).filter(Boolean));
+        const unique = [...new Set(allTags)].filter(t => t.includes(q) && t !== '');
+        if (unique.length === 0) { dropdown.style.display = 'none'; return; }
+        const rect = input.getBoundingClientRect();
+        dropdown.style.top = (rect.bottom + 6) + 'px';
+        dropdown.style.left = rect.left + 'px';
+        dropdown.style.width = rect.width + 'px';
+        dropdown.innerHTML = unique.slice(0, 8).map(t => `<div class="tag-suggest-item" onmousedown="applyTagFilter('${t}')">${t}</div>`).join('');
+        dropdown.style.display = 'block';
+    }
+
+    window.addEventListener('scroll', () => {
+        document.getElementById('tagSuggestDropdown').style.display = 'none';
+    }, { passive: true });
 
     function toggleNav() {
         document.getElementById('navIcon').classList.toggle('open');
@@ -380,14 +418,30 @@ color: #555;
             </svg>
             <input type="text" id="clubSearch" placeholder="Search for clubs..." class="banner-search-input" oninput="filterClubs(this.value)">
         </div>
+        <div style="width:100%;max-width:360px;">
+            <div style="display:flex;align-items:center;gap:8px;background:rgba(255,255,255,0.15);border-radius:999px;padding:7px 14px;">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width:15px;height:15px;flex-shrink:0;color:rgba(255,255,255,0.8);"><path stroke-linecap="round" stroke-linejoin="round" d="M9.568 3H5.25A2.25 2.25 0 0 0 3 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 0 0 5.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 0 0 9.568 3Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M6 6h.008v.008H6V6Z" /></svg>
+                <input type="text" id="tagFilterInput" placeholder="Filter by tags..." autocomplete="off"
+                    oninput="onTagInput(this.value)"
+                    onfocus="onTagInput(this.value)"
+                    onblur="setTimeout(()=>document.getElementById('tagSuggestDropdown').style.display='none',150)"
+                    style="background:none;border:none;outline:none;color:#fff;font-family:inherit;font-size:0.85rem;width:100%;">
+                <button type="button" id="tagClearBtn" onclick="clearTagFilter()" style="display:none;background:none;border:none;color:rgba(255,255,255,0.8);cursor:pointer;font-size:1rem;padding:0;line-height:1;flex-shrink:0;">×</button>
+            </div>
+        </div>
     </div>
 </div>
+<style>
+.tag-suggest-item { padding:10px 16px;font-size:0.88rem;color:#232D4B;cursor:pointer; }
+.tag-suggest-item:hover { background:#f4f5f7; }
+#tagFilterInput::placeholder { color: rgba(255,255,255,0.65); }
+</style>
 
 <div class="club-container">
 
 {% for club in clubs %}
 
-<a href="{% url 'club_detail' club.slug %}" class="club-card" data-search="{{ club.name|lower }} {{ club.description|lower }}">
+<a href="{% url 'club_detail' club.slug %}" class="club-card" data-search="{{ club.name|lower }} {{ club.description|lower }}" data-tags="{{ club.tags|lower }}">
     {% if user.is_authenticated %}
     <button class="save-btn {% if club.slug in saved_slugs %}saved{% endif %}"
             title="{% if club.slug in saved_slugs %}Unsave{% else %}Save{% endif %}"
@@ -404,14 +458,19 @@ color: #555;
         {% endif %}
     </div>
     <div class="club-card-pfp-wrap">
-        <img src="{% static 'defaultclubpfp.png' %}" alt="{{ club.name }} logo" class="club-card-pfp">
+        <img src="{% if club.profile_picture %}{{ club.profile_picture.url }}{% else %}{% static 'defaultclubpfp.png' %}{% endif %}" alt="{{ club.name }} logo" class="club-card-pfp">
     </div>
     <div class="club-card-body">
         <h3>{{ club.name }}</h3>
         <p>{{ club.description|default:"No description available."|truncatewords:30 }}</p>
-        <div class="club-card-footer">
-            <span class="view-club-link">View Club &rarr;</span>
+        {% if club.tags %}
+        <div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:6px;">
+            {% for tag in club.tags_list|slice:":3" %}
+            <span style="font-size:0.75rem;background:#232D4B;color:#fff;border-radius:999px;padding:2px 8px;">{{ tag }}</span>
+            {% endfor %}
         </div>
+        {% endif %}
+        <div class="club-card-footer"></div>
     </div>
 </a>
 
@@ -424,5 +483,6 @@ color: #555;
 </div>
 
 {% include 'main/chat_widget.html' %}
+<div id="tagSuggestDropdown" style="display:none;position:fixed;background:#fff;border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,0.18);z-index:99999;overflow:hidden;border:1px solid #e5e5e5;min-width:200px;"></div>
 </body>
 </html>
