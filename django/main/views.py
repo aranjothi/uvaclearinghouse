@@ -587,6 +587,38 @@ def upload_club_image(request, slug):
         club.save()
     return redirect('club_detail', slug=slug)
 
+
+@login_required
+def delete_announcement(request, slug, ann_id):
+    if request.method != 'POST':
+        return redirect('club_detail', slug=slug)
+    ann = get_object_or_404(Announcement, id=ann_id, club__slug=slug)
+    is_exec = Membership.objects.filter(user=request.user, club__slug=slug, role=Membership.EXECUTIVE).exists()
+    if not is_exec:
+        return redirect('club_detail', slug=slug)
+    ann.delete()
+    return redirect('club_detail', slug=slug)
+
+
+@login_required
+def edit_club_info(request, slug):
+    club = get_object_or_404(Club, slug=slug)
+    is_exec = Membership.objects.filter(user=request.user, club=club, role=Membership.EXECUTIVE).exists()
+    if not is_exec:
+        return redirect('club_detail', slug=slug)
+    if request.method == 'POST':
+        club.description = request.POST.get('description', '').strip()
+        club.tags = request.POST.get('tags', '').strip()
+        platforms = request.POST.getlist('social_platform')
+        urls = request.POST.getlist('social_url')
+        club.socials = [
+            {'platform': p, 'url': u}
+            for p, u in zip(platforms, urls)
+            if u.strip()
+        ]
+        club.save()
+    return redirect('club_detail', slug=slug)
+
 @login_required
 def post_announcement(request, slug):
     club = get_object_or_404(Club, slug=slug)

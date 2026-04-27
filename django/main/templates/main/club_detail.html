@@ -301,6 +301,8 @@ nav ul li a:hover {
 }
 
 .cancel-btn {
+    -webkit-appearance: none;
+    appearance: none;
     background: #f0f0f0;
     color: #232D4B;
     border: none;
@@ -308,6 +310,7 @@ nav ul li a:hover {
     border-radius: 6px;
     cursor: pointer;
     font-family: inherit;
+    font-size: 1rem;
     font-weight: bold;
 }
 
@@ -640,13 +643,44 @@ nav ul li a:hover {
         <div style="display:flex;align-items:center;justify-content:space-between;">
             <h1 class="club-title" style="margin-bottom:0;">{{ club.name }}</h1>
             {% if user_role %}
-            <span class="club-btn secondary-btn">Role: {{ user_role }}</span>
+            <span style="font-size:0.78rem;font-weight:bold;background:#232D4B;color:#fff;padding:4px 12px;border-radius:999px;">Role: {{ user_role }}</span>
             {% endif %}
         </div>
 
         <p class="club-description">
             {{ club.description }}
         </p>
+
+        {% load static %}
+        <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:18px;">
+            <div style="font-size:0.9rem;color:#444;display:flex;align-items:center;flex-wrap:wrap;gap:6px;">
+                <span style="font-weight:600;color:#232D4B;">Tags:</span>
+                {% if club.tags %}
+                    {% for tag in club.tags_list %}
+                    <span style="font-size:0.82rem;background:#f0f0f0;color:#232D4B;border-radius:999px;padding:2px 10px;">{{ tag }}</span>
+                    {% endfor %}
+                {% else %}
+                    <span style="color:#aaa;font-size:0.85rem;">None</span>
+                {% endif %}
+            </div>
+            <div style="font-size:0.9rem;color:#444;display:flex;align-items:center;flex-wrap:wrap;gap:8px;">
+                <span style="font-weight:600;color:#232D4B;">Socials:</span>
+                {% if club.socials %}
+                    {% for social in club.socials %}
+                    <a href="{{ social.url }}" target="_blank" style="display:inline-flex;align-items:center;gap:5px;background:#f0f0f0;border-radius:999px;padding:3px 10px;text-decoration:none;color:#232D4B;font-size:0.82rem;">
+                        {% if social.platform == 'discord' %}<img src="{% static 'discord_logo.png' %}" style="width:14px;height:14px;object-fit:contain;">
+                        {% elif social.platform == 'instagram' %}<img src="{% static 'instagram_logo.png' %}" style="width:14px;height:14px;object-fit:contain;">
+                        {% elif social.platform == 'groupme' %}<img src="{% static 'groupme_logo.png' %}" style="width:14px;height:14px;object-fit:contain;">
+                        {% elif social.platform == 'whatsapp' %}<img src="{% static 'whatsapp_logo.svg' %}" style="width:14px;height:14px;object-fit:contain;">
+                        {% elif social.platform == 'website' %}<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width:14px;height:14px;"><path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9.004 9.004 0 0 0 8.716-6.747M12 21a9.004 9.004 0 0 1-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 0 1 7.843 4.582M12 3a8.997 8.997 0 0 0-7.843 4.582m15.686 0A11.953 11.953 0 0 1 12 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0 1 21 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0 1 12 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 0 1 3 12c0-1.605.42-3.113 1.157-4.418" /></svg>{% endif %}
+                        {{ social.platform|capfirst }}
+                    </a>
+                    {% endfor %}
+                {% else %}
+                    <span style="color:#aaa;font-size:0.85rem;">None</span>
+                {% endif %}
+            </div>
+        </div>
 
         {% for message in messages %}
         <p style="margin-bottom:16px;padding:10px 14px;border-radius:6px;font-weight:bold;
@@ -665,6 +699,9 @@ nav ul li a:hover {
                 </button>
                 <button type="button" class="club-btn secondary-btn" onclick="openNewAnnouncement()">
                     New Announcement
+                </button>
+                <button type="button" class="club-btn secondary-btn" onclick="document.getElementById('editClubInfoModal').classList.add('open')">
+                    Edit Club Info
                 </button>
                 {% if user.is_authenticated %}
                 <button type="button" class="club-btn secondary-btn save-club-detail-btn {% if is_saved %}saved{% endif %}"
@@ -727,6 +764,7 @@ nav ul li a:hover {
                         <span class="ann-author">{{ latest_announcement.author.first_name }} {{ latest_announcement.author.last_name }}</span>
                         <span class="ann-audience">to {% if latest_announcement.visibility == 'members' %}Club{% else %}Everyone{% endif %}</span>
                         {% if latest_announcement.type == 'poll' %}<span style="font-size:0.75rem;background:#E57200;color:#fff;border-radius:99px;padding:2px 8px;font-weight:bold;">Poll</span>{% else %}<span style="font-size:0.75rem;background:#232D4B;color:#fff;border-radius:99px;padding:2px 8px;font-weight:bold;">Announcement</span>{% endif %}
+                        {% if is_exec %}<button type="button" onclick="openDeleteAnn({{ latest_announcement.id }}, '{{ club.slug }}')" style="-webkit-appearance:none;appearance:none;background:none;border:none;padding:0;cursor:pointer;color:#e53935;display:inline-flex;align-items:center;" title="Delete"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width:16px;height:16px;"><path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" /></svg></button>{% endif %}
                         <span class="ann-date">{{ latest_announcement.created_at|date:"M d, Y" }}</span>
                     </div>
                     <div class="ann-text">{{ latest_announcement.content }}</div>
@@ -874,6 +912,7 @@ nav ul li a:hover {
                             <span class="ann-author">{{ ann.author.first_name }} {{ ann.author.last_name }}</span>
                             <span class="ann-audience">to {% if ann.visibility == 'members' %}Club{% else %}Everyone{% endif %}</span>
                             {% if ann.type == 'poll' %}<span style="font-size:0.75rem;background:#E57200;color:#fff;border-radius:99px;padding:2px 8px;font-weight:bold;">Poll</span>{% else %}<span style="font-size:0.75rem;background:#232D4B;color:#fff;border-radius:99px;padding:2px 8px;font-weight:bold;">Announcement</span>{% endif %}
+                            {% if is_exec %}<button type="button" onclick="openDeleteAnn({{ ann.id }}, '{{ club.slug }}')" style="-webkit-appearance:none;appearance:none;background:none;border:none;padding:0;cursor:pointer;color:#e53935;display:inline-flex;align-items:center;" title="Delete"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width:16px;height:16px;"><path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" /></svg></button>{% endif %}
                             <span class="ann-date">{{ ann.created_at|date:"M d, Y" }}</span>
                         </div>
                         <div class="ann-text">{{ ann.content }}</div>
@@ -1282,6 +1321,28 @@ async function undoVote(annId, slug, prefix) {
 }
 </script>
 <script>
+function openDeleteAnn(annId, slug) {
+    document.getElementById('deleteAnnForm').action = `/clubs/${slug}/announcements/${annId}/delete/`;
+    document.getElementById('deleteAnnModal').classList.add('open');
+}
+
+function addSocialRow() {
+    const container = document.getElementById('socialsContainer');
+    const row = document.createElement('div');
+    row.className = 'social-row';
+    row.style.cssText = 'display:flex;align-items:center;gap:8px;';
+    row.innerHTML = `<select name="social_platform" style="width:30%;padding:8px 10px;border:1px solid #ddd;border-radius:8px;font-family:inherit;font-size:0.9rem;background:#fff;">
+        <option value="discord">Discord</option>
+        <option value="groupme">GroupMe</option>
+        <option value="instagram">Instagram</option>
+        <option value="whatsapp">WhatsApp</option>
+        <option value="website">Website</option>
+    </select>
+    <input type="url" name="social_url" placeholder="https://..." style="flex:1;padding:8px 10px;border:1px solid #ddd;border-radius:8px;font-family:inherit;font-size:0.9rem;">
+    <button type="button" onclick="this.closest('.social-row').remove()" style="background:none;border:none;cursor:pointer;color:#aaa;font-size:1.1rem;line-height:1;padding:4px;">×</button>`;
+    container.appendChild(row);
+}
+
 function toggleSaveDetail(btn, slug) {
     fetch('/clubs/' + slug + '/save/', {
         method: 'POST',
@@ -1323,6 +1384,59 @@ document.addEventListener('click', function(e) {
 {% endif %}
 
 {% if is_exec %}
+<div class="modal-overlay" id="deleteAnnModal">
+    <div class="modal" style="max-width:420px;">
+        <h2>Delete Announcement</h2>
+        <p style="color:#555;margin-bottom:24px;">Are you sure you want to delete this announcement? This cannot be undone.</p>
+        <form id="deleteAnnForm" method="POST" action="">
+            {% csrf_token %}
+            <div style="display:flex;gap:10px;justify-content:flex-end;">
+                <button type="button" class="cancel-btn" onclick="document.getElementById('deleteAnnModal').classList.remove('open')">Cancel</button>
+                <button type="submit" style="-webkit-appearance:none;appearance:none;background:#e53935;color:#fff;border:none;padding:10px 18px;border-radius:6px;font-weight:bold;cursor:pointer;font-family:inherit;font-size:1rem;">Delete</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="modal-overlay" id="editClubInfoModal">
+    <div class="modal">
+        <h2>Edit Club Info — {{ club.name }}</h2>
+        <form method="POST" action="{% url 'edit_club_info' club.slug %}" id="editClubInfoForm">
+            {% csrf_token %}
+            <label style="display:block;margin-bottom:6px;font-weight:600;">Description</label>
+            <textarea name="description" rows="4" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:8px;font-family:inherit;font-size:0.95rem;resize:vertical;margin-bottom:16px;">{{ club.description }}</textarea>
+
+            <label style="display:block;margin-bottom:6px;font-weight:600;">Tags <span style="font-weight:400;color:#888;font-size:0.85rem;">(comma-separated)</span></label>
+            <input type="text" name="tags" value="{{ club.tags }}" placeholder="e.g. academic, engineering, social" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:8px;font-family:inherit;font-size:0.95rem;margin-bottom:16px;">
+
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+                <label style="font-weight:600;margin:0;">Social Media Links</label>
+                <button type="button" onclick="addSocialRow()" style="background:#232D4B;color:#fff;border:none;border-radius:6px;padding:3px 10px;font-size:0.8rem;font-weight:bold;cursor:pointer;font-family:inherit;">+ Add</button>
+            </div>
+            <div id="socialsContainer" style="display:flex;flex-direction:column;gap:8px;margin-bottom:20px;">
+                {% for social in club.socials %}
+                <div class="social-row" style="display:flex;align-items:center;gap:8px;">
+                    <select name="social_platform" style="width:30%;padding:8px 10px;border:1px solid #ddd;border-radius:8px;font-family:inherit;font-size:0.9rem;background:#fff;">
+                        <option value="discord" {% if social.platform == 'discord' %}selected{% endif %}>Discord</option>
+                        <option value="groupme" {% if social.platform == 'groupme' %}selected{% endif %}>GroupMe</option>
+                        <option value="instagram" {% if social.platform == 'instagram' %}selected{% endif %}>Instagram</option>
+                        <option value="whatsapp" {% if social.platform == 'whatsapp' %}selected{% endif %}>WhatsApp</option>
+                        <option value="website" {% if social.platform == 'website' %}selected{% endif %}>Website</option>
+                    </select>
+                    <input type="url" name="social_url" value="{{ social.url }}" placeholder="https://..." style="flex:1;padding:8px 10px;border:1px solid #ddd;border-radius:8px;font-family:inherit;font-size:0.9rem;">
+                    <button type="button" onclick="this.closest('.social-row').remove()" style="background:none;border:none;cursor:pointer;color:#aaa;font-size:1.1rem;line-height:1;padding:4px;">×</button>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div style="display:flex;gap:10px;justify-content:flex-end;">
+                <button type="button" class="cancel-btn" onclick="document.getElementById('editClubInfoModal').classList.remove('open')">Cancel</button>
+                <button type="submit" style="-webkit-appearance:none;appearance:none;background:#E57200;color:#fff;border:none;padding:10px 18px;border-radius:6px;font-weight:bold;cursor:pointer;font-family:inherit;font-size:1rem;">Save Changes</button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <div class="modal-overlay" id="createEventModal">
     <div class="modal">
         <h2>Create Event — {{ club.name }}</h2>
