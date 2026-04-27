@@ -160,7 +160,8 @@ class ForumThread(models.Model):
     author = models.ForeignKey(User, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     likes = models.ManyToManyField(User, related_name='liked_threads', blank=True)
-
+    is_pinned = models.BooleanField(default=False)
+    is_deleted = models.BooleanField(default=False)
     def __str__(self):
         return self.title
 

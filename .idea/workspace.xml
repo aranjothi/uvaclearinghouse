@@ -5,13 +5,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="00a4688b-7249-4d35-9273-226e29aacd18" name="Changes" comment="Added a People's tab into exec dashboard (included remove a member function)">
-      <change afterPath="$PROJECT_DIR$/django/main/templates/main/executive_club_manage.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/django/main/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/django/main/models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/django/main/templates/main/dm_conversation.html" beforeDir="false" afterPath="$PROJECT_DIR$/django/main/templates/main/dm_conversation.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/django/main/templates/main/executive_club_events.html" beforeDir="false" afterPath="$PROJECT_DIR$/django/main/templates/main/executive_club_events.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/django/main/templates/main/executive_club_page.html" beforeDir="false" afterPath="$PROJECT_DIR$/django/main/templates/main/executive_club_page.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/django/main/templates/main/executive_club_people.html" beforeDir="false" afterPath="$PROJECT_DIR$/django/main/templates/main/executive_club_people.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/django/main/templates/main/club_detail.html" beforeDir="false" afterPath="$PROJECT_DIR$/django/main/templates/main/club_detail.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/django/main/templates/main/forum_list.html" beforeDir="false" afterPath="$PROJECT_DIR$/django/main/templates/main/forum_list.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/django/main/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/django/main/urls.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/django/main/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/django/main/views.py" afterDir="false" />
     </list>
@@ -34,6 +31,7 @@
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+    <option name="RESET_MODE" value="HARD" />
   </component>
   <component name="GitHubPullRequestSearchHistory">{
   &quot;lastFilter&quot;: {
@@ -72,7 +70,7 @@
     &quot;ai.playground.ignore.import.keys.banner.in.settings&quot;: &quot;true&quot;,
     &quot;com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1&quot;: &quot;true&quot;,
     &quot;django.template.preview.state&quot;: &quot;SHOW_EDITOR_AND_PREVIEW&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;Exec-Features&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;forum-features&quot;,
     &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
     &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,

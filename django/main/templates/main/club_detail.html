@@ -1089,15 +1089,38 @@ nav ul li a:hover {
             <div id="discussion-list">
             {% if threads %}
                 {% for thread in threads %}
-                <a href="{% url 'forum_thread' club.slug thread.id %}" class="thread-card" data-search="{{ thread.title|lower }} {{ thread.author.first_name|lower }} {{ thread.author.last_name|lower }}">
+                {% if not thread.is_deleted %}
+                <div class="thread-card" data-search="{{ thread.title|lower }} {{ thread.author.first_name|lower }} {{ thread.author.last_name|lower }}">
                     <div class="thread-header">
-                        <span class="thread-title">{{ thread.title }}</span>
+                        <div style="display:flex;align-items:center;gap:8px;">
+                            {% if thread.is_pinned %}
+                            <span style="font-size:11px;background:#232D4B;color:#fff;padding:2px 7px;border-radius:99px;font-weight:bold;">Pinned</span>
+                            {% endif %}
+                            <a href="{% url 'forum_thread' club.slug thread.id %}" style="text-decoration:none;">
+                                <span class="thread-title">{{ thread.title }}</span>
+                            </a>
+                        </div>
                         <span class="thread-meta">{{ thread.likes.count }} ♥</span>
                     </div>
                     <div class="thread-meta">
                         {{ thread.author.first_name }} {{ thread.author.last_name }} &middot; {{ thread.created_at|date:"M d, Y" }}
                     </div>
-                </a>
+                    {% if is_exec %}
+                    <div style="display:flex;gap:6px;margin-top:8px;">
+                        <form method="post" action="{% url 'pin_thread' club.slug thread.id %}">
+                            {% csrf_token %}
+                            <button type="submit" style="font-size:11px;padding:3px 8px;border-radius:4px;border:1px solid #232D4B;background:none;color:#232D4B;cursor:pointer;">
+                                {% if thread.is_pinned %}Unpin{% else %}Pin{% endif %}
+                            </button>
+                        </form>
+                        <form method="post" action="{% url 'delete_thread' club.slug thread.id %}" onsubmit="return confirm('Delete this thread?')">
+                            {% csrf_token %}
+                            <button type="submit" style="font-size:11px;padding:3px 8px;border-radius:4px;border:1px solid #c0392b;background:none;color:#c0392b;cursor:pointer;">Delete</button>
+                        </form>
+                    </div>
+                    {% endif %}
+                </div>
+                {% endif %}
                 {% endfor %}
             {% else %}
                 <p style="color:#888;">No posts yet.{% if is_member %} Be the first to start a discussion!{% endif %}</p>

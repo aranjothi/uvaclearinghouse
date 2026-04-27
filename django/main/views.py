@@ -38,7 +38,7 @@ class ClubDetailView(DetailView):
         context["user_role"] = user_role
         forum, _ = Forum.objects.get_or_create(club=self.object)
         context["forum"] = forum
-        context["threads"] = forum.threads.select_related('author').order_by('-created_at')[:20]
+        context["threads"] = forum.threads.filter(is_deleted=False).select_related('author').order_by('-is_pinned', '-created_at')[:20]
         events = list(self.object.events.order_by('date', 'time'))
         rsvped_ids = set()
         if self.request.user.is_authenticated:
@@ -523,8 +523,11 @@ def forum_list(request, slug):
     if not Membership.objects.filter(user=request.user, club=club).exists():
         return redirect('get_involved')
     forum, _ = Forum.objects.get_or_create(club=club) #create forum
-    threads = forum.threads.all().order_by('-created_at') #new threads
-    return render(request, 'main/forum_list.html', {'club': club, 'threads': threads, 'forum': forum})
+    threads = forum.threads.filter(is_deleted=False).order_by('-is_pinned', '-created_at') #new threads
+    is_exec = Membership.objects.filter(
+        user=request.user, club=club, role=Membership.EXECUTIVE
+    ).exists()
+    return render(request, 'main/forum_list.html', {'club': club, 'threads': threads, 'forum': forum, 'is_exec': is_exec})
 
 @login_required
 def forum_new_thread(request, slug):
@@ -551,6 +554,29 @@ def forum_thread(request, slug, thread_id):
         ForumReply.objects.create(thread=thread, content=content, author=request.user)
         return redirect('forum_thread', slug=slug, thread_id=thread_id)
     return render(request, 'main/forum_thread.html', {'club': club, 'thread': thread, 'replies': replies})
+@login_required
+def pin_thread(request, slug, thread_id):
+    club = get_object_or_404(Club, slug=slug)
+    is_exec = Membership.objects.filter(user=request.user, club=club, role=Membership.EXECUTIVE).exists()
+    if not is_exec:
+        return redirect('club_detail', slug=slug)
+    if request.method == 'POST':
+        thread = get_object_or_404(ForumThread, id=thread_id)
+        thread.is_pinned = not thread.is_pinned
+        thread.save()
+    return redirect(request.META.get('HTTP_REFERER', f'/clubs/{slug}/')) #redirect to whatver page the user was on
+
+@login_required
+def delete_thread(request, slug, thread_id):
+    club = get_object_or_404(Club, slug=slug)
+    is_exec = Membership.objects.filter(user=request.user, club=club, role=Membership.EXECUTIVE).exists()
+    if not is_exec:
+        return redirect('club_detail', slug=slug)
+    if request.method == 'POST':
+        thread = get_object_or_404(ForumThread, id=thread_id)
+        thread.is_deleted = True
+        thread.save()
+    return redirect(request.META.get('HTTP_REFERER', f'/clubs/{slug}/'))
 
 @login_required
 def like_thread(request, slug, thread_id):

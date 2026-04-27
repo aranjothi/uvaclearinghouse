@@ -18,29 +18,27 @@ nav ul li a:hover { border-bottom: 3px solid #E57200; }
 .dropdown a { display: block; width: 100%; text-align: left; padding: 10px 16px; font-size: 0.95rem; color: #232D4B; text-decoration: none; }
 .dropdown a:hover { background-color: #f0f0f0; }
 .nav-icon.open .dropdown { display: block; }
-
 .page-header { padding: 60px 40px 30px 40px; }
 .page-header h1 { font-size: 2rem; }
 .page-header span { color: #E57200; }
-
 .forum-container { padding: 0 40px 60px 40px; }
-
-.thread-card {
-    background-color: #f7f7f7;
-    border-radius: 10px;
-    padding: 22px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-    margin-bottom: 20px;
-}
-.thread-card h3 { font-size: 1.2rem; margin-bottom: 8px; }
+.thread-card { background-color: #f7f7f7; border-radius: 10px; padding: 22px; box-shadow: 0 2px 6px rgba(0,0,0,0.08); margin-bottom: 20px; position: relative; }
+.thread-card.pinned { border-left: 4px solid #232D4B; }
+.thread-card h3 { font-size: 1.2rem; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.pinned-badge { font-size: 11px; background: #232D4B; color: #fff; padding: 2px 8px; border-radius: 99px; font-weight: bold; }
 .thread-meta { font-size: 0.85rem; color: #E57200; margin-bottom: 10px; }
 .thread-card p { font-size: 0.95rem; color: #444; margin-bottom: 16px; }
-
 .btn { background-color: #E57200; color: #FFFFFF; text-decoration: none; padding: 10px 16px; border-radius: 6px; font-weight: bold; font-size: 0.9rem; display: inline-block; }
 .btn:hover { background-color: #c86100; }
 .btn-navy { background-color: #232D4B; }
 .btn-navy:hover { background-color: #1a2238; }
-
+.btn-delete { position: absolute; top: 12px; right: 12px; background: none; border: none; cursor: pointer; color: #aaa; font-size: 18px; font-weight: bold; line-height: 1; padding: 2px 6px; border-radius: 4px; }
+.btn-delete:hover { background: #fde8e8; color: #c0392b; }
+.btn-pin { background: none; border: none; cursor: pointer; padding: 2px 4px; display: inline-flex; align-items: center; vertical-align: middle; }
+.btn-pin svg { width: 16px; height: 16px; }
+.btn-pin.is-pinned svg { fill: #232D4B; stroke: #232D4B; }
+.btn-pin:not(.is-pinned) svg { fill: none; stroke: #aaa; stroke-width: 1.5; }
+.btn-pin:hover svg { stroke: #232D4B; fill: #232D4B; }
 .new-thread-btn { margin-bottom: 30px; }
 .no-threads { color: #555; font-size: 1rem; padding: 20px 0; }
 </style>
@@ -57,15 +55,41 @@ nav ul li a:hover { border-bottom: 3px solid #E57200; }
     <a href="{% url 'forum_new_thread' club.slug %}" class="btn new-thread-btn">+ New Thread</a>
 
     {% for thread in threads %}
-    <div class="thread-card">
-        <h3>{{ thread.title }}</h3>
+    {% if not thread.is_deleted %}
+    <div class="thread-card {% if thread.is_pinned %}pinned{% endif %}">
+
+        {% if is_exec %}
+        <form method="post" action="{% url 'delete_thread' club.slug thread.id %}" onsubmit="return confirm('Delete this thread?')" style="position:absolute;top:12px;right:12px;margin:0;">
+            {% csrf_token %}
+            <button type="submit" class="btn-delete" title="Delete thread">✕</button>
+        </form>
+        {% endif %}
+
+        <h3>
+            {% if is_exec %}
+            <form method="post" action="{% url 'pin_thread' club.slug thread.id %}" style="display:inline;margin:0;">
+                {% csrf_token %}
+                <button type="submit" class="btn-pin {% if thread.is_pinned %}is-pinned{% endif %}" title="{% if thread.is_pinned %}Unpin{% else %}Pin{% endif %}">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 2L9 9H3l5.5 4-2 7L12 16l5.5 4-2-7L21 9h-6z"/>
+                    </svg>
+                </button>
+            </form>
+            {% endif %}
+            {% if thread.is_pinned %}<span class="pinned-badge">Pinned</span>{% endif %}
+            {{ thread.title }}
+        </h3>
+
         <p class="thread-meta">By {{ thread.author.first_name }} · {{ thread.created_at|date:"M d, Y" }} · {{ thread.likes.count }} likes · {{ thread.replies.count }} replies</p>
         <p>{{ thread.content|truncatewords:30 }}</p>
         <a href="{% url 'forum_thread' club.slug thread.id %}" class="btn btn-navy">View Thread</a>
     </div>
-    {% empty %}
-    <p class="no-threads">No threads yet. Be the first to start a discussion!</p>
+    {% endif %}
     {% endfor %}
+
+    {% if not threads %}
+    <p class="no-threads">No threads yet. Be the first to start a discussion!</p>
+    {% endif %}
 </div>
 
 <script>

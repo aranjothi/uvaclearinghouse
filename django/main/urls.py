@@ -37,6 +37,8 @@ urlpatterns = [
     path('clubs/<slug:slug>/forum/<int:thread_id>/', views.forum_thread, name='forum_thread'),
     path('clubs/<slug:slug>/forum/<int:thread_id>/like/', views.like_thread, name='like_thread'),
     path('clubs/<slug:slug>/forum/reply/<int:reply_id>/like/', views.like_reply, name='like_reply'),
+    path('clubs/<slug:slug>/forum/<int:thread_id>/pin/', views.pin_thread, name='pin_thread'),
+    path('clubs/<slug:slug>/forum/<int:thread_id>/delete/', views.delete_thread, name='delete_thread'),
 
     #Indiviudal Events Page Setup
     path('events/', views.Events_page, name='events'),
