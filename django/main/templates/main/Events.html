@@ -7,21 +7,8 @@
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body { font-family: Helvetica, Arial, sans-serif; background-color: #FFFFFF; color: #232D4B; }
-
-nav { background-color: #232D4B; padding: 0 40px; display: flex; align-items: center; justify-content: space-between; }
-nav .logo { color: #FFFFFF; font-size: 1.4rem; font-weight: bold; letter-spacing: 1px; }
-nav ul { list-style: none; display: flex; gap: 32px; }
-nav ul li a { color: #FFFFFF; text-decoration: none; font-size: 1rem; padding: 20px 0; display: block; border-bottom: 3px solid transparent; transition: border-color 0.2s; }
-nav ul li a:hover { border-bottom: 3px solid #E57200; }
-.nav-icon { position: relative; padding: 11px 0px; }
-.icon-btn { background: none; border: none; cursor: pointer; color: #FFFFFF; padding: 4px; display: flex; align-items: center; }
-.icon-btn svg { width: 28px; height: 28px; }
-.dropdown { display: none; position: absolute; right: 0; top: calc(100% + 8px); background: #FFFFFF; border: 1.5px solid #232D4B; border-radius: 6px; min-width: 130px; z-index: 100; overflow: hidden; }
-.dropdown a, .dropdown button { display: block; width: 100%; text-align: left; padding: 10px 16px; font-size: 0.95rem; color: #232D4B; text-decoration: none; background: none; border: none; cursor: pointer; font-family: inherit; }
-.dropdown a:hover, .dropdown button:hover { background-color: #f0f0f0; }
-.nav-icon.open .dropdown { display: block; }
-
-.page-banner { position: relative; width: 100%; height: 280px; overflow: hidden; display: flex; align-items: center; justify-content: center; background: #232D4B; }
+.page-banner { position: relative; width: 100%; height: 320px; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+.page-banner img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 .page-banner-overlay { position: absolute; inset: 0; background: rgba(35,45,75,0.72); }
 .page-banner-content { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; gap: 20px; width: 100%; max-width: 560px; padding: 0 40px; }
 .page-banner-content h1 { font-size: 2.4rem; color: #fff; text-align: center; }
@@ -30,9 +17,20 @@ nav ul li a:hover { border-bottom: 3px solid #E57200; }
 .banner-search-input-wrap svg { flex-shrink: 0; color: #fff; }
 .banner-search-input { border: none; outline: none; background: none; font-size: 1rem; font-family: inherit; color: #fff; width: 100%; }
 .banner-search-input::placeholder { color: rgba(255,255,255,0.65); }
+#tagFilterInput::placeholder { color: rgba(255,255,255,0.65); }
+.tag-suggest-item { padding: 10px 16px; font-size: 0.88rem; color: #232D4B; cursor: pointer; }
+.tag-suggest-item:hover { background: #f4f5f7; }
+
+.filters-bar { padding: 0.75rem 40px; background: #f4f5f7; border-bottom: 1px solid #e0e0e0; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.filter-label { font-size: 12px; font-weight: bold; color: #888; text-transform: uppercase; letter-spacing: 0.05em; }
+.filter-btn { font-size: 13px; padding: 6px 14px; border-radius: 99px; border: 1px solid #e0e0e0; background: #fff; color: #232D4B; cursor: pointer; font-family: inherit; transition: all 0.15s; }
+.filter-btn:hover { border-color: #232D4B; }
+.filter-btn.active { background: #232D4B; color: #fff; border-color: #232D4B; }
+.filter-divider { width: 1px; height: 24px; background: #e0e0e0; }
+.sort-select { font-size: 13px; padding: 6px 12px; border-radius: 6px; border: 1px solid #e0e0e0; background: #fff; color: #232D4B; cursor: pointer; font-family: inherit; outline: none; }
+.sort-select:focus { border-color: #E57200; }
 
 .event-container { padding: 40px 40px 60px 40px; display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 25px; align-items: start; }
-
 .event-card { background-color: #f7f7f7; border-radius: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.08); display: flex; flex-direction: column; text-decoration: none; color: inherit; transition: transform 0.15s, box-shadow 0.15s, background-color 0.15s; cursor: pointer; overflow: hidden; }
 .event-card:hover { background-color: #eef0f5; transform: translateY(-3px); box-shadow: 0 6px 16px rgba(0,0,0,0.12); }
 .event-card-banner { position: relative; width: 100%; height: 140px; overflow: hidden; flex-shrink: 0; }
@@ -45,14 +43,113 @@ nav ul li a:hover { border-bottom: 3px solid #E57200; }
 .event-card-footer { display: flex; justify-content: flex-end; margin-top: auto; padding-top: 10px; }
 .view-event-link { font-size: 0.85rem; font-weight: bold; color: #232D4B; }
 .no-events { padding: 40px; font-size: 1rem; color: #555; }
+.empty-state { text-align: center; padding: 60px 40px; color: #aaa; grid-column: 1/-1; }
 </style>
 </head>
+
+<script>
+    let activeTag = '';
+    let activeTimeFilter = 'all';
+    const today = new Date().toISOString().split('T')[0];
+
+    function applyFilters() {
+        const q = document.getElementById('eventSearch').value.toLowerCase();
+        const sort = document.getElementById('sortSelect').value;
+        const cards = [...document.querySelectorAll('.event-card')];
+
+        let visible = cards.filter(card => {
+            const search = card.dataset.search || '';
+            const tags = (card.dataset.tags || '').split(',').map(t => t.trim());
+            const date = card.dataset.date || '';
+            const matchesSearch = !q || search.includes(q);
+            const matchesTag = activeTag === '' || tags.includes(activeTag);
+            const matchesTime = activeTimeFilter === 'all'
+                || (activeTimeFilter === 'upcoming' && date >= today)
+                || (activeTimeFilter === 'past' && date < today);
+            return matchesSearch && matchesTag && matchesTime;
+        });
+
+        visible.sort((a, b) => {
+            const da = a.dataset.date;
+            const db = b.dataset.date;
+            if (sort === 'newest') return db.localeCompare(da);
+            if (sort === 'oldest') return da.localeCompare(db);
+            if (sort === 'soonest') {
+                if (da >= today && db >= today) return da.localeCompare(db);
+                if (da >= today) return -1;
+                if (db >= today) return 1;
+                return db.localeCompare(da);
+            }
+            return 0;
+        });
+
+        cards.forEach(c => c.style.display = 'none');
+        const grid = document.getElementById('eventGrid');
+        visible.forEach(c => { c.style.display = ''; grid.appendChild(c); });
+        document.getElementById('emptyState').style.display = visible.length === 0 ? 'block' : 'none';
+    }
+
+    function setTimeFilter(val, btn) {
+        activeTimeFilter = val;
+        document.querySelectorAll('.time-filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        applyFilters();
+    }
+
+    function applyTagFilter(tag) {
+        activeTag = activeTag === tag ? '' : tag;
+        document.getElementById('tagFilterInput').value = activeTag ? activeTag : '';
+        document.getElementById('tagSuggestDropdown').style.display = 'none';
+        document.getElementById('tagClearBtn').style.display = activeTag ? 'inline' : 'none';
+        applyFilters();
+    }
+
+    function clearTagFilter() {
+        activeTag = '';
+        document.getElementById('tagFilterInput').value = '';
+        document.getElementById('tagClearBtn').style.display = 'none';
+        applyFilters();
+    }
+
+    function onTagInput(val) {
+        const q = val.toLowerCase().trim();
+        const dropdown = document.getElementById('tagSuggestDropdown');
+        const input = document.getElementById('tagFilterInput');
+        const allTags = Array.from(document.querySelectorAll('.event-card')).flatMap(c =>
+            (c.dataset.tags || '').split(',').map(t => t.trim()).filter(Boolean)
+        );
+        const unique = [...new Set(allTags)].filter(t => !q || t.toLowerCase().includes(q));
+        if (unique.length === 0) { dropdown.style.display = 'none'; return; }
+        const rect = input.getBoundingClientRect();
+        dropdown.style.top = (rect.bottom + window.scrollY + 6) + 'px';
+        dropdown.style.left = rect.left + 'px';
+        dropdown.style.width = rect.width + 'px';
+        dropdown.innerHTML = unique.slice(0, 8).map(t =>
+            `<div class="tag-suggest-item" onmousedown="applyTagFilter('${t}')">${t}</div>`
+        ).join('');
+        dropdown.style.display = 'block';
+    }
+
+    window.addEventListener('scroll', () => {
+        document.getElementById('tagSuggestDropdown').style.display = 'none';
+    }, { passive: true });
+
+    function toggleNav() {
+        document.getElementById('navIcon').classList.toggle('open');
+    }
+    document.addEventListener('click', function(e) {
+        const nav = document.getElementById('navIcon');
+        if (!nav.contains(e.target)) nav.classList.remove('open');
+    });
+</script>
+
 <body>
 
 {% load static %}
 {% include 'main/navbar.html' %}
 
 <div class="page-banner">
+    <img src="{% static 'getinvolvedbanner.png' %}" alt="Events banner">
     <div class="page-banner-overlay"></div>
     <div class="page-banner-content">
         <h1>Upcoming <span>Events</span></h1>
@@ -60,14 +157,42 @@ nav ul li a:hover { border-bottom: 3px solid #E57200; }
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width:18px;height:18px;">
                 <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
             </svg>
-            <input type="text" id="eventSearch" placeholder="Search for events..." class="banner-search-input" oninput="filterEvents(this.value)">
+            <input type="text" id="eventSearch" placeholder="Search for events..." class="banner-search-input" oninput="applyFilters()">
+        </div>
+        <div style="width:100%;max-width:360px;">
+            <div style="display:flex;align-items:center;gap:8px;background:rgba(255,255,255,0.15);border-radius:999px;padding:7px 14px;">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width:15px;height:15px;flex-shrink:0;color:rgba(255,255,255,0.8);"><path stroke-linecap="round" stroke-linejoin="round" d="M9.568 3H5.25A2.25 2.25 0 0 0 3 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 0 0 5.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 0 0 9.568 3Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M6 6h.008v.008H6V6Z" /></svg>
+                <input type="text" id="tagFilterInput" placeholder="Filter by tags..." autocomplete="off"
+                    oninput="onTagInput(this.value)"
+                    onfocus="onTagInput(this.value)"
+                    onblur="setTimeout(()=>document.getElementById('tagSuggestDropdown').style.display='none',150)"
+                    style="background:none;border:none;outline:none;color:#fff;font-family:inherit;font-size:0.85rem;width:100%;">
+                <button type="button" id="tagClearBtn" onclick="clearTagFilter()" style="display:none;background:none;border:none;color:rgba(255,255,255,0.8);cursor:pointer;font-size:1rem;padding:0;line-height:1;flex-shrink:0;">×</button>
+            </div>
         </div>
     </div>
 </div>
 
-<div class="event-container">
+<div class="filters-bar">
+    <span class="filter-label">Time</span>
+    <button class="filter-btn time-filter-btn active" onclick="setTimeFilter('all', this)">All</button>
+    <button class="filter-btn time-filter-btn" onclick="setTimeFilter('upcoming', this)">Upcoming</button>
+    <button class="filter-btn time-filter-btn" onclick="setTimeFilter('past', this)">Past</button>
+    <div class="filter-divider"></div>
+    <span class="filter-label">Sort</span>
+    <select class="sort-select" id="sortSelect" onchange="applyFilters()">
+        <option value="newest">Most Recent</option>
+        <option value="oldest">Oldest First</option>
+        <option value="soonest">Soonest First</option>
+    </select>
+</div>
+
+<div class="event-container" id="eventGrid">
     {% for event in events %}
-    <a href="{% url 'event_detail' event.id %}" class="event-card" data-search="{{ event.title|lower }} {{ event.description|lower }} {{ event.location|lower }}">
+    <a href="{% url 'event_detail' event.id %}" class="event-card"
+       data-search="{{ event.title|lower }} {{ event.description|lower }} {{ event.location|lower }}"
+       data-tags="{{ event.category|lower }}"
+       data-date="{{ event.date|date:'Y-m-d' }}">
         <div class="event-card-banner">
             {% if event.image %}
             <img src="{{ event.image.url }}" alt="{{ event.title }}">
@@ -92,21 +217,11 @@ nav ul li a:hover { border-bottom: 3px solid #E57200; }
     {% endfor %}
 </div>
 
-<script>
-    function filterEvents(query) {
-        const q = query.toLowerCase();
-        document.querySelectorAll('.event-card').forEach(card => {
-            card.style.display = card.dataset.search.includes(q) ? '' : 'none';
-        });
-    }
-    function toggleNav() {
-        document.getElementById('navIcon').classList.toggle('open');
-    }
-    document.addEventListener('click', function(e) {
-        const nav = document.getElementById('navIcon');
-        if (!nav.contains(e.target)) nav.classList.remove('open');
-    });
-</script>
+<div id="emptyState" class="empty-state" style="display:none;">
+    <p>No events match your filters.</p>
+</div>
+
+<div id="tagSuggestDropdown" style="display:none;position:absolute;background:#fff;border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,0.18);z-index:99999;overflow:hidden;border:1px solid #e5e5e5;min-width:200px;"></div>
 
 {% include 'main/chat_widget.html' %}
 </body>

@@ -4,7 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="00a4688b-7249-4d35-9273-226e29aacd18" name="Changes" comment="Added a People's tab into exec dashboard (included remove a member function)" />
+    <list default="true" id="00a4688b-7249-4d35-9273-226e29aacd18" name="Changes" comment="Quick fix so that the navbar resize when split screen occurs.">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/django/main/templates/main/Events.html" beforeDir="false" afterPath="$PROJECT_DIR$/django/main/templates/main/Events.html" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -63,7 +66,7 @@
     "ai.playground.ignore.import.keys.banner.in.settings": "true",
     "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
     "django.template.preview.state": "SHOW_EDITOR_AND_PREVIEW",
-    "git-widget-placeholder": "main",
+    "git-widget-placeholder": "Events",
     "ignore.virus.scanning.warn.message": "true",
     "junie.onboarding.icon.badge.shown": "true",
     "node.js.detected.package.eslint": "true",
@@ -279,7 +282,15 @@
       <option name="project" value="LOCAL" />
       <updated>1777299920409</updated>
     </task>
-    <option name="localTasksCounter" value="15" />
+    <task id="LOCAL-00015" summary="Quick fix so that the navbar resize when split screen occurs.">
+      <option name="closed" value="true" />
+      <created>1777300637417</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1777300637417</updated>
+    </task>
+    <option name="localTasksCounter" value="16" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -325,6 +336,7 @@
     <MESSAGE value="Added inbox to the dropdown" />
     <MESSAGE value="Added a People's tab into exec dashboard (included remove a member function)" />
     <MESSAGE value="Make it so that you can pin and delete threads for the forum" />
-    <option name="LAST_COMMIT_MESSAGE" value="Make it so that you can pin and delete threads for the forum" />
+    <MESSAGE value="Quick fix so that the navbar resize when split screen occurs." />
+    <option name="LAST_COMMIT_MESSAGE" value="Quick fix so that the navbar resize when split screen occurs." />
   </component>
 </project>
