@@ -187,6 +187,20 @@
                         <input type="hidden" name="location" id="id_location" value="{{ event.location }}">
                     </div>
                     <div class="form-group">
+                        <label>Tags <span style="font-weight:normal;color:#aaa;">(optional)</span></label>
+                        <div style="position:relative;">
+                            <input type="text" id="tagInput" placeholder="e.g. social, engineering, networking"
+                                   style="width:100%;padding:10px 12px;border:1px solid #e0e0e0;border-radius:6px;font-size:14px;font-family:inherit;color:#232D4B;"
+                                   autocomplete="off"
+                                   oninput="onTagInput(this.value)"
+                                   onfocus="onTagInput(this.value)"
+                                   onblur="setTimeout(()=>document.getElementById('tagDropdown').style.display='none',150)">
+                            <div id="tagDropdown" style="display:none;position:absolute;top:calc(100% + 4px);left:0;right:0;background:#fff;border:1px solid #e0e0e0;border-radius:6px;box-shadow:0 4px 12px rgba(0,0,0,0.08);z-index:50;overflow:hidden;"></div>
+                        </div>
+                        <input type="hidden" name="tags" id="id_tags" value="{{ event.tags|default:'' }}">
+                        <div id="tagPills" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;"></div>
+                    </div>
+                    <div class="form-group">
                         <label>Event Image <span style="font-weight:normal; color:#aaa;">(optional)</span></label>
                         {% if event.image %}
                         <div style="margin-bottom:8px;">
@@ -362,6 +376,59 @@
             searchInput.focus();
         }
     });
+
+      // ── Tag input ──
+    const suggestedTags = ['Social', 'Academic', 'Professional', 'Cultural', 'Sports', 'Arts', 'Technology', 'Service', 'Networking', 'Workshop', 'Food', 'Music', 'Volunteering', 'Career'];
+    let currentTags = document.getElementById('id_tags').value
+        ? document.getElementById('id_tags').value.split(',').map(t => t.trim()).filter(Boolean)
+        : [];
+
+    function renderTagPills() {
+        const container = document.getElementById('tagPills');
+        container.innerHTML = currentTags.map(t =>
+            `<span style="display:inline-flex;align-items:center;gap:4px;background:#232D4B;color:#fff;border-radius:99px;padding:3px 10px;font-size:12px;">
+                ${t}
+                <button type="button" onclick="removeTag('${t}')" style="background:none;border:none;color:#fff;cursor:pointer;padding:0;font-size:14px;line-height:1;">×</button>
+            </span>`
+        ).join('');
+        document.getElementById('id_tags').value = currentTags.join(', ');
+    }
+
+    function addTag(tag) {
+        const t = tag.trim();
+        if (t && !currentTags.includes(t)) {
+            currentTags.push(t);
+            renderTagPills();
+        }
+        document.getElementById('tagInput').value = '';
+        document.getElementById('tagDropdown').style.display = 'none';
+    }
+
+    function removeTag(tag) {
+        currentTags = currentTags.filter(t => t !== tag);
+        renderTagPills();
+    }
+
+    function onTagInput(val) {
+        const q = val.toLowerCase().trim();
+        const dropdown = document.getElementById('tagDropdown');
+        const filtered = suggestedTags.filter(t => t.toLowerCase().includes(q) && !currentTags.includes(t));
+        if (filtered.length === 0 && !q) { dropdown.style.display = 'none'; return; }
+        dropdown.innerHTML = filtered.slice(0, 6).map(t =>
+            `<div onmousedown="addTag('${t}')" style="padding:9px 12px;font-size:13px;cursor:pointer;color:#232D4B;" onmouseover="this.style.background='#f4f5f7'" onmouseout="this.style.background=''">${t}</div>`
+        ).join('');
+        if (q && !suggestedTags.map(t => t.toLowerCase()).includes(q)) {
+            dropdown.innerHTML += `<div onmousedown="addTag('${val.trim()}')" style="padding:9px 12px;font-size:13px;cursor:pointer;color:#E57200;border-top:1px solid #f0f0f0;" onmouseover="this.style.background='#f4f5f7'" onmouseout="this.style.background=''">+ Add "${val.trim()}"</div>`;
+        }
+        dropdown.style.display = filtered.length > 0 || q ? 'block' : 'none';
+    }
+
+    document.getElementById('tagInput').addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') { e.preventDefault(); if (this.value.trim()) addTag(this.value); }
+        if (e.key === ',') { e.preventDefault(); if (this.value.trim()) addTag(this.value); }
+    });
+
+    renderTagPills();
 </script>
 
 {% include 'main/chat_widget.html' %}

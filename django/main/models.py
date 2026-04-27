@@ -113,6 +113,10 @@ class Membership(models.Model):
 
 #basic event setup - to be edited
 class Event(models.Model):
+    tags = models.CharField(max_length=300, blank=True, default = '')
+    @property
+    def tags_list(self):
+        return [t.strip() for t in self.tags.split(',') if t.strip()]
     CATEGORY_CHOICES = [
         ('social', 'Social'),
         ('academic', 'Academic'),

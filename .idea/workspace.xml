@@ -6,7 +6,12 @@
   <component name="ChangeListManager">
     <list default="true" id="00a4688b-7249-4d35-9273-226e29aacd18" name="Changes" comment="Quick fix so that the navbar resize when split screen occurs.">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/django/main/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/django/main/models.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/django/main/templates/main/Events.html" beforeDir="false" afterPath="$PROJECT_DIR$/django/main/templates/main/Events.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/django/main/templates/main/create_event.html" beforeDir="false" afterPath="$PROJECT_DIR$/django/main/templates/main/create_event.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/django/main/templates/main/event_detail.html" beforeDir="false" afterPath="$PROJECT_DIR$/django/main/templates/main/event_detail.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/django/main/templates/main/executive_edit_event.html" beforeDir="false" afterPath="$PROJECT_DIR$/django/main/templates/main/executive_edit_event.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/django/main/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/django/main/views.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

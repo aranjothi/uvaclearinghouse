@@ -488,7 +488,7 @@ def create_event(request, slug):
         location_val = request.POST.get('location', '')
         event.location = location_val
 
-        event.category = request.POST.get('category', '')
+        event.tags = request.POST.get('tags', '')
 
         if request.FILES.get('image'):
             event.image = request.FILES['image']
@@ -1168,7 +1168,7 @@ def executive_edit_event(request, slug, event_id):
         if location_val:
             event.location = location_val
 
-        event.category = request.POST.get('category', '')
+        event.tags = request.POST.get('tags', '')
 
         if request.FILES.get('image'):
             event.image = request.FILES['image']

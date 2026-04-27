@@ -35,7 +35,6 @@ body { font-family: Helvetica, Arial, sans-serif; background-color: #FFFFFF; col
 .event-card:hover { background-color: #eef0f5; transform: translateY(-3px); box-shadow: 0 6px 16px rgba(0,0,0,0.12); }
 .event-card-banner { position: relative; width: 100%; height: 140px; overflow: hidden; flex-shrink: 0; }
 .event-card-banner img { width: 100%; height: 100%; object-fit: cover; }
-.event-category { position: absolute; top: 8px; left: 8px; background: #E57200; color: #fff; font-size: 10px; font-weight: bold; padding: 3px 8px; border-radius: 99px; text-transform: uppercase; letter-spacing: 0.05em; }
 .event-card-body { padding: 14px 16px 16px; display: flex; flex-direction: column; flex: 1; }
 .event-meta { font-size: 0.82rem; color: #E57200; font-weight: bold; margin-bottom: 5px; }
 .event-card-body h3 { font-size: 1.1rem; color: #232D4B; margin-bottom: 6px; }
@@ -59,10 +58,10 @@ body { font-family: Helvetica, Arial, sans-serif; background-color: #FFFFFF; col
 
         let visible = cards.filter(card => {
             const search = card.dataset.search || '';
-            const tags = (card.dataset.tags || '').split(',').map(t => t.trim());
+            const tags = (card.dataset.tags || '').split(',').map(t => t.trim().toLowerCase());
             const date = card.dataset.date || '';
             const matchesSearch = !q || search.includes(q);
-            const matchesTag = activeTag === '' || tags.includes(activeTag);
+            const matchesTag = activeTag === '' || tags.some(t => t.toLowerCase().includes(activeTag.toLowerCase()));
             const matchesTime = activeTimeFilter === 'all'
                 || (activeTimeFilter === 'upcoming' && date >= today)
                 || (activeTimeFilter === 'past' && date < today);
@@ -97,7 +96,7 @@ body { font-family: Helvetica, Arial, sans-serif; background-color: #FFFFFF; col
     }
 
     function applyTagFilter(tag) {
-        activeTag = activeTag === tag ? '' : tag;
+        activeTag = activeTag.toLowerCase() === tag.toLowerCase() ? '' : tag.toLowerCase();
         document.getElementById('tagFilterInput').value = activeTag ? activeTag : '';
         document.getElementById('tagSuggestDropdown').style.display = 'none';
         document.getElementById('tagClearBtn').style.display = activeTag ? 'inline' : 'none';
@@ -112,6 +111,10 @@ body { font-family: Helvetica, Arial, sans-serif; background-color: #FFFFFF; col
     }
 
     function onTagInput(val) {
+        activeTag = val.trim().toLowerCase();
+        document.getElementById('tagClearBtn').style.display = activeTag ? 'inline' : 'none';
+        applyFilters();
+
         const q = val.toLowerCase().trim();
         const dropdown = document.getElementById('tagSuggestDropdown');
         const input = document.getElementById('tagFilterInput');
@@ -190,8 +193,8 @@ body { font-family: Helvetica, Arial, sans-serif; background-color: #FFFFFF; col
 <div class="event-container" id="eventGrid">
     {% for event in events %}
     <a href="{% url 'event_detail' event.id %}" class="event-card"
-       data-search="{{ event.title|lower }} {{ event.description|lower }} {{ event.location|lower }}"
-       data-tags="{{ event.category|lower }}"
+       data-search="{{ event.title|lower }} {{ event.description|lower }} {{ event.location|lower }} {{ event.tags|lower }}"
+       data-tags="{{ event.tags|lower }}"
        data-date="{{ event.date|date:'Y-m-d' }}">
         <div class="event-card-banner">
             {% if event.image %}
@@ -199,14 +202,18 @@ body { font-family: Helvetica, Arial, sans-serif; background-color: #FFFFFF; col
             {% else %}
             <img src="{% static 'defaultclubimage.jpg' %}" alt="Default event image">
             {% endif %}
-            {% if event.category %}
-            <span class="event-category">{{ event.get_category_display }}</span>
-            {% endif %}
         </div>
         <div class="event-card-body">
             <div class="event-meta">{{ event.date|date:"F j, Y" }} · {{ event.location }}</div>
             <h3>{{ event.title }}</h3>
             <p>{{ event.description|default:"No description available." }}</p>
+            {% if event.tags_list %}
+            <div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:8px;">
+                {% for tag in event.tags_list|slice:":3" %}
+                <span style="font-size:0.75rem;background:#232D4B;color:#fff;border-radius:999px;padding:2px 8px;">{{ tag }}</span>
+                {% endfor %}
+            </div>
+            {% endif %}
             <div class="event-card-footer">
                 <span class="view-event-link">View Event &rarr;</span>
             </div>
