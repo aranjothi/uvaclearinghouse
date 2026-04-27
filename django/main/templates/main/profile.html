@@ -398,7 +398,7 @@ nav ul li a:hover { border-bottom: 3px solid #E57200; }
             {% if memberships %}
             <div class="cards-grid">
                 {% for membership in memberships %}
-                <a href="{% url 'club_detail' membership.club.slug %}" class="club-card">
+                <a href="{% url 'club_detail' membership.club.slug %}" class="club-card" data-slug="{{ membership.club.slug }}">
                     {% if user.is_authenticated %}
                     <button class="save-btn {% if membership.club.slug in saved_slugs %}saved{% endif %}"
                             title="{% if membership.club.slug in saved_slugs %}Unsave{% else %}Save{% endif %}"
@@ -467,12 +467,12 @@ nav ul li a:hover { border-bottom: 3px solid #E57200; }
         {% if is_own_profile %}
         <div id="tab-saved" style="display:none;">
             {% if saved_clubs %}
-            <div class="cards-grid">
+            <div class="cards-grid" id="saved-clubs-grid">
                 {% for club in saved_clubs %}
-                <a href="{% url 'club_detail' club.slug %}" class="club-card">
+                <a href="{% url 'club_detail' club.slug %}" class="club-card" data-slug="{{ club.slug }}">
                     <button class="save-btn saved"
                             title="Unsave"
-                            onclick="event.preventDefault(); event.stopPropagation(); toggleSave(this, '{{ club.slug }}'); this.closest('.club-card').style.opacity='0.4'; setTimeout(() => this.closest('.club-card').remove(), 300);">
+                            onclick="event.preventDefault(); event.stopPropagation(); toggleSave(this, '{{ club.slug }}');">
                         <svg class="icon-save" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0 1 11.186 0Z" /></svg>
                         <svg class="icon-unsave" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m3 3 1.664 1.664M21 21l-1.5-1.5m-5.485-1.242L12 17.25 4.5 21V8.742m.164-4.078a2.15 2.15 0 0 1 1.743-1.342 48.507 48.507 0 0 1 11.186 0c1.1.128 1.907 1.077 1.907 2.185V19.5M4.664 4.664 19.5 19.5" /></svg>
                     </button>
@@ -497,8 +497,34 @@ nav ul li a:hover { border-bottom: 3px solid #E57200; }
                 {% endfor %}
             </div>
             {% else %}
-            <p style="color:#888;text-align:center;padding:24px 0;">No saved clubs yet. Browse <a href="{% url 'get_involved' %}" style="color:#E57200;font-weight:bold;">clubs</a> and save ones you're interested in!</p>
+            <div class="cards-grid" id="saved-clubs-grid" style="display:none;"></div>
+            <p id="saved-empty-state" style="color:#888;text-align:center;padding:24px 0;">No saved clubs yet. Browse <a href="{% url 'get_involved' %}" style="color:#E57200;font-weight:bold;">clubs</a> and save ones you're interested in!</p>
             {% endif %}
+        </div>
+
+        <!-- Hidden card templates for membership clubs (for dynamic Saved tab insertion) -->
+        <div id="saved-card-templates" style="display:none;">
+            {% for membership in memberships %}
+            <a href="{% url 'club_detail' membership.club.slug %}" class="club-card" data-slug="{{ membership.club.slug }}">
+                <button class="save-btn saved" title="Unsave"
+                        onclick="event.preventDefault(); event.stopPropagation(); toggleSave(this, '{{ membership.club.slug }}');">
+                    <svg class="icon-save" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0 1 11.186 0Z" /></svg>
+                    <svg class="icon-unsave" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m3 3 1.664 1.664M21 21l-1.5-1.5m-5.485-1.242L12 17.25 4.5 21V8.742m.164-4.078a2.15 2.15 0 0 1 1.743-1.342 48.507 48.507 0 0 1 11.186 0c1.1.128 1.907 1.077 1.907 2.185V19.5M4.664 4.664 19.5 19.5" /></svg>
+                </button>
+                <div class="club-card-banner">
+                    {% if membership.club.image %}<img src="{{ membership.club.image.url }}" alt="{{ membership.club.name }} banner">
+                    {% else %}<img src="{% static 'defaultclubimage.jpg' %}" alt="Default banner">{% endif %}
+                </div>
+                <div class="club-card-pfp-wrap">
+                    <img src="{% if membership.club.profile_picture %}{{ membership.club.profile_picture.url }}{% else %}{% static 'defaultclubpfp.png' %}{% endif %}" alt="{{ membership.club.name }} logo" class="club-card-pfp">
+                </div>
+                <div class="club-card-body">
+                    <h3>{{ membership.club.name }}</h3>
+                    <p>{{ membership.club.description|default:"No description available."|truncatewords:20 }}</p>
+                    <div class="club-card-footer"><span class="view-club-link">View Club &rarr;</span></div>
+                </div>
+            </a>
+            {% endfor %}
         </div>
         {% endif %}
     </div>
@@ -612,6 +638,49 @@ document.addEventListener('click', function(e) {
     const nav = document.getElementById('navIcon');
     if (!nav.contains(e.target)) nav.classList.remove('open');
 });
+
+// Override toggleSave for profile page cross-tab sync
+function toggleSave(btn, slug) {
+    fetch('/clubs/' + slug + '/save/', {
+        method: 'POST',
+        headers: { 'X-CSRFToken': getCsrf() },
+    })
+    .then(r => r.json())
+    .then(data => {
+        // Update all save buttons with this slug across both tabs
+        document.querySelectorAll('.club-card[data-slug="' + slug + '"] .save-btn').forEach(b => {
+            b.classList.toggle('saved', data.saved);
+            b.title = data.saved ? 'Unsave' : 'Save';
+        });
+
+        const grid = document.getElementById('saved-clubs-grid');
+        const emptyState = document.getElementById('saved-empty-state');
+        if (!grid) return;
+
+        if (data.saved) {
+            // Clone the pre-rendered template card and add to Saved tab
+            const template = document.querySelector('#saved-card-templates [data-slug="' + slug + '"]');
+            if (template && !grid.querySelector('[data-slug="' + slug + '"]')) {
+                grid.appendChild(template.cloneNode(true));
+                grid.style.display = '';
+                if (emptyState) emptyState.style.display = 'none';
+            }
+        } else {
+            // Remove card from Saved tab
+            const card = grid.querySelector('[data-slug="' + slug + '"]');
+            if (card) {
+                card.style.opacity = '0.4';
+                setTimeout(() => {
+                    card.remove();
+                    if (!grid.querySelector('.club-card')) {
+                        grid.style.display = 'none';
+                        if (emptyState) emptyState.style.display = '';
+                    }
+                }, 300);
+            }
+        }
+    });
+}
 </script>
 
 {% include 'main/chat_widget.html' %}
