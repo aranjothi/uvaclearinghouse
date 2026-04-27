@@ -1190,3 +1190,21 @@ def event_detail(request, event_id):
         'search_query': search_query,
     })
 
+
+def google_auth_cancelled(request):
+    was_signing_up = bool(request.session.get('pending_exec_codes'))
+    if was_signing_up:
+        messages.error(request, 'Sign up with Google was cancelled.')
+        return redirect('signup')
+    messages.error(request, 'Login with Google was cancelled.')
+    return redirect('login')
+
+
+def google_auth_error(request):
+    was_signing_up = bool(request.session.get('pending_exec_codes'))
+    if was_signing_up:
+        messages.error(request, 'Sign up with Google failed. Please try again.')
+        return redirect('signup')
+    messages.error(request, 'Login with Google failed. Please try again.')
+    return redirect('login')
+

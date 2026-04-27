@@ -23,6 +23,9 @@ handler404 = 'main.views.custom_404'
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('main.urls')),
+    # Override allauth's default cancelled/error pages with our styled redirects
+    path('accounts/social/login/cancelled/', views.google_auth_cancelled, name='socialaccount_login_cancelled'),
+    path('accounts/social/login/error/', views.google_auth_error, name='socialaccount_login_error'),
     path('accounts/', include('allauth.urls')),
     path('events/', views.Events_page, name='events'),
 ]

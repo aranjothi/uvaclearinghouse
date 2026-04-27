@@ -633,10 +633,11 @@ nav ul li a:hover {
                  style="position:absolute;top:50%;left:36px;transform:translateY(-50%);width:260px;height:260px;border-radius:50%;border:5px solid #fff;object-fit:cover;box-shadow:0 8px 32px rgba(0,0,0,0.35);">
             {% if is_exec %}
             <button onclick="document.getElementById('uploadImageModal').classList.add('open')"
-                style="position:absolute;bottom:12px;right:12px;background:rgba(0,0,0,0.55);border:none;border-radius:50%;width:40px;height:40px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#fff;">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width:20px;height:20px;">
+                style="position:absolute;bottom:12px;right:12px;background:rgba(0,0,0,0.55);border:none;border-radius:999px;padding:8px 14px;display:flex;align-items:center;gap:6px;cursor:pointer;color:#fff;font-family:inherit;font-size:0.82rem;font-weight:600;">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width:16px;height:16px;flex-shrink:0;">
                     <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
                 </svg>
+                Manage Media
             </button>
             {% endif %}
         </div>

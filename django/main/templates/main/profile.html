@@ -415,7 +415,7 @@ nav ul li a:hover { border-bottom: 3px solid #E57200; }
                         {% endif %}
                     </div>
                     <div class="club-card-pfp-wrap">
-                        <img src="{% static 'defaultclubpfp.png' %}" alt="{{ membership.club.name }} logo" class="club-card-pfp">
+                        <img src="{% if membership.club.profile_picture %}{{ membership.club.profile_picture.url }}{% else %}{% static 'defaultclubpfp.png' %}{% endif %}" alt="{{ membership.club.name }} logo" class="club-card-pfp">
                     </div>
                     <div class="club-card-body">
                         <h3>{{ membership.club.name }}</h3>
@@ -484,7 +484,7 @@ nav ul li a:hover { border-bottom: 3px solid #E57200; }
                         {% endif %}
                     </div>
                     <div class="club-card-pfp-wrap">
-                        <img src="{% static 'defaultclubpfp.png' %}" alt="{{ club.name }} logo" class="club-card-pfp">
+                        <img src="{% if club.profile_picture %}{{ club.profile_picture.url }}{% else %}{% static 'defaultclubpfp.png' %}{% endif %}" alt="{{ club.name }} logo" class="club-card-pfp">
                     </div>
                     <div class="club-card-body">
                         <h3>{{ club.name }}</h3>
