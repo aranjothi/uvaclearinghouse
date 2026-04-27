@@ -37,7 +37,8 @@ SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "django-insecure-local-dev-key-12345
 DEBUG = os.getenv("DEBUG", "True") == "True"
 DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 
-ALLOWED_HOSTS = ["clearinghouse-b05-48721624d34f.herokuapp.com", "127.0.0.1", "localhost"]
+# Ensure heroku domain and custom domain works https://stackoverflow.com/questions/23252733/i-get-an-error-400-bad-request-on-custom-heroku-domain-but-works-fine-on-foo-h
+ALLOWED_HOSTS = ["clearinghouse.dev","clearinghouse-b05-48721624d34f.herokuapp.com", "127.0.0.1", "localhost"]
 
 
 # Application definition
