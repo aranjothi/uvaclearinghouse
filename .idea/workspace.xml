@@ -6,8 +6,6 @@
   <component name="ChangeListManager">
     <list default="true" id="00a4688b-7249-4d35-9273-226e29aacd18" name="Changes" comment="Quick fix so that the navbar resize when split screen occurs.">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/django/main/templates/main/club_detail.html" beforeDir="false" afterPath="$PROJECT_DIR$/django/main/templates/main/club_detail.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/django/main/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/django/main/views.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -67,7 +65,7 @@
     "ai.playground.ignore.import.keys.banner.in.settings": "true",
     "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
     "django.template.preview.state": "SHOW_EDITOR_AND_PREVIEW",
-    "git-widget-placeholder": "features",
+    "git-widget-placeholder": "main",
     "ignore.virus.scanning.warn.message": "true",
     "junie.onboarding.icon.badge.shown": "true",
     "node.js.detected.package.eslint": "true",
