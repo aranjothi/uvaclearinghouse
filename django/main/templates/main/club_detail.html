@@ -628,6 +628,9 @@ nav ul li a:hover {
             {% else %}
             <img src="{% static 'defaultclubimage.jpg' %}" alt="{{ club.name }}" style="width:100%;height:100%;object-fit:cover;">
             {% endif %}
+            <!-- Club profile picture -->
+            <img src="{% if club.profile_picture %}{{ club.profile_picture.url }}{% else %}{% static 'defaultclubpfp.png' %}{% endif %}" alt="{{ club.name }} logo"
+                 style="position:absolute;top:50%;left:36px;transform:translateY(-50%);width:260px;height:260px;border-radius:50%;border:5px solid #fff;object-fit:cover;box-shadow:0 8px 32px rgba(0,0,0,0.35);">
             {% if is_exec %}
             <button onclick="document.getElementById('uploadImageModal').classList.add('open')"
                 style="position:absolute;bottom:12px;right:12px;background:rgba(0,0,0,0.55);border:none;border-radius:50%;width:40px;height:40px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#fff;">
@@ -1369,10 +1372,12 @@ document.addEventListener('click', function(e) {
 {% if is_exec %}
 <div class="modal-overlay" id="uploadImageModal">
     <div class="modal">
-        <h2>Upload Club Image</h2>
+        <h2>Manage Club Media</h2>
         <form method="post" enctype="multipart/form-data" action="{% url 'upload_club_image' club.slug %}">
             {% csrf_token %}
-            <label for="club_image">Select image</label>
+            <label for="club_profile_picture" style="display:block;margin-bottom:6px;font-weight:600;">Profile Picture</label>
+            <input type="file" name="club_profile_picture" id="club_profile_picture" accept="image/*" style="margin-bottom:18px;">
+            <label for="club_image" style="display:block;margin-bottom:6px;font-weight:600;">Banner Image</label>
             <input type="file" name="club_image" id="club_image" accept="image/*">
             <div class="modal-footer">
                 <button type="button" class="cancel-btn" onclick="document.getElementById('uploadImageModal').classList.remove('open')">Cancel</button>

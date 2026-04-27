@@ -74,6 +74,7 @@ class Club(models.Model):
     slug = models.SlugField(unique=True, blank=True)
     executive_code = models.CharField(max_length=8, blank=True)
     image = models.ImageField(upload_to='club_images/', blank=True, null=True)
+    profile_picture = models.ImageField(upload_to='club_profile_pics/', blank=True, null=True)
     tags = models.CharField(max_length=500, blank=True)
     socials = models.JSONField(default=list, blank=True)
 

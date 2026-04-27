@@ -582,8 +582,11 @@ def upload_club_image(request, slug):
     is_exec = Membership.objects.filter(user=request.user, club=club, role=Membership.EXECUTIVE).exists()
     if not is_exec:
         return redirect('club_detail', slug=slug)
-    if request.method == 'POST' and request.FILES.get('club_image'):
-        club.image = request.FILES['club_image']
+    if request.method == 'POST':
+        if request.FILES.get('club_image'):
+            club.image = request.FILES['club_image']
+        if request.FILES.get('club_profile_picture'):
+            club.profile_picture = request.FILES['club_profile_picture']
         club.save()
     return redirect('club_detail', slug=slug)
 
