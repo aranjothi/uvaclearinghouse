@@ -712,6 +712,9 @@ nav ul li a:hover {
                 <button type="button" class="club-btn secondary-btn" onclick="document.getElementById('editClubInfoModal').classList.add('open')">
                     Edit Club Info
                 </button>
+                <a href="{% url 'executive_club_page' club.slug %}" class="club-btn secondary-btn" style="text-decoration:none;">
+                    View Dashboard
+                </a>
                 {% if user.is_authenticated %}
                 <button type="button" class="club-btn secondary-btn save-club-detail-btn {% if is_saved %}saved{% endif %}"
                         onclick="toggleSaveDetail(this, '{{ club.slug }}')"

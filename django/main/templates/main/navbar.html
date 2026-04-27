@@ -1,4 +1,20 @@
-<nav style="position:relative;z-index:99999;overflow:visible;">
+<style>
+nav {
+    background-color: #232D4B;
+    padding: 0 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: relative;
+    z-index: 99999;
+    overflow: visible;
+}
+nav .logo { color: #FFFFFF; font-size: 1.4rem; font-weight: bold; }
+nav ul { list-style: none; display: flex; gap: 32px; align-items: center; margin: 0; padding: 0; }
+nav ul li a { color: #FFFFFF; text-decoration: none; font-size: 1rem; padding: 20px 0; display: block; border-bottom: 3px solid transparent; }
+nav ul li a:hover { border-bottom: 3px solid #E57200; }
+</style>
+<nav>
 <a href="{% url 'home' %}" class="logo" style="text-decoration:none;">HoosLinked</a>
 
 <div style="position:absolute;left:50%;transform:translateX(-50%);width:380px;" id="searchWrapper">

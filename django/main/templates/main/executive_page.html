@@ -25,29 +25,7 @@
 </head>
 <body>
 
-<nav style="position:relative; background-color:#232D4B; padding:0 40px; display:flex; align-items:center; justify-content:space-between;">
-    <a href="{% url 'home' %}" style="color:#fff; font-size:1.4rem; font-weight:bold; letter-spacing:1px; text-decoration:none;">HoosLinked</a>
-    <ul style="list-style:none; display:flex; gap:32px; align-items:center; margin:0; padding:0;">
-        <li><a href="{% url 'get_involved' %}" style="color:#fff; text-decoration:none; font-size:1rem; padding:20px 0; display:block;">Clubs</a></li>
-        <li><a href="{% url 'events' %}" style="color:#fff; text-decoration:none; font-size:1rem; padding:20px 0; display:block;">Events</a></li>
-        <li><a href="{% url 'help_support' %}" style="color:#fff; text-decoration:none; font-size:1rem; padding:20px 0; display:block;">Help</a></li>
-        <li style="position:relative;" id="navIcon">
-            <button onclick="document.getElementById('execDropdown').style.display = document.getElementById('execDropdown').style.display === 'none' ? 'block' : 'none'" style="background:none; border:none; cursor:pointer; color:#fff; padding:4px; display:flex; align-items:center;">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width:28px;height:28px;">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
-                </svg>
-            </button>
-            <div id="execDropdown" style="display:none; position:absolute; right:0; top:calc(100% + 8px); background:#fff; border:1.5px solid #232D4B; border-radius:6px; min-width:130px; z-index:100; overflow:hidden;">
-                {% if user.is_authenticated %}
-                <a href="{% url 'profile' %}" style="display:block; padding:10px 16px; font-size:0.95rem; color:#232D4B; text-decoration:none;">Profile</a>
-                <a href="{% url 'logout' %}" style="display:block; padding:10px 16px; font-size:0.95rem; color:#232D4B; text-decoration:none;">Logout</a>
-                {% else %}
-                <a href="{% url 'login' %}" style="display:block; padding:10px 16px; font-size:0.95rem; color:#232D4B; text-decoration:none;">Login</a>
-                {% endif %}
-            </div>
-        </li>
-    </ul>
-</nav>
+{% include 'main/navbar.html' %}
 
 <div class="body">
     {% if executive_memberships %}
@@ -77,9 +55,6 @@
 
 <script>
     document.addEventListener('click', function(e) {
-        const navIcon = document.getElementById('navIcon');
-        const dropdown = document.getElementById('execDropdown');
-        if (!navIcon.contains(e.target)) dropdown.style.display = 'none';
     });
 </script>
 
