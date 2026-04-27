@@ -27,6 +27,7 @@
 {% load static %}
 <li><a href="{% url 'get_involved' %}">Clubs</a></li>
 <li><a href="{% url 'events' %}">Events</a></li>
+<li><a href="{% url 'help_support' %}">Help</a></li>
 {% if user.is_authenticated %}
 <li style="display:flex;align-items:center;">
     <div style="display:flex;align-items:center;gap:14px;border:1.5px solid rgba(255,255,255,0.4);border-radius:999px;padding:5px 18px;height:40px;">

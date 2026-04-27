@@ -98,6 +98,9 @@ class ClubDetailView(DetailView):
 def home(request):
     return render(request, 'main/home.html')
 
+def help_support(request):
+    return render(request, 'main/help_support.html')
+
 def signup_page(request):
     if request.method == 'POST':
         first_name = request.POST.get('first_name')

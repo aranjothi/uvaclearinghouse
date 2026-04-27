@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Help & Support | HoosLinked</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Helvetica, Arial, sans-serif;
+            background-color: #f7f8fb;
+            color: #232D4B;
+        }
+
+        nav {
+            background-color: #232D4B;
+            padding: 0 40px;
+            min-height: 65px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        nav a {
+            color: white !important;
+            text-decoration: none !important;
+        }
+
+        nav .logo {
+            color: white !important;
+            font-size: 1.4rem;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            align-items: center;
+            gap: 32px;
+            margin: 0;
+            padding: 0;
+        }
+
+        nav ul li {
+            list-style: none;
+        }
+
+        nav ul li a {
+            color: white !important;
+            text-decoration: none !important;
+            font-size: 1rem;
+            padding: 20px 0;
+            display: block;
+            border-bottom: 3px solid transparent;
+            transition: border-color 0.2s;
+        }
+
+        nav ul li a:hover {
+            border-bottom: 3px solid #E57200;
+        }
+
+        .support-hero {
+            background-color: #232D4B;
+            color: white;
+            text-align: center;
+            padding: 70px 20px;
+        }
+
+        .support-hero h1 {
+            font-size: 2.8rem;
+            margin-bottom: 12px;
+        }
+
+        .support-hero span {
+            color: #E57200;
+        }
+
+        .support-hero p {
+            font-size: 1.1rem;
+            max-width: 700px;
+            margin: 0 auto;
+            line-height: 1.6;
+            opacity: 0.9;
+        }
+
+        .support-container {
+            max-width: 1050px;
+            margin: 50px auto;
+            padding: 0 24px;
+        }
+
+        .section-title {
+            font-size: 1.7rem;
+            margin-bottom: 20px;
+            color: #232D4B;
+            border-left: 5px solid #E57200;
+            padding-left: 12px;
+        }
+
+        .faq-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 22px;
+            margin-bottom: 45px;
+        }
+
+        .faq-card {
+            background: white;
+            border: 1.5px solid #d8dce8;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+        }
+
+        .faq-card h3 {
+            color: #E57200;
+            font-size: 1.15rem;
+            margin-bottom: 10px;
+        }
+
+        .faq-card p {
+            font-size: 0.96rem;
+            line-height: 1.6;
+        }
+
+        .contact-box {
+            background: #232D4B;
+            color: white;
+            padding: 30px;
+            border-radius: 14px;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .contact-box h2 {
+            margin-bottom: 10px;
+            color: #E57200;
+        }
+
+        .contact-box p {
+            line-height: 1.6;
+            margin-bottom: 8px;
+        }
+
+        .contact-box a {
+            color: white;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+
+{% include 'main/navbar.html' %}
+
+<div class="support-hero">
+    <h1>Help & <span>Support</span></h1>
+    <p>
+        Find answers to common questions about accounts, clubs, events, messaging,
+        notifications, and executive features on HoosLinked.
+    </p>
+</div>
+
+<div class="support-container">
+
+    <h2 class="section-title">Getting Started</h2>
+    <div class="faq-grid">
+        <div class="faq-card">
+            <h3>What is HoosLinked?</h3>
+            <p>HoosLinked is a web application where UVA students can explore clubs, join organizations, choose roles, and manage or attend events.</p>
+        </div>
+
+        <div class="faq-card">
+            <h3>Who can use HoosLinked?</h3>
+            <p>HoosLinked is designed for all UVA students.</p>
+        </div>
+
+        <div class="faq-card">
+            <h3>How do I create an account?</h3>
+            <p>Click the profile or login icon in the top-right corner, then select <strong>Sign Up</strong>. You can create an account using your information or sign up with Google.</p>
+        </div>
+
+        <div class="faq-card">
+            <h3>Can I use HoosLinked without logging in?</h3>
+            <p>You can browse clubs and events, but you won’t be able to join clubs or RSVP to events.</p>
+        </div>
+
+        <div class="faq-card">
+            <h3>How do I update my profile?</h3>
+            <p>Click the profile icon in the top-right corner, then select <strong>Edit Profile</strong>.</p>
+        </div>
+    </div>
+
+    <h2 class="section-title">Account Help</h2>
+    <div class="faq-grid">
+        <div class="faq-card">
+            <h3>How do I delete my account?</h3>
+            <p>Click the profile icon in the top-right corner, go to <strong>Settings</strong>, then select <strong>Delete Account</strong>.</p>
+        </div>
+
+        <div class="faq-card">
+            <h3>Why is my profile picture not showing?</h3>
+            <p>If your profile picture is not updating, try refreshing the page or uploading the image again.</p>
+        </div>
+
+        <div class="faq-card">
+            <h3>What happens if I sign up using Google?</h3>
+            <p>After signing up with Google, you will be taken to your profile page where you can edit your information.</p>
+        </div>
+    </div>
+
+    <h2 class="section-title">Clubs</h2>
+    <div class="faq-grid">
+        <div class="faq-card">
+            <h3>How do I browse clubs?</h3>
+            <p>Click the <strong>Clubs</strong> option in the top navigation bar to view all available organizations.</p>
+        </div>
+
+        <div class="faq-card">
+            <h3>How do I search for a specific club?</h3>
+            <p>Go to the Clubs page and use the search bar labeled <strong>Search for clubs</strong>.</p>
+        </div>
+
+        <div class="faq-card">
+            <h3>How do I save a club?</h3>
+            <p>Open a club page and click the <strong>Save</strong> button. Saved clubs will appear on your profile page.</p>
+        </div>
+
+        <div class="faq-card">
+            <h3>How do I become a member of a club?</h3>
+            <p>Go to the club’s page and click <strong>Become Member</strong>.</p>
+        </div>
+
+        <div class="faq-card">
+            <h3>Where can I find club announcements?</h3>
+            <p>Open a club page and scroll down to view announcements, discussions, events, and contact information.</p>
+        </div>
+    </div>
+
+    <h2 class="section-title">Events</h2>
+    <div class="faq-grid">
+        <div class="faq-card">
+            <h3>How do I find events?</h3>
+            <p>Click the <strong>Events</strong> tab in the navigation bar to view upcoming events sorted by date.</p>
+        </div>
+
+        <div class="faq-card">
+            <h3>How do I RSVP to an event?</h3>
+            <p>Open an event and click the <strong>RSVP</strong> button.</p>
+        </div>
+
+        <div class="faq-card">
+            <h3>How do I see who is attending an event?</h3>
+            <p>On the event page, check the <strong>Attendees</strong> section to see who is going.</p>
+        </div>
+
+        <div class="faq-card">
+            <h3>How do I add an event to my calendar?</h3>
+            <p>Open the event and click the calendar option. This will redirect you to Google Calendar where you can add the event.</p>
+        </div>
+    </div>
+
+    <h2 class="section-title">Messaging</h2>
+    <div class="faq-grid">
+        <div class="faq-card">
+            <h3>What is the Messages button for?</h3>
+            <p>The Messages feature allows you to chat with other users, including club members and executives.</p>
+        </div>
+
+        <div class="faq-card">
+            <h3>How do I start a message?</h3>
+            <p>You must be logged in. Click the Messages button, then search by name, email, or username.</p>
+        </div>
+
+        <div class="faq-card">
+            <h3>Why does messaging ask for an email or name?</h3>
+            <p>You can search for users using their email, name, or username. This helps locate their account.</p>
+        </div>
+
+        <div class="faq-card">
+            <h3>Does entering an email send a real email?</h3>
+            <p>No. It only helps find the user in the system and does not send an actual email.</p>
+        </div>
+
+        <div class="faq-card">
+            <h3>Who can I message?</h3>
+            <p>You can message any user, including club members and executives.</p>
+        </div>
+    </div>
+
+    <h2 class="section-title">Executive Users</h2>
+    <div class="faq-grid">
+        <div class="faq-card">
+            <h3>How do I become a club executive?</h3>
+            <p>You need an executive code provided by the system administrators. Eligible executive users may receive this code by email.</p>
+        </div>
+
+        <div class="faq-card">
+            <h3>What is an executive code?</h3>
+            <p>An executive code is required to gain executive access for a specific club.</p>
+        </div>
+
+        <div class="faq-card">
+            <h3>Where do I enter the executive code?</h3>
+            <p>Go to the club page, enter the code in the executive code field, then click <strong>Verify Executive</strong>.</p>
+        </div>
+
+        <div class="faq-card">
+            <h3>What can executives do?</h3>
+            <p>Executives can create events, post announcements, manage members, and require approval for users who want to join.</p>
+        </div>
+
+        <div class="faq-card">
+            <h3>How do executives manage members?</h3>
+            <p>Executives can approve, remove, or ban members and control whether users must request approval to join.</p>
+        </div>
+
+        <div class="faq-card">
+            <h3>How do executives create announcements or events?</h3>
+            <p>Go to the <strong>Executive Dashboard</strong>, where you will find options to create announcements and events.</p>
+        </div>
+    </div>
+
+    <div class="contact-box">
+        <h2>Still Need Help?</h2>
+        <p>If something is not working, please contact us for support.</p>
+        <p>Email: <a href="mailto:HoosHooslinked@gmail.com">Hooslinked@gmail.com</a></p>
+    </div>
+
+</div>
+
+</body>
+</html>
