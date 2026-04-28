@@ -469,16 +469,31 @@ def join_club(request, slug):
         settings, _ = ClubSettings.objects.get_or_create(club=club)
 
         if settings.require_approval:
-           _, created = JoinRequest.objects.get_or_create(
-               user=request.user,
-               club=club,
-               defaults={'status': JoinRequest.PENDING}
-           )
-           if created:
-            messages.success(request, "Your join request has been submitted for approval.")
+            _, created = JoinRequest.objects.get_or_create(
+                user=request.user,
+                club=club,
+                defaults={'status': JoinRequest.PENDING}
+            )
+            if created:
+                messages.success(request, "Your join request has been submitted for approval.")
+            else:
+                messages.info(request, "You already have a pending request for this club.")
         else:
-            messages.info(request, "You already jave a pending request for this club.")
+            Membership.objects.get_or_create(
+                user=request.user,
+                club=club,
+                defaults={'role': Membership.MEMBER}
+            )
+            messages.success(request, f"You have joined {club.name}!")
 
+    return redirect("club_detail", slug=slug)
+
+@login_required
+def leave_club(request, slug):
+    if request.method == "POST":
+        club = get_object_or_404(Club, slug=slug)
+        Membership.objects.filter(user=request.user, club=club).delete()
+        messages.success(request, f"You have left {club.name}.")
     return redirect("club_detail", slug=slug)
 
 @login_required

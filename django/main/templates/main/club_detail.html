@@ -716,6 +716,9 @@ nav ul li a:hover {
                     View Dashboard
                 </a>
                 {% if user.is_authenticated %}
+                <button type="button" class="club-btn secondary-btn" onclick="document.getElementById('leaveClubModal').classList.add('open')" style="background:#c0392b;color:#fff;border-color:#c0392b;">
+                    Leave Club
+                </button>
                 <button type="button" class="club-btn secondary-btn save-club-detail-btn {% if is_saved %}saved{% endif %}"
                         onclick="toggleSaveDetail(this, '{{ club.slug }}')"
                         title="{% if is_saved %}Unsave club{% else %}Save club{% endif %}">
@@ -769,8 +772,8 @@ nav ul li a:hover {
                         </div>
                     </div>
                 </div>
-            {% endif %}
             </div>
+            {% endif %}
             <div class="button-row" style="flex-wrap:wrap;margin-top:12px;align-items:center;">
                 {% if user.is_authenticated %}
                     {% if not is_member %}
@@ -792,6 +795,11 @@ nav ul li a:hover {
                                style="padding:10px;border:1px solid #ccc;border-radius:6px;font-size:1rem;width:160px;">
                         <button type="submit" class="club-btn secondary-btn">Verify Exec</button>
                     </form>
+                    {% if is_member %}
+                    <button type="button" class="club-btn secondary-btn" onclick="document.getElementById('leaveClubModal').classList.add('open')" style="background:#c0392b;color:#fff;border-color:#c0392b;">
+                        Leave Club
+                    </button>
+                    {% endif %}
                     <button type="button" class="club-btn secondary-btn save-club-detail-btn {% if is_saved %}saved{% endif %}"
                             onclick="toggleSaveDetail(this, '{{ club.slug }}')"
                             title="{% if is_saved %}Unsave club{% else %}Save club{% endif %}">
@@ -1732,6 +1740,22 @@ document.addEventListener('click', function(e) {
             <div class="modal-footer">
                 <button type="button" class="cancel-btn" onclick="document.getElementById('createEventModal').classList.remove('open')">Cancel</button>
                 <button type="submit" class="club-btn">Create Event</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endif %}
+
+{% if is_member %}
+<div class="modal-overlay" id="leaveClubModal">
+    <div class="modal">
+        <h2>Leave {{ club.name }}?</h2>
+        <p style="color:#666;font-size:0.95rem;margin-bottom:20px;">You'll lose access to member-only content and discussions. You can rejoin at any time.</p>
+        <form method="post" action="{% url 'leave_club' club.slug %}">
+            {% csrf_token %}
+            <div class="modal-footer">
+                <button type="button" class="cancel-btn" onclick="document.getElementById('leaveClubModal').classList.remove('open')">Cancel</button>
+                <button type="submit" class="club-btn" style="background:#c0392b;border-color:#c0392b;">Leave Club</button>
             </div>
         </form>
     </div>
