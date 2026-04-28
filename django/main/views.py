@@ -3,9 +3,10 @@ from django.db.models import Case, When, Value, IntegerField, Q
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.http import require_POST
 from django.contrib import messages
 from django.http import JsonResponse
-from .models import User, Club, Membership, Event, Forum, ForumThread, ForumReply, DirectMessage, Announcement, ClubSettings, JoinRequest, Ban, PollOption, PollVote, Highlight
+from .models import User, Club, Membership, Event, EventNotificationSubscription, Forum, ForumThread, ForumReply, DirectMessage, Announcement, ClubSettings, JoinRequest, Ban, PollOption, PollVote, Highlight
 from .forms import EventForm
 from functools import wraps
 import datetime
@@ -1296,3 +1297,17 @@ def google_auth_error(request):
     messages.error(request, 'Login with Google failed. Please try again.')
     return redirect('login')
 
+# # Source: Generated with Claude AI, asked to create an email notification system, Apr. 28
+@login_required
+@require_POST
+def toggle_event_subscription(request, event_id):
+    event = get_object_or_404(Event, id=event_id)
+    sub, created = EventNotificationSubscription.objects.get_or_create(
+        user=request.user, event=event
+    )
+    if not created:
+        sub.delete()
+        subscribed = False
+    else:
+        subscribed = True
+    return JsonResponse({'subscribed': subscribed})
