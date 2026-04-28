@@ -297,3 +297,16 @@ class Highlight(models.Model):
     def __str__(self):
         return f"Highlight for {self.club.name} #{self.order}"
 
+
+# Source: Generated with Claude AI, asked to create an email notification system, Apr. 28
+class EventNotificationSubscription(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='event_subscriptions')
+    event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name='subscriptions')
+    notified = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('user', 'event')
+
+    def __str__(self):
+        return f"{self.user} subscribed to {self.event}"

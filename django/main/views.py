@@ -3,10 +3,13 @@ from django.db.models import Case, When, Value, IntegerField, Q
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.http import require_POST
 from django.contrib import messages
 from django.http import JsonResponse
 from django.utils import timezone
 from .models import User, Club, Membership, Event, Forum, ForumThread, ForumReply, DirectMessage, Announcement, ClubSettings, JoinRequest, Ban, PollOption, PollVote, Highlight
+from .models import User, Club, Membership, Event, EventNotificationSubscription, Forum, ForumThread, ForumReply, DirectMessage, Announcement, ClubSettings, JoinRequest, Ban, PollOption, PollVote, Highlight
+from clearinghouse.settings import MAILTRAP_API_TOKEN
 from .forms import EventForm
 from functools import wraps
 import datetime
@@ -15,6 +18,7 @@ from datetime import date, timedelta
 from django.core.exceptions import ValidationError
 from django.core.serializers.json import DjangoJSONEncoder
 from django.urls import reverse
+import mailtrap as mt
 
 class ClubDetailView(DetailView):
     model = Club
@@ -650,11 +654,12 @@ def like_reply(request, slug, reply_id):
 def rsvp_event(request, event_id):
     from .models import Event
     event = get_object_or_404(Event, id=event_id)
+    toggle_event_subscription(request, event_id) # part of email notification system
     if request.user in event.rsvps.all():
         event.rsvps.remove(request.user)
     else:
         event.rsvps.add(request.user)
-    return redirect('club_detail', slug=event.club.slug)
+    return redirect(request.META.get('HTTP_REFERER', f'/events/{event_id}/'))
 
 @login_required
 def upload_club_image(request, slug):
@@ -884,6 +889,17 @@ def dm_conversation(request, username):
                 recipient=other_user,
                 content=content,
             )
+             #https://mailtrap.io/blog/django-send-email/#Send-emails-in-Django-using-email-API
+            #https://devcenter.heroku.com/articles/mailtrap#local-setup
+            #https://docs.mailtrap.io/developers
+            client = mt.MailtrapClient(token=MAILTRAP_API_TOKEN)
+            mail = mt.Mail(
+                        sender=mt.Address(email="messages@clearinghouse.dev", name="HoosLinked"),
+                        to=[mt.Address(email=other_user.username)],
+                        subject="You have a message!",
+                        text=f"Hi {other_user.username}, {request.user.username} just sent you a message! Go to HoosLinked to continue the chat.\n\n{request.user.username}: {content}"
+                    )
+            response = client.send(mail)
         return redirect('dm_conversation', username=username)
 
     DirectMessage.objects.filter(
@@ -1338,3 +1354,17 @@ def google_auth_error(request):
     messages.error(request, 'Login with Google failed. Please try again.')
     return redirect('login')
 
+# # Source: Generated with Claude AI, asked to create an email notification system, Apr. 28
+@login_required
+@require_POST
+def toggle_event_subscription(request, event_id):
+    event = get_object_or_404(Event, id=event_id)
+    sub, created = EventNotificationSubscription.objects.get_or_create(
+        user=request.user, event=event
+    )
+    if not created:
+        sub.delete()
+        subscribed = False
+    else:
+        subscribed = True
+    return JsonResponse({'subscribed': subscribed})

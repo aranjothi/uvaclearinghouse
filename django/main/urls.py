@@ -30,6 +30,8 @@ urlpatterns = [
     path('clubs/<slug:slug>/highlights/<int:highlight_id>/delete/', views.delete_highlight, name='delete_highlight'),
     path('clubs/<slug:slug>/highlights/reorder/', views.reorder_highlights, name='reorder_highlights'),
     path('events/<int:event_id>/rsvp/', views.rsvp_event, name='rsvp_event'),
+    path('events/<int:event_id>/subscribe/', views.toggle_event_subscription, name='subscribe_event'), # # Source: Generated with Claude AI, asked to create an email notification system, Apr. 28
+
     path('my-clubs/', views.my_clubs_page, name='my_clubs'),
 
     path('clubs/<slug:slug>/forum/', views.forum_list, name='forum_list'),
