@@ -1141,6 +1141,9 @@ nav ul li a:hover {
                 <a href="{% url 'forum_new_thread' club.slug %}" class="club-btn">+ New Post</a>
                 {% endif %}
             </div>
+            {% if not is_member %}
+            <p style="font-size:0.8rem;color:#888;margin-bottom:12px;">* You must be a member to view and interact with discussion posts.</p>
+            {% endif %}
             <div id="discussion-list">
             {% if threads %}
                 {% for thread in threads %}
@@ -1151,9 +1154,13 @@ nav ul li a:hover {
                             {% if thread.is_pinned %}
                             <span style="font-size:11px;background:#232D4B;color:#fff;padding:2px 7px;border-radius:99px;font-weight:bold;">Pinned</span>
                             {% endif %}
+                            {% if is_member %}
                             <a href="{% url 'forum_thread' club.slug thread.id %}" style="text-decoration:none;">
                                 <span class="thread-title">{{ thread.title }}</span>
                             </a>
+                            {% else %}
+                            <span class="thread-title" style="color:#888;">{{ thread.title }}</span>
+                            {% endif %}
                         </div>
                         <span class="thread-meta">{{ thread.likes.count }} ♥</span>
                     </div>
@@ -1333,6 +1340,13 @@ function switchTab(name, btn) {
     document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
     document.getElementById('tab-' + name).style.display = 'block';
     btn.classList.add('active');
+}
+
+const _tabParam = new URLSearchParams(window.location.search).get('tab');
+if (_tabParam) {
+    const _tabBtn = document.querySelector(`.tab-btn[onclick*="${_tabParam}"]`);
+    if (_tabBtn) switchTab(_tabParam, _tabBtn);
+    history.replaceState(null, '', window.location.pathname);
 }
 
 function openNewAnnouncement() {

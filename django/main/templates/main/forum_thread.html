@@ -1,77 +1,188 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>{{ thread.title }}</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{ thread.title }} — {{ club.name }}</title>
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
-body { font-family: Helvetica, Arial, sans-serif; background-color: #FFFFFF; color: #232D4B; }
-nav { background-color: #232D4B; padding: 0 40px; display: flex; align-items: center; justify-content: space-between; }
-nav .logo { color: #FFFFFF; font-size: 1.4rem; font-weight: bold; }
-nav ul { list-style: none; display: flex; gap: 32px; }
-nav ul li a { color: #FFFFFF; text-decoration: none; font-size: 1rem; padding: 20px 0; display: block; border-bottom: 3px solid transparent; transition: border-color 0.2s; }
-nav ul li a:hover { border-bottom: 3px solid #E57200; }
-.nav-icon { position: relative; padding: 11px 0px; }
-.icon-btn { background: none; border: none; cursor: pointer; color: #FFFFFF; padding: 4px; display: flex; align-items: center; }
-.icon-btn svg { width: 28px; height: 28px; }
-.dropdown { display: none; position: absolute; right: 0; top: calc(100% + 8px); background: #FFFFFF; border: 1.5px solid #232D4B; border-radius: 6px; min-width: 130px; z-index: 100; overflow: hidden; }
-.dropdown a { display: block; padding: 10px 16px; font-size: 0.95rem; color: #232D4B; text-decoration: none; }
-.dropdown a:hover { background-color: #f0f0f0; }
-.nav-icon.open .dropdown { display: block; }
+body { font-family: Helvetica, Arial, sans-serif; background-color: #f4f5f7; color: #232D4B; }
 
-.container { max-width: 800px; margin: 60px auto; padding: 0 20px; }
-.thread-header { margin-bottom: 30px; }
-.thread-header h1 { font-size: 1.8rem; margin-bottom: 8px; }
-.thread-meta { font-size: 0.85rem; color: #E57200; margin-bottom: 16px; }
-.thread-content { background-color: #f7f7f7; border-radius: 10px; padding: 22px; margin-bottom: 12px; }
-.like-btn { background: none; border: 1.5px solid #E57200; color: #E57200; padding: 6px 14px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: bold; }
-.like-btn:hover { background-color: #E57200; color: #FFFFFF; }
+.page-content {
+    max-width: 860px;
+    margin: 40px auto;
+    padding: 0 24px 60px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
 
-.replies-section { margin-top: 40px; }
-.replies-section h2 { font-size: 1.3rem; margin-bottom: 20px; }
-.reply-card { background-color: #f7f7f7; border-radius: 10px; padding: 18px; margin-bottom: 16px; }
-.reply-meta { font-size: 0.85rem; color: #E57200; margin-bottom: 8px; }
-.reply-card p { font-size: 0.95rem; color: #444; margin-bottom: 12px; }
+.breadcrumb {
+    font-size: 0.85rem;
+    color: #888;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.breadcrumb a { color: #232D4B; text-decoration: none; font-weight: bold; }
+.breadcrumb a:hover { text-decoration: underline; }
+.breadcrumb span { color: #bbb; }
 
-.reply-form { margin-top: 40px; }
-.reply-form h2 { font-size: 1.3rem; margin-bottom: 16px; }
-.reply-form textarea { width: 100%; padding: 12px; border: 1.5px solid #232D4B; border-radius: 6px; font-family: inherit; font-size: 0.95rem; min-height: 120px; resize: vertical; margin-bottom: 12px; }
-.reply-form textarea:focus { outline: none; border-color: #E57200; }
-.btn-submit { background-color: #E57200; color: #FFFFFF; padding: 10px 24px; border: none; border-radius: 6px; font-size: 0.95rem; font-weight: bold; cursor: pointer; }
-.btn-submit:hover { background-color: #c86100; }
-.back-link { display: inline-block; margin-bottom: 24px; color: #E57200; text-decoration: none; font-weight: bold; }
-.back-link:hover { text-decoration: underline; }
+.card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 28px 32px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+}
+
+.thread-title {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #232D4B;
+    margin-bottom: 6px;
+}
+
+.thread-meta {
+    font-size: 0.85rem;
+    color: #888;
+    margin-bottom: 20px;
+}
+
+.thread-body {
+    font-size: 0.95rem;
+    color: #444;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    margin-bottom: 20px;
+}
+
+.like-btn {
+    background: none;
+    border: 1.5px solid #E57200;
+    color: #E57200;
+    padding: 6px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: bold;
+    font-family: inherit;
+}
+.like-btn:hover { background: #E57200; color: #fff; }
+
+.section-label {
+    font-size: 0.78rem;
+    font-weight: bold;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #888;
+    margin-bottom: 16px;
+}
+
+.reply-card {
+    padding: 16px 0;
+    border-bottom: 1px solid #f0f0f0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.reply-card:last-child { border-bottom: none; }
+
+.reply-author {
+    font-size: 0.85rem;
+    font-weight: bold;
+    color: #232D4B;
+}
+.reply-date {
+    font-size: 0.8rem;
+    color: #aaa;
+    margin-left: 8px;
+    font-weight: normal;
+}
+.reply-body {
+    font-size: 0.9rem;
+    color: #444;
+    line-height: 1.55;
+    white-space: pre-wrap;
+}
+
+.reply-form-label {
+    font-size: 1rem;
+    font-weight: bold;
+    color: #232D4B;
+    margin-bottom: 12px;
+}
+textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1.5px solid #e0e0e0;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 0.95rem;
+    min-height: 100px;
+    resize: vertical;
+    margin-bottom: 12px;
+    color: #232D4B;
+}
+textarea:focus { outline: none; border-color: #232D4B; }
+
+.btn-submit {
+    background: #232D4B;
+    color: #fff;
+    border: none;
+    padding: 10px 24px;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    font-weight: bold;
+    cursor: pointer;
+    font-family: inherit;
+}
+.btn-submit:hover { background: #1a2238; }
+
+.empty-replies {
+    font-size: 0.9rem;
+    color: #888;
+    padding: 12px 0;
+}
 </style>
 </head>
 <body>
 
 {% include 'main/navbar.html' %}
 
-<div class="container">
-    <a href="{% url 'forum_list' club.slug %}" class="back-link">← Back to Forum</a>
+<div class="page-content">
 
-    <!-- Thread -->
-    <div class="thread-header">
-        <h1>{{ thread.title }}</h1>
-        <p class="thread-meta">By {{ thread.author.first_name }} · {{ thread.created_at|date:"M d, Y" }}</p>
+    <div class="breadcrumb">
+        <a href="{% url 'club_detail' club.slug %}?tab=discussion">{{ club.name }}</a>
+        <span>›</span>
+        <span>Discussion</span>
+        <span>›</span>
+        <span style="color:#444;">{{ thread.title }}</span>
     </div>
-    <div class="thread-content">
-        <p>{{ thread.content }}</p>
-    </div>
-    <form method="POST" action="{% url 'like_thread' club.slug thread.id %}" style="margin-top: 10px;">
-        {% csrf_token %}
-        <button type="submit" class="like-btn">
-            ♥ {{ thread.likes.count }} {% if user in thread.likes.all %}Unlike{% else %}Like{% endif %}
-        </button>
-    </form>
 
-    <!-- Replies -->
-    <div class="replies-section">
-        <h2>{{ replies.count }} Replies</h2>
+    <!-- Thread card -->
+    <div class="card">
+        <div class="thread-title">{{ thread.title }}</div>
+        <div class="thread-meta">By {{ thread.author.first_name }} {{ thread.author.last_name }} &middot; {{ thread.created_at|date:"M d, Y" }}</div>
+        <div class="thread-body">{{ thread.content }}</div>
+        <form method="POST" action="{% url 'like_thread' club.slug thread.id %}">
+            {% csrf_token %}
+            <button type="submit" class="like-btn">
+                ♥ {{ thread.likes.count }} {% if user in thread.likes.all %}Unlike{% else %}Like{% endif %}
+            </button>
+        </form>
+    </div>
+
+    <!-- Replies card -->
+    <div class="card">
+        <div class="section-label">{{ replies.count }} Repl{{ replies.count|pluralize:"y,ies" }}</div>
         {% for reply in replies %}
         <div class="reply-card">
-            <p class="reply-meta">{{ reply.author.first_name }} · {{ reply.created_at|date:"M d, Y" }}</p>
-            <p>{{ reply.content }}</p>
+            <div>
+                <span class="reply-author">{{ reply.author.first_name }} {{ reply.author.last_name }}</span>
+                <span class="reply-date">{{ reply.created_at|date:"M d, Y" }}</span>
+            </div>
+            <div class="reply-body">{{ reply.content }}</div>
             <form method="POST" action="{% url 'like_reply' club.slug reply.id %}">
                 {% csrf_token %}
                 <button type="submit" class="like-btn">
@@ -80,28 +191,22 @@ nav ul li a:hover { border-bottom: 3px solid #E57200; }
             </form>
         </div>
         {% empty %}
-        <p style="color: #555;">No replies yet. Be the first to reply!</p>
+        <p class="empty-replies">No replies yet. Be the first to reply!</p>
         {% endfor %}
     </div>
 
-    <!-- Reply Form -->
-    <div class="reply-form">
-        <h2>Leave a Reply</h2>
+    <!-- Reply form card -->
+    <div class="card">
+        <div class="reply-form-label">Leave a Reply</div>
         <form method="POST">
             {% csrf_token %}
             <textarea name="content" placeholder="Write your reply..." required></textarea>
             <button type="submit" class="btn-submit">Post Reply</button>
         </form>
     </div>
+
 </div>
 
-<script>
-    function toggleNav() { document.getElementById('navIcon').classList.toggle('open'); }
-    document.addEventListener('click', function(e) {
-        const nav = document.getElementById('navIcon');
-        if (!nav.contains(e.target)) nav.classList.remove('open');
-    });
-</script>
 {% include 'main/chat_widget.html' %}
 </body>
 </html>

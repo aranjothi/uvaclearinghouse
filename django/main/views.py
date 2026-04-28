@@ -615,10 +615,11 @@ def forum_new_thread(request, slug):
     return render(request, 'main/forum_new_thread.html', {'club': club})
 
 @login_required
+@login_required
 def forum_thread(request, slug, thread_id):
     club = get_object_or_404(Club, slug=slug)
     if not Membership.objects.filter(user=request.user, club=club).exists():
-        return redirect('get_involved')
+        return redirect('club_detail', slug=slug)
     thread = get_object_or_404(ForumThread, id=thread_id)
     replies = thread.replies.all().order_by('created_at') #oldest replies first
     if request.method == 'POST':
