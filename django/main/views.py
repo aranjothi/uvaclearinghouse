@@ -523,11 +523,13 @@ def create_event(request, slug):
         end_date_val = request.POST.get('end_date')
         event.end_date = end_date_val if end_date_val else None
 
-        start_time_val = request.POST.get('start_time')
+        start_time_val = request.POST.get('start_time') or request.POST.get('time')
         if start_time_val:
             event.start_time = start_time_val
+            event.time = start_time_val
         else:
             event.start_time = '00:00:00'
+            event.time = '00:00:00'
 
         event.time = event.start_time
 
