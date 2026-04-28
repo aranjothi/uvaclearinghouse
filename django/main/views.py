@@ -535,6 +535,9 @@ def create_event(request, slug):
 
         event.tags = request.POST.get('tags', '')
 
+        event.instagram_url = request.POST.get('instagram_url') or None
+        event.facebook_url = request.POST.get('facebook_url') or None
+
         if request.FILES.get('image'):
             event.image = request.FILES['image']
 
@@ -1214,6 +1217,9 @@ def executive_edit_event(request, slug, event_id):
             event.location = location_val
 
         event.tags = request.POST.get('tags', '')
+
+        event.instagram_url = request.POST.get('instagram_url') or None
+        event.facebook_url = request.POST.get('facebook_url') or None
 
         if request.FILES.get('image'):
             event.image = request.FILES['image']

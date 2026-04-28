@@ -26,6 +26,7 @@
         .form-group label { display: block; font-size: 12px; font-weight: bold; color: #232D4B; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px; }
         .form-group input[type="text"],
         .form-group input[type="date"],
+        .form-group input[type="url"],
         .form-group textarea,
         .form-group select { width: 100%; padding: 10px 12px; border: 1px solid #e0e0e0; border-radius: 6px; font-size: 14px; font-family: inherit; color: #232D4B; background: #fff; transition: border-color 0.15s; }
         .form-group input:focus,
@@ -199,6 +200,23 @@
                         </div>
                         <input type="hidden" name="tags" id="id_tags" value="{{ event.tags|default:'' }}">
                         <div id="tagPills" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;"></div>
+                    </div>
+                    <div class="form-group">
+                        <label>Instagram Post <span style="font-weight:normal;color:#aaa;">(optional)</span></label>
+                        <input type="url"
+                            name="instagram_url"
+                            id="id_instagram_url"
+                            value="{{ event.instagram_url|default_if_none:'' }}"
+                            placeholder="https://www.instagram.com/p/...">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Facebook Post<span style="font-weight:normal;color:#aaa;">(optional)</span></label>
+                        <input type="url"
+                                name="facebook_url"
+                                id="id_facebook_url"
+                                value="{{ event.facebook_url|default_if_none:'' }}"
+                                placeholder="https://www.facebook.com/...">
                     </div>
                     <div class="form-group">
                         <label>Event Image <span style="font-weight:normal; color:#aaa;">(optional)</span></label>

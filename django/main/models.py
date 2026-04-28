@@ -149,6 +149,9 @@ class Event(models.Model):
     image = models.ImageField(upload_to='event_images/', blank=True, null=True)
     category = models.CharField(max_length=50, choices=CATEGORY_CHOICES, blank=True)
 
+    instagram_url = models.URLField(max_length=500, blank=True, null=True)
+    facebook_url = models.URLField(max_length=500, blank=True, null=True)
+
     def __str__(self):
         return self.title
 
