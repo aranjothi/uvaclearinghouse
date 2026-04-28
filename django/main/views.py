@@ -6,13 +6,18 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
 from django.contrib import messages
 from django.http import JsonResponse
+from django.utils import timezone
+from .models import User, Club, Membership, Event, Forum, ForumThread, ForumReply, DirectMessage, Announcement, ClubSettings, JoinRequest, Ban, PollOption, PollVote, Highlight
 from .models import User, Club, Membership, Event, EventNotificationSubscription, Forum, ForumThread, ForumReply, DirectMessage, Announcement, ClubSettings, JoinRequest, Ban, PollOption, PollVote, Highlight
 from clearinghouse.settings import MAILTRAP_API_TOKEN
 from .forms import EventForm
 from functools import wraps
 import datetime
-from datetime import date
+import json
+from datetime import date, timedelta
 from django.core.exceptions import ValidationError
+from django.core.serializers.json import DjangoJSONEncoder
+from django.urls import reverse
 import mailtrap as mt
 
 class ClubDetailView(DetailView):
@@ -223,10 +228,37 @@ def profile_page(request):
         return redirect('home')
     if request.user.is_user_admin:
         return redirect('user_admin')
+
     memberships = request.user.memberships.select_related("club")
     rsvped_events = request.user.rsvped_events.select_related('club').order_by('date', 'time')
     saved_clubs = request.user.saved_clubs.all()
     saved_slugs = set(saved_clubs.values_list('slug', flat=True))
+
+    week_offset = int(request.GET.get('week', 0))
+
+    today = date.today()
+    start_of_week = today - timedelta(days=today.weekday())
+    start_of_week = start_of_week + timedelta(weeks=week_offset)
+    end_of_week = start_of_week + timedelta(days=6)
+
+    weekly_events = rsvped_events.filter(
+        date__gte=start_of_week,
+        date__lte=end_of_week
+    )
+
+    weekly_calendar = []
+
+    for i in range(7):
+        current_day = start_of_week + timedelta(days=i)
+
+        weekly_calendar.append({
+            'date': current_day,
+            'day_name': current_day.strftime('%a'),
+            'month': current_day.strftime('%b'),
+            'day': current_day.day,
+            'events': weekly_events.filter(date=current_day),
+        })
+
     return render(request, 'main/profile.html', {
         'profile_user': request.user,
         'is_own_profile': True,
@@ -234,7 +266,12 @@ def profile_page(request):
         'rsvped_events': rsvped_events,
         'saved_clubs': saved_clubs,
         'saved_slugs': saved_slugs,
-        'today': date.today(),
+        'weekly_calendar': weekly_calendar,
+        'week_start': start_of_week,
+        'week_end': end_of_week,
+        'prev_week_offset': week_offset - 1,
+        'next_week_offset': week_offset + 1,
+        'today': today,
     })
 
 
@@ -619,7 +656,7 @@ def rsvp_event(request, event_id):
         event.rsvps.remove(request.user)
     else:
         event.rsvps.add(request.user)
-    return redirect('club_detail', slug=event.club.slug)
+    return redirect(request.META.get('HTTP_REFERER', f'/events/{event_id}/'))
 
 @login_required
 def upload_club_image(request, slug):

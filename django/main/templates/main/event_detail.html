@@ -76,6 +76,7 @@
         .back:hover { color: #232D4B; }
     </style>
 </head>
+
 <body>
 
 {% include 'main/navbar.html' %}
@@ -245,11 +246,10 @@
         <div class="card">
             <div class="card-title">Attendees ({{ event.rsvps.count }})</div>
             {% if user.is_authenticated %}
-            <form method="get">
-                <input type="text" name="q" value="{{ search_query }}" placeholder="Search attendees..." class="attendee-search">
-            </form>
+            <input type="text" placeholder="Search attendees..." class="attendee-search" id="attendeeSearch" oninput="filterAttendees(this.value)">
+            <div id="attendeeList">
             {% for attendee in attendees %}
-            <div class="attendee-item">
+            <div class="attendee-item" data-name="{{ attendee.first_name|lower }} {{ attendee.last_name|lower }}">
                 <div class="av" style="background: {% cycle '#232D4B' '#E57200' '#1D9E75' '#534AB7' %};">
                     {{ attendee.first_name|first }}{{ attendee.last_name|first }}
                 </div>
@@ -261,8 +261,10 @@
                 </div>
             </div>
             {% empty %}
-            <div style="font-size:13px; color:#aaa; font-style:italic; padding:0.5rem;">No attendees found.</div>
+            <div style="font-size:13px;color:#aaa;font-style:italic;padding:0.5rem;">No attendees yet.</div>
             {% endfor %}
+            </div>
+            <div id="attendeeNoResults" style="display:none;font-size:13px;color:#aaa;font-style:italic;padding:0.5rem;">No attendees found.</div>
             {% else %}
             <div class="login-prompt">Sign in to see who's attending.</div>
             {% endif %}
@@ -277,6 +279,19 @@
         const dropdown = document.getElementById('execDropdown');
         if (!navIcon.contains(e.target)) dropdown.style.display = 'none';
     });
+
+    function filterAttendees(q) {
+    const query = q.toLowerCase();
+    const items = document.querySelectorAll('#attendeeList .attendee-item');
+    let visible = 0;
+    items.forEach(item => {
+        const match = item.dataset.name.includes(query);
+        item.style.display = match ? '' : 'none';
+        if (match) visible++;
+    });
+    document.getElementById('attendeeNoResults').style.display = (visible === 0 && items.length > 0) ? 'block' : 'none';
+}
+
 </script>
 
 {% include 'main/chat_widget.html' %}
