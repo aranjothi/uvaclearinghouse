@@ -21,13 +21,14 @@ class SilentAccountAdapter(DefaultAccountAdapter):
 
 
 class NoAutoSignupSocialAdapter(DefaultSocialAccountAdapter):
+    def is_auto_signup_allowed(self, request, sociallogin):
+        return True
+
     def pre_social_login(self, request, sociallogin):
         if not sociallogin.is_existing:
-            if not request.session.get('pending_exec_codes'):
-                messages.error(
-                    request,
-                    "You do not have an account yet. Sign up below to start exploring!"
-                )
+            is_signup = bool(request.session.get('signup_role') or request.session.get('pending_exec_codes'))
+            if not is_signup:
+                messages.error(request, "You do not have an account yet. Sign up below to start exploring!")
                 raise ImmediateHttpResponse(redirect('signup'))
 
     def authentication_error(self, request, provider_id, error=None, exception=None, extra_context=None):
@@ -40,6 +41,8 @@ class NoAutoSignupSocialAdapter(DefaultSocialAccountAdapter):
 
     def save_user(self, request, sociallogin, form=None):
         user = super().save_user(request, sociallogin, form)
+        request.session.pop('signup_role', None)
+        request.session['show_profile_setup'] = True
         exec_codes = request.session.pop('pending_exec_codes', [])
         if exec_codes:
             from .models import Club, Membership

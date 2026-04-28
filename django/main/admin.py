@@ -7,7 +7,7 @@ from .models import User, Club, Membership, Event, DirectMessage, Announcement
 class CustomUserAdmin(UserAdmin):
     list_display = ('username', 'email', 'profile_slug', 'is_user_admin')
     fieldsets = UserAdmin.fieldsets + (
-        ('Profile', {'fields': ('profile_slug', 'age', 'birthday', 'year', 'school', 'profile_picture')}),
+        ('Profile', {'fields': ('profile_slug', 'birthday', 'year', 'school', 'profile_picture')}),
         ('Site Role', {'fields': ('is_user_admin',)}),
     )
 

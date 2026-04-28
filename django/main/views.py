@@ -153,7 +153,8 @@ def signup_page(request):
                     Membership.objects.get_or_create(user=user, club=club, defaults={'role': Membership.EXECUTIVE})
 
         login(request, user, backend='django.contrib.auth.backends.ModelBackend')
-        return redirect('create_profile')
+        request.session['show_profile_setup'] = True
+        return redirect('profile')
 
     return render(request, 'main/signup.html')
 
@@ -272,6 +273,8 @@ def profile_page(request):
         'prev_week_offset': week_offset - 1,
         'next_week_offset': week_offset + 1,
         'today': today,
+        'has_usable_password': request.user.has_usable_password(),
+        'show_profile_setup': request.session.pop('show_profile_setup', False),
     })
 
 
@@ -318,11 +321,15 @@ def logout_page(request):
 def delete_account(request):
     if request.method != 'POST':
         return redirect('profile')
-    password = request.POST.get('password', '')
-    user = authenticate(username=request.user.username, password=password)
-    if user is None:
-        messages.error(request, 'Incorrect password. Account not deleted.')
-        return redirect('profile')
+    user = request.user
+    if user.has_usable_password():
+        password = request.POST.get('password', '')
+        if not authenticate(username=user.username, password=password):
+            return redirect('/profile/?delete_error=password')
+    else:
+        email = request.POST.get('email', '').strip().lower()
+        if email != user.email.lower():
+            return redirect('/profile/?delete_error=email')
     logout(request)
     user.delete()
     return redirect('home')

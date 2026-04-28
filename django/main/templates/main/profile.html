@@ -718,7 +718,7 @@ nav ul li a:hover { border-bottom: 3px solid #E57200; }
 <!-- Edit Profile Modal -->
 <div class="modal-overlay" id="editProfileModal">
     <div class="modal">
-        <h2>Edit Profile</h2>
+        <h2 id="editProfileTitle">{% if show_profile_setup %}Create Your Profile{% else %}Edit Profile{% endif %}</h2>
         <form method="post" enctype="multipart/form-data" action="{% url 'create_profile' %}">
             {% csrf_token %}
             <label for="profile_picture">Profile Picture</label>
@@ -774,6 +774,7 @@ nav ul li a:hover { border-bottom: 3px solid #E57200; }
 <div class="modal-overlay" id="deleteAccountModal">
     <div class="modal">
         <h2>Confirm Account Deletion</h2>
+        {% if has_usable_password %}
         <p style="color:#666;font-size:0.95rem;margin-bottom:20px;">Enter your password to permanently delete your account. This action cannot be undone.</p>
         <form method="post" action="{% url 'delete_account' %}" id="deleteAccountForm">
             {% csrf_token %}
@@ -785,6 +786,19 @@ nav ul li a:hover { border-bottom: 3px solid #E57200; }
                 <button type="submit" class="btn-primary" style="background:#c0392b;">Delete My Account</button>
             </div>
         </form>
+        {% else %}
+        <p style="color:#666;font-size:0.95rem;margin-bottom:20px;">Enter your email address to permanently delete your account. This action cannot be undone.</p>
+        <form method="post" action="{% url 'delete_account' %}" id="deleteAccountForm">
+            {% csrf_token %}
+            <label for="delete_email">Email Address</label>
+            <input type="email" name="email" id="delete_email" placeholder="Enter your email address" required>
+            <div id="delete-error" style="color:#c0392b;font-size:0.85rem;margin-top:8px;display:none;"></div>
+            <div class="modal-footer">
+                <button type="button" class="cancel-btn" onclick="document.getElementById('deleteAccountModal').classList.remove('open'); document.getElementById('settingsModal').classList.add('open')">Back</button>
+                <button type="submit" class="btn-primary" style="background:#c0392b;">Delete My Account</button>
+            </div>
+        </form>
+        {% endif %}
     </div>
 </div>
 {% endif %}
@@ -849,6 +863,20 @@ function toggleSave(btn, slug) {
     });
 }
 
+{% if show_profile_setup %}
+document.getElementById('editProfileModal').classList.add('open');
+{% endif %}
+
+const _deleteError = new URLSearchParams(window.location.search).get('delete_error');
+if (_deleteError) {
+    document.getElementById('deleteAccountModal').classList.add('open');
+    const errDiv = document.getElementById('delete-error');
+    errDiv.textContent = _deleteError === 'password'
+        ? 'Incorrect password. Please try again.'
+        : 'Incorrect email. Please try again.';
+    errDiv.style.display = 'block';
+    history.replaceState(null, '', window.location.pathname);
+}
 </script>
 
 {% include 'main/chat_widget.html' %}
