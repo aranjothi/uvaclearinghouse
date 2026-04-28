@@ -651,7 +651,7 @@ def rsvp_event(request, event_id):
         event.rsvps.remove(request.user)
     else:
         event.rsvps.add(request.user)
-    return redirect('club_detail', slug=event.club.slug)
+    return redirect(request.META.get('HTTP_REFERER', f'/events/{event_id}/'))
 
 @login_required
 def upload_club_image(request, slug):
