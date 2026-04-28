@@ -509,6 +509,7 @@ def verify_exec(request, slug):
             )
             membership.role = Membership.EXECUTIVE
             membership.save()
+            JoinRequest.objects.filter(user=request.user, club=club).delete()
             messages.success(request, f"You are now an executive member of {club.name}.")
         else:
             messages.error(request, "Invalid executive code.")
