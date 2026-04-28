@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ club.name }} – Ads</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Helvetica, Arial, sans-serif; background: #f4f5f7; color: #232D4B; display: flex; min-height: 100vh; flex-direction: column; }
+
+        .shell { display: flex; flex: 1; }
+
+        .sidebar { width: 210px; background: #232D4B; display: flex; flex-direction: column; flex-shrink: 0; min-height: 100vh; }
+        .club-switcher { padding: 0.75rem 1.25rem; border-bottom: 1px solid rgba(255,255,255,0.1); position: relative; }
+        .club-switcher-btn { width: 100%; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); border-radius: 6px; padding: 8px 10px; color: #fff; font-size: 12px; font-family: inherit; cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 6px; text-align: left; }
+        .club-switcher-btn:hover { background: rgba(255,255,255,0.12); }
+        .club-switcher-btn .club-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .club-dropdown { display: none; position: absolute; left: 1.25rem; right: 1.25rem; top: calc(100% - 4px); background: #fff; border: 1px solid #e0e0e0; border-radius: 6px; z-index: 100; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .club-dropdown.open { display: block; }
+        .club-dropdown a { display: block; padding: 9px 12px; font-size: 12px; color: #232D4B; text-decoration: none; border-bottom: 1px solid #f0f0f0; }
+        .club-dropdown a:last-child { border-bottom: none; }
+        .club-dropdown a:hover { background: #f4f5f7; }
+        .club-dropdown a.current { color: #E57200; font-weight: bold; }
+        .nav-item { display: flex; align-items: center; gap: 10px; padding: 11px 1.25rem; color: #8fa0be; font-size: 13px; text-decoration: none; border-left: 3px solid transparent; transition: all 0.15s; }
+        .nav-item:hover { color: #fff; background: rgba(255,255,255,0.05); }
+        .nav-item.active { color: #fff; background: rgba(255,255,255,0.08); border-left-color: #E57200; }
+        .sidebar-footer { margin-top: auto; padding: 1rem 1.25rem; border-top: 1px solid rgba(255,255,255,0.1); }
+        .sidebar-footer a { color: #8fa0be; font-size: 12px; text-decoration: none; display: flex; align-items: center; gap: 10px; }
+        .sidebar-footer a:hover { color: #fff; }
+
+        .main { flex: 1; display: flex; flex-direction: column; overflow: auto; }
+        .topbar { background: #fff; padding: 0 1.5rem; height: 52px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #e0e0e0; flex-shrink: 0; gap: 12px; }
+        .topbar h1 { font-size: 15px; font-weight: bold; color: #232D4B; white-space: nowrap; }
+        .topbar-right { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+        .week-badge { font-size: 11px; font-weight: bold; padding: 3px 10px; border-radius: 99px; }
+        .week-badge-current { background: #fff3cd; color: #856404; }
+        .week-badge-past    { background: #f8d7da; color: #721c24; }
+        .week-badge-future  { background: #d4edda; color: #155724; }
+        .week-nav { display: flex; align-items: center; gap: 8px; }
+        .week-nav a { color: #E57200; text-decoration: none; font-size: 12px; font-weight: bold; padding: 4px 10px; border: 1.5px solid #E57200; border-radius: 4px; white-space: nowrap; }
+        .week-nav a:hover { background: #E57200; color: #fff; }
+
+        .body { padding: 1.5rem; display: flex; flex-direction: column; gap: 1.25rem; }
+
+        .card { background: #fff; border-radius: 12px; border: 1px solid #e0e0e0; padding: 1.25rem; }
+        .card-title { font-size: 11px; font-weight: bold; color: #aaa; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 1rem; }
+
+        .lock-banner { display: flex; align-items: flex-start; gap: 10px; padding: 12px 16px; border-radius: 8px; font-size: 13px; background: #fef2f2; color: #7f1d1d; border: 1px solid #fca5a5; }
+
+        .ad-preview-row { display: flex; gap: 1.5rem; align-items: flex-start; flex-wrap: wrap; }
+        .ad-thumb { width: 60px; flex-shrink: 0; }
+        .ad-thumb img { width: 60px; border-radius: 5px; border: 1px solid #e0e0e0; display: block; }
+        .ad-thumb-placeholder { width: 60px; height: 90px; border-radius: 5px; border: 2px dashed #ddd; display: flex; align-items: center; justify-content: center; color: #ccc; font-size: 10px; text-align: center; line-height: 1.3; }
+        .file-input-label { display: inline-flex; align-items: center; gap: 10px; cursor: pointer; }
+        .file-btn-span { background: #232D4B; color: #fff; padding: 7px 13px; border-radius: 5px; font-size: 12px; font-weight: bold; white-space: nowrap; }
+        .file-name-display { font-size: 12px; color: #888; }
+
+        .grid-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 8px; }
+        .slot-count { font-size: 13px; color: #888; }
+        .slot-count strong { color: #E57200; }
+        .max-warning { font-size: 12px; color: #c0392b; font-weight: bold; display: none; }
+
+        .grid-wrapper { overflow-x: auto; }
+        .hour-grid { border-collapse: collapse; width: 100%; min-width: 500px; }
+        .hour-grid th { font-size: 11px; font-weight: bold; text-align: center; padding: 6px 4px; color: #888; border: 1px solid #eee; background: #fafafa; }
+        .hour-grid th.time-col { width: 42px; font-family: monospace; font-size: 10px; color: #bbb; font-weight: normal; }
+        .hour-grid td { border: 1px solid #eee; padding: 0; }
+        .hour-cell { display: block; width: 100%; height: 26px; cursor: pointer; background: #fff; transition: background 0.1s; }
+        .hour-cell:hover { background: #fff5e6; }
+        .hour-cell.booked { background: #E57200; }
+        .hour-cell.booked:hover { background: #d46800; }
+        /* Passed slots — greyed out, no hover interaction */
+        .hour-cell.passed { background: #f0f0f0; cursor: default; }
+        .hour-cell.passed:hover { background: #f0f0f0; }
+        .hour-cell.booked.passed { background: #b35a00; cursor: default; }
+        .hour-cell.booked.passed:hover { background: #b35a00; }
+        .hour-cell input[type="checkbox"] { display: none; }
+
+        .btn-save { background: #232D4B; color: #fff; border: none; padding: 10px 24px; border-radius: 6px; font-size: 13px; font-weight: bold; cursor: pointer; font-family: inherit; margin-top: 1rem; }
+        .btn-save:hover { background: #1a2236; }
+
+        .flash-success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; border-radius: 6px; padding: 10px 14px; font-size: 13px; }
+    </style>
+</head>
+<body>
+
+{% include 'main/navbar.html' %}
+
+<div class="shell">
+    <aside class="sidebar">
+        <div class="club-switcher">
+            <button class="club-switcher-btn" onclick="document.getElementById('clubDropdown').classList.toggle('open')">
+                <span class="club-name">{{ club.name }}</span>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <div class="club-dropdown" id="clubDropdown">
+                {% for c in all_exec_clubs %}
+                <a href="{% url 'executive_club_page' c.slug %}" class="{% if c.slug == club.slug %}current{% endif %}">{{ c.name }}</a>
+                {% endfor %}
+            </div>
+        </div>
+
+        <a class="nav-item" href="{% url 'executive_club_page' club.slug %}">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+            Dashboard
+        </a>
+        <a class="nav-item" href="{% url 'executive_club_events' club.slug %}">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            Events
+        </a>
+        <a class="nav-item" href="{% url 'executive_club_manage' club.slug %}">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a10 10 0 1 0 0 20A10 10 0 0 0 12 2z"/><path d="M12 8v4l3 3"/></svg>
+            Club Management
+        </a>
+        <a class="nav-item" href="{% url 'executive_club_people' club.slug %}">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            Contacts
+        </a>
+        <a class="nav-item active" href="{% url 'executive_club_ads' club.slug %}">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 7.5h1.5m-1.5 3h1.5m-7.5 3h7.5m-7.5 3h7.5m3-9h3.375c.621 0 1.125.504 1.125 1.125V18a2.25 2.25 0 0 1-2.25 2.25M16.5 7.5V18a2.25 2.25 0 0 0 2.25 2.25M16.5 7.5V4.875c0-.621-.504-1.125-1.125-1.125H4.125C3.504 3.75 3 4.254 3 4.875V18a2.25 2.25 0 0 0 2.25 2.25h13.5M6 7.5h3v3H6v-3Z"/></svg>
+            Ads
+        </a>
+
+        <div class="sidebar-footer">
+            <a href="{% url 'logout' %}">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                Sign out
+            </a>
+        </div>
+    </aside>
+
+    <div class="main">
+        <div class="topbar">
+            <h1>Ads &mdash; {{ week_start|date:"M d" }} &ndash; {{ week_dates.6|date:"M d, Y" }}</h1>
+            <div class="topbar-right">
+                {% if is_past_week %}
+                <span class="week-badge week-badge-past">Past week</span>
+                {% elif is_current_week %}
+                <span class="week-badge week-badge-current">In progress</span>
+                {% else %}
+                <span class="week-badge week-badge-future">Upcoming</span>
+                {% endif %}
+                <div class="week-nav">
+                    <a href="?week={{ prev_week|date:'Y-m-d' }}">&larr; Prev</a>
+                    <a href="?week={{ next_week|date:'Y-m-d' }}">Next &rarr;</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="body">
+
+            {% if messages %}
+            {% for msg in messages %}
+            <div class="flash-success">{{ msg }}</div>
+            {% endfor %}
+            {% endif %}
+
+            {% if is_past_week %}
+            <div class="lock-banner">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:1px;"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                This is a past week &mdash; the schedule and creative are read-only.
+            </div>
+            {% endif %}
+
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+
+                <!-- Ad Creative -->
+                <div class="card" style="margin-bottom:1.25rem;">
+                    <div class="card-title">Ad Creative &mdash; 160 &times; 600 px skyscraper</div>
+                    <div class="ad-preview-row">
+                        <div class="ad-thumb">
+                            {% if ad.ad_image %}
+                            <img src="{{ ad.ad_image.url }}" alt="Current ad">
+                            {% else %}
+                            <div class="ad-thumb-placeholder">No ad<br>uploaded</div>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <p style="font-size:12px;color:#888;margin-bottom:10px;max-width:320px;">Upload a 160&times;600 image. Clicking an ad takes users to your club page.</p>
+                            {% if not is_past_week %}
+                            <label class="file-input-label" for="adFileInput">
+                                <input type="file" name="ad_image" accept="image/*" id="adFileInput" style="opacity:0;width:0;height:0;">
+                                <span class="file-btn-span">Choose Image</span>
+                                <span class="file-name-display" id="adFileName">No file chosen</span>
+                            </label>
+                            {% else %}
+                            <p style="font-size:12px;color:#aaa;font-style:italic;">Read-only &mdash; past week.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Weekly Schedule -->
+                <div class="card">
+                    <div class="grid-header">
+                        <div class="card-title" style="margin-bottom:0;">Weekly Schedule</div>
+                        <div style="display:flex;align-items:center;gap:12px;">
+                            <div class="slot-count">Booked: <strong id="slotCount">{{ booked_hours|length }}</strong> / {{ max_slots }} hours</div>
+                            <div class="max-warning" id="maxWarning">Maximum {{ max_slots }} hours reached</div>
+                        </div>
+                    </div>
+                    <p style="font-size:12px;color:#888;margin-bottom:12px;">
+                        {% if is_past_week %}
+                        Read-only view of past bookings.
+                        {% elif is_current_week %}
+                        Greyed slots have already started and are locked. Future slots can still be toggled (max {{ max_slots }} total).
+                        {% else %}
+                        Click cells to toggle hourly slots. Max {{ max_slots }} hours per week.
+                        {% endif %}
+                    </p>
+                    <div class="grid-wrapper">
+                        <table class="hour-grid" id="hourGrid">
+                            <thead>
+                                <tr>
+                                    <th class="time-col"></th>
+                                    {% for day_date in week_dates %}
+                                    <th>{{ day_date|date:"D" }}<br><span style="font-weight:normal;color:#aaa;font-size:10px;">{{ day_date|date:"M d" }}</span></th>
+                                    {% endfor %}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for row in grid_rows %}
+                                <tr>
+                                    <th class="time-col">{{ row.hour }}:00</th>
+                                    {% for cell in row.cells %}
+                                    <td>
+                                        <label class="hour-cell {% if cell.booked %}booked{% endif %}{% if cell.passed %} passed{% endif %}" data-h="{{ cell.h }}">
+                                            <input type="checkbox" name="hours" value="{{ cell.h }}" {% if cell.booked %}checked{% endif %}>
+                                        </label>
+                                    </td>
+                                    {% endfor %}
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                {% if not is_past_week %}
+                <button type="submit" class="btn-save">Save</button>
+                {% endif %}
+            </form>
+
+        </div>
+    </div>
+</div>
+
+{% include 'main/chat_widget.html' %}
+
+<script>
+    document.addEventListener('click', function(e) {
+        const dd = document.getElementById('clubDropdown');
+        if (dd && !dd.closest('.club-switcher').contains(e.target)) dd.classList.remove('open');
+    });
+
+    {% if not is_past_week %}
+    document.getElementById('adFileInput').addEventListener('change', function() {
+        document.getElementById('adFileName').textContent = this.files[0] ? this.files[0].name : 'No file chosen';
+    });
+
+    const MAX_SLOTS = {{ max_slots }};
+    const slotCountEl = document.getElementById('slotCount');
+    const maxWarningEl = document.getElementById('maxWarning');
+
+    function getSelectedCount() {
+        return document.querySelectorAll('#hourGrid input[type="checkbox"]:checked').length;
+    }
+    function updateCount() {
+        const n = getSelectedCount();
+        slotCountEl.textContent = n;
+        maxWarningEl.style.display = n >= MAX_SLOTS ? 'block' : 'none';
+    }
+
+    document.querySelectorAll('#hourGrid .hour-cell').forEach(function(label) {
+        label.addEventListener('click', function(e) {
+            e.preventDefault();
+            if (this.classList.contains('passed')) return;
+            const cb = this.querySelector('input[type="checkbox"]');
+            const isChecked = cb.checked;
+            if (!isChecked && getSelectedCount() >= MAX_SLOTS) return;
+            cb.checked = !isChecked;
+            this.classList.toggle('booked', cb.checked);
+            updateCount();
+        });
+    });
+
+    updateCount();
+    {% endif %}
+</script>
+</body>
+</html>

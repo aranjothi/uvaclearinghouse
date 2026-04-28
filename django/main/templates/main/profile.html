@@ -27,10 +27,25 @@ nav ul li a:hover { border-bottom: 3px solid #E57200; }
 .dropdown a:hover, .dropdown button:hover { background-color: #f0f0f0; }
 .nav-icon.open .dropdown { display: block; }
 
+.ads-outer {
+    display: flex;
+    align-items: flex-start;
+}
+.ad-col {
+    flex: 1;
+    display: flex;
+    min-width: 0;
+    padding-top: 40px;
+}
+.ad-col-left  { justify-content: flex-end;   padding-right: 64px; }
+.ad-col-right { justify-content: flex-start; padding-left:  64px; }
+.ad-col a img { width: 200px; height: auto; display: block; border-radius: 8px; }
+@media (max-width: 1400px) { .ad-col { display: none; } }
+
 .page-content {
-    max-width: 860px;
-    margin: 40px auto;
-    padding: 0 24px 60px;
+    flex: 0 1 860px;
+    min-width: 0;
+    padding: 40px 0 60px;
     display: flex;
     flex-direction: column;
     gap: 24px;
@@ -449,6 +464,14 @@ nav ul li a:hover { border-bottom: 3px solid #E57200; }
 
 {% include 'main/navbar.html' %}
 
+<div class="ads-outer">
+<div class="ad-col ad-col-left">
+    {% if active_ads|length >= 1 %}
+    <a href="{% url 'club_detail' active_ads.0.club.slug %}">
+        <img src="{{ active_ads.0.ad_image.url }}" alt="{{ active_ads.0.club.name }}">
+    </a>
+    {% endif %}
+</div>
 <div class="page-content">
 
     <!-- Profile header card -->
@@ -696,6 +719,14 @@ nav ul li a:hover { border-bottom: 3px solid #E57200; }
         {% endif %}
     </div>
 
+</div>
+<div class="ad-col ad-col-right">
+    {% if active_ads|length >= 2 %}
+    <a href="{% url 'club_detail' active_ads.1.club.slug %}">
+        <img src="{{ active_ads.1.ad_image.url }}" alt="{{ active_ads.1.club.name }}">
+    </a>
+    {% endif %}
+</div>
 </div>
 
 <!-- Contact Info Modal -->

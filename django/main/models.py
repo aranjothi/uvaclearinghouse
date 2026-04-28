@@ -307,3 +307,22 @@ class EventNotificationSubscription(models.Model):
 
     def __str__(self):
         return f"{self.user} subscribed to {self.event}"
+
+class ClubAd(models.Model):
+    club = models.ForeignKey(Club, on_delete=models.CASCADE, related_name='ads')
+    ad_image = models.ImageField(upload_to='club_ads/')
+    week_start = models.DateField()
+
+    class Meta:
+        unique_together = ('club', 'week_start')
+
+    def __str__(self):
+        return f"{self.club.name} ad – {self.week_start}"
+
+
+class AdBooking(models.Model):
+    ad = models.ForeignKey(ClubAd, on_delete=models.CASCADE, related_name='bookings')
+    hour_of_week = models.PositiveSmallIntegerField()
+
+    class Meta:
+        unique_together = ('ad', 'hour_of_week')

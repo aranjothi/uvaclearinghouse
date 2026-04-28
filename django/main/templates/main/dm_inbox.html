@@ -19,7 +19,13 @@
         .dropdown a, .dropdown button { display: block; width: 100%; text-align: left; padding: 10px 16px; font-size: 0.95rem; color: #232D4B; text-decoration: none; background: none; border: none; cursor: pointer; font-family: inherit; }
         .dropdown a:hover, .dropdown button:hover { background-color: #f0f0f0; }
         .nav-icon.open .dropdown { display: block; }
-        .container { max-width: 700px; margin: 2.5rem auto; padding: 0 1.5rem; }
+        .ads-outer { display: flex; align-items: flex-start; }
+        .ad-col { flex: 1; display: flex; min-width: 0; padding-top: 2.5rem; }
+        .ad-col-left  { justify-content: flex-end;   padding-right: 64px; }
+        .ad-col-right { justify-content: flex-start; padding-left:  64px; }
+        .ad-col a img { width: 200px; height: auto; display: block; border-radius: 8px; }
+        @media (max-width: 1400px) { .ad-col { display: none; } }
+        .container { flex: 0 1 700px; min-width: 0; margin: 2.5rem 0; padding: 0; }
         .page-title { font-size: 22px; font-weight: bold; color: #232D4B; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 10px; }
         .convo-card { background: #fff; border-radius: 12px; border: 1px solid #e0e0e0; padding: 14px 20px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; text-decoration: none; color: inherit; transition: border-color 0.15s; }
         .convo-card:hover { border-color: #E57200; }
@@ -69,6 +75,14 @@
 
 {% include 'main/navbar.html' %}
 
+<div class="ads-outer">
+<div class="ad-col ad-col-left">
+    {% if active_ads|length >= 1 %}
+    <a href="{% url 'club_detail' active_ads.0.club.slug %}">
+        <img src="{{ active_ads.0.ad_image.url }}" alt="{{ active_ads.0.club.name }}">
+    </a>
+    {% endif %}
+</div>
 <div class="container">
     <div class="page-title">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#232D4B" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
@@ -103,6 +117,14 @@
             <button type="button" onclick="startDM()">Open Chat</button>
         </div>
     </div>
+</div>
+<div class="ad-col ad-col-right">
+    {% if active_ads|length >= 2 %}
+    <a href="{% url 'club_detail' active_ads.1.club.slug %}">
+        <img src="{{ active_ads.1.ad_image.url }}" alt="{{ active_ads.1.club.name }}">
+    </a>
+    {% endif %}
+</div>
 </div>
 
 <script>

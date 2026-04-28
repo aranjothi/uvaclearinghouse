@@ -5,7 +5,14 @@
     <title>Chat with {{ other_user.first_name }}</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: Helvetica, Arial, sans-serif; background: #f4f5f7; color: #232D4B; display: flex; flex-direction: column; height: 100vh; }
+        body { font-family: Helvetica, Arial, sans-serif; background: #f4f5f7; color: #232D4B; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+        .chat-outer { display: flex; flex: 1; overflow: hidden; }
+        .ad-col { width: 264px; flex-shrink: 0; display: flex; padding-top: 16px; overflow: hidden; }
+        .ad-col-left  { justify-content: flex-end;   padding-right: 64px; }
+        .ad-col-right { justify-content: flex-start; padding-left:  64px; }
+        .ad-col a img { width: 200px; height: auto; display: block; border-radius: 8px; }
+        @media (max-width: 1400px) { .ad-col { display: none; } }
+        .chat-inner { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-width: 0; }
         nav { background-color: #232D4B; padding: 0 40px; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
         nav .logo { color: #FFFFFF; font-size: 1.4rem; font-weight: bold; letter-spacing: 1px; }
         nav ul { list-style: none; display: flex; gap: 32px; }
@@ -39,6 +46,15 @@
 
 {% include 'main/navbar.html' %}
 
+<div class="chat-outer">
+<div class="ad-col ad-col-left">
+    {% if active_ads|length >= 1 %}
+    <a href="{% url 'club_detail' active_ads.0.club.slug %}">
+        <img src="{{ active_ads.0.ad_image.url }}" alt="{{ active_ads.0.club.name }}">
+    </a>
+    {% endif %}
+</div>
+<div class="chat-inner">
 <div class="chat-header">
     <a href="{{ request.GET.next|default:'/messages/' }}">← Back</a>
     <span class="name">{{ other_user.first_name }} {{ other_user.last_name }}</span>
@@ -64,6 +80,15 @@
         <textarea name="content" placeholder="Type a message…" required></textarea>
         <button type="submit">Send</button>
     </form>
+</div>
+</div>
+<div class="ad-col ad-col-right">
+    {% if active_ads|length >= 2 %}
+    <a href="{% url 'club_detail' active_ads.1.club.slug %}">
+        <img src="{{ active_ads.1.ad_image.url }}" alt="{{ active_ads.1.club.name }}">
+    </a>
+    {% endif %}
+</div>
 </div>
 
 <script>

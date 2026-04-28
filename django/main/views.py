@@ -8,7 +8,7 @@ from django.contrib import messages
 from django.http import JsonResponse
 from django.utils import timezone
 from .models import User, Club, Membership, Event, Forum, ForumThread, ForumReply, DirectMessage, Announcement, ClubSettings, JoinRequest, Ban, PollOption, PollVote, Highlight
-from .models import User, Club, Membership, Event, EventNotificationSubscription, Forum, ForumThread, ForumReply, DirectMessage, Announcement, ClubSettings, JoinRequest, Ban, PollOption, PollVote, Highlight
+from .models import User, Club, Membership, Event, EventNotificationSubscription, Forum, ForumThread, ForumReply, DirectMessage, Announcement, ClubSettings, JoinRequest, Ban, PollOption, PollVote, Highlight, ClubAd, AdBooking
 from clearinghouse.settings import MAILTRAP_API_TOKEN
 from .forms import EventForm
 from functools import wraps
@@ -276,6 +276,7 @@ def profile_page(request):
         'today': today,
         'has_usable_password': request.user.has_usable_password(),
         'show_profile_setup': request.session.pop('show_profile_setup', False),
+        'active_ads': get_active_ads(),
     })
 
 
@@ -627,7 +628,7 @@ def forum_thread(request, slug, thread_id):
         content = request.POST.get('content') #this handles new replies
         ForumReply.objects.create(thread=thread, content=content, author=request.user)
         return redirect('forum_thread', slug=slug, thread_id=thread_id)
-    return render(request, 'main/forum_thread.html', {'club': club, 'thread': thread, 'replies': replies})
+    return render(request, 'main/forum_thread.html', {'club': club, 'thread': thread, 'replies': replies, 'active_ads': get_active_ads()})
 @login_required
 def pin_thread(request, slug, thread_id):
     club = get_object_or_404(Club, slug=slug)
@@ -887,6 +888,7 @@ def dm_inbox(request):
     return render(request, 'main/dm_inbox.html', {
         'convo_users': convo_users,
         'unread_counts': unread_counts,
+        'active_ads': get_active_ads(),
     })
 
 @login_required
@@ -936,6 +938,7 @@ def dm_conversation(request, username):
     return render(request, 'main/dm_conversation.html', {
         'other_user': other_user,
         'messages': chat_messages,
+        'active_ads': get_active_ads(),
     })
 
 
@@ -1388,3 +1391,132 @@ def toggle_event_subscription(request, event_id):
     else:
         subscribed = True
     return JsonResponse({'subscribed': subscribed})
+
+# ── Ad utility ──────────────────────────────────────────────────────────────
+
+import random as _random
+
+def get_active_ads(n=2):
+    """Return up to n ClubAd instances active for the current hour slot.
+    Falls back to the most-recent populated slot up to 1 week back."""
+    try:
+        from datetime import datetime, timedelta
+        now = datetime.now()
+        today = now.date()
+        week_start = today - timedelta(days=today.weekday())
+        hour_of_week = today.weekday() * 24 + now.hour
+
+        for lookback in range(168):
+            h = hour_of_week - lookback
+            ws = week_start
+            if h < 0:
+                h += 168
+                ws = week_start - timedelta(weeks=1)
+            ads = list(
+                ClubAd.objects.filter(
+                    week_start=ws,
+                    bookings__hour_of_week=h,
+                ).exclude(ad_image='').select_related('club').distinct()
+        )
+            if len(ads) >= 2:
+                return _random.sample(ads, 2)
+            elif len(ads) == 1:
+                return [ads[0], ads[0]]
+        return []
+    except Exception:
+        return []
+
+
+# ── Executive Ads view ───────────────────────────────────────────────────────
+
+@login_required
+def executive_club_ads(request, slug):
+    club = get_object_or_404(Club, slug=slug)
+    if not Membership.objects.filter(user=request.user, club=club, role=Membership.EXECUTIVE).exists():
+        return redirect('executive_page')
+
+    today = date.today()
+    current_week_start = today - timedelta(days=today.weekday())
+
+    week_param = request.GET.get('week')
+    if week_param:
+        try:
+            from datetime import datetime as _dt
+            week_start = _dt.strptime(week_param, '%Y-%m-%d').date()
+            week_start = week_start - timedelta(days=week_start.weekday())
+        except ValueError:
+            week_start = current_week_start
+    else:
+        week_start = current_week_start
+
+    prev_week = week_start - timedelta(weeks=1)
+    next_week = week_start + timedelta(weeks=1)
+
+    is_past_week = week_start < current_week_start
+    is_current_week = week_start == current_week_start
+
+    import datetime as _dtmod
+    now_hour_of_week = today.weekday() * 24 + _dtmod.datetime.now().hour
+
+    ad, _ = ClubAd.objects.get_or_create(club=club, week_start=week_start)
+    booked_hours = set(ad.bookings.values_list('hour_of_week', flat=True))
+
+    if request.method == 'POST' and not is_past_week:
+        if request.FILES.get('ad_image'):
+            ad.ad_image = request.FILES['ad_image']
+            ad.save()
+
+        selected = set(
+            int(h) for h in request.POST.getlist('hours')
+            if h.isdigit() and 0 <= int(h) <= 167
+        )
+        if is_current_week:
+            # Slots that have already started are frozen — preserve them regardless of form
+            preserved = {h for h in booked_hours if h <= now_hour_of_week}
+            selected = preserved | {h for h in selected if h > now_hour_of_week}
+        selected = set(list(selected)[:10])
+        ad.bookings.exclude(hour_of_week__in=selected).delete()
+        existing = set(ad.bookings.values_list('hour_of_week', flat=True))
+        AdBooking.objects.bulk_create(
+            [AdBooking(ad=ad, hour_of_week=h) for h in selected - existing],
+            ignore_conflicts=True,
+        )
+        booked_hours = selected
+        messages.success(request, 'Ad schedule saved.')
+        return redirect(f"{request.path}?week={week_start}")
+
+    all_exec_clubs = Membership.objects.filter(
+        user=request.user, role=Membership.EXECUTIVE
+    ).select_related('club').values_list('club', flat=True)
+    exec_clubs = Club.objects.filter(id__in=all_exec_clubs)
+
+    week_dates = [week_start + timedelta(days=i) for i in range(7)]
+    grid_rows = [
+        {
+            'hour': h,
+            'cells': [
+                {
+                    'h': d * 24 + h,
+                    'booked': (d * 24 + h) in booked_hours,
+                    'passed': is_current_week and (d * 24 + h) <= now_hour_of_week,
+                }
+                for d in range(7)
+            ],
+        }
+        for h in range(24)
+    ]
+
+    return render(request, 'main/executive_club_ads.html', {
+        'club': club,
+        'ad': ad,
+        'booked_hours': booked_hours,
+        'week_start': week_start,
+        'prev_week': prev_week,
+        'next_week': next_week,
+        'all_exec_clubs': exec_clubs,
+        'week_dates': week_dates,
+        'grid_rows': grid_rows,
+        'max_slots': 10,
+        'is_past_week': is_past_week,
+        'is_current_week': is_current_week,
+    })
