@@ -47,6 +47,7 @@ class Command(BaseCommand):
                              f"starts at {event_time_field.strftime('%I:%M %p')} today at {event.location}.\n\n"
                              f"See you there!"
                     )
+                response = client.send(mail)
                 sub.notified = True
                 sub.save(update_fields=['notified'])
                 sent_count += 1
