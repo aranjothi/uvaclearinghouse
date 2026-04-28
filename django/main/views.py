@@ -19,6 +19,7 @@ from django.core.exceptions import ValidationError
 from django.core.serializers.json import DjangoJSONEncoder
 from django.urls import reverse
 import mailtrap as mt
+import pytz
 
 class ClubDetailView(DetailView):
     model = Club
@@ -974,12 +975,13 @@ def widget_conversation(request, username):
         Q(sender=request.user, recipient=other_user) |
         Q(sender=other_user, recipient=request.user)
     ).order_by('created_at').values('content', 'created_at', 'sender__username')
+    eastern = pytz.timezone('US/Eastern')
     return JsonResponse({
         'messages': [
             {
                 'content': m['content'],
                 'mine': m['sender__username'] == request.user.username,
-                'time': m['created_at'].strftime('%b %d, %H:%M'),
+                'time': m['created_at'].astimezone(eastern).strftime('%b %d, %H:%M'),
             }
             for m in chat_messages
         ],
