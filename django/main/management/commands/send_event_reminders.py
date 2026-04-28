@@ -29,9 +29,10 @@ class Command(BaseCommand):
             event = sub.event
             # Build a timezone-aware datetime from the event's date and time fields
             event_time_field = event.start_time or event.time
-            event_dt = timezone.make_aware(
-                datetime.combine(event.date, event_time_field)
-            )
+            # Build naive local datetime, then attach the correct local timezone
+            # Source: Generated with Claude AI, asked to resolve bug in email notifications, Apr. 28
+            naive_dt = datetime.combine(event.date, event_time_field)
+            event_dt = local_tz.localize(naive_dt)
 
             if window_start <= event_dt <= window_end:
                 #https://mailtrap.io/blog/django-send-email/#Send-emails-in-Django-using-email-API
