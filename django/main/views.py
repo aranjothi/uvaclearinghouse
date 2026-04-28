@@ -612,6 +612,7 @@ def like_reply(request, slug, reply_id):
 def rsvp_event(request, event_id):
     from .models import Event
     event = get_object_or_404(Event, id=event_id)
+    toggle_event_subscription(request, event_id) # part of email notification system
     if request.user in event.rsvps.all():
         event.rsvps.remove(request.user)
     else:
