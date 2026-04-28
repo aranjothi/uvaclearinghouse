@@ -325,6 +325,124 @@ nav ul li a:hover { border-bottom: 3px solid #E57200; }
 }
 
 .cancel-btn:hover { background: #e0e0e0; }
+
+/*** Calendar ***/
+.calendar-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 18px;
+}
+
+.calendar-controls button {
+    border: none;
+    background: #232D4B;
+    color: white;
+    padding: 7px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+.calendar-nav-btn {
+    background: #232D4B;
+    color: white;
+    padding: 9px 14px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 0.9rem;
+}
+
+.rsvp-calendar-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 24px 32px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+}
+
+.rsvp-calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 18px;
+}
+
+.rsvp-calendar-header h2 {
+    font-size: 1.15rem;
+    color: #232D4B;
+}
+
+.weekly-calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 10px;
+}
+
+.weekly-calendar-day {
+    background: #f7f7f7;
+    border: 1px solid #eee;
+    border-radius: 10px;
+    padding: 10px;
+    min-height: 130px;
+}
+
+.weekly-day-header {
+    border-bottom: 1px solid #e5e5e5;
+    padding-bottom: 8px;
+    margin-bottom: 8px;
+}
+
+.weekly-day-name {
+    display: block;
+    font-size: 0.78rem;
+    font-weight: bold;
+    color: #232D4B;
+}
+
+.weekly-day-date {
+    display: block;
+    font-size: 0.75rem;
+    color: #888;
+    margin-top: 2px;
+}
+
+.weekly-event-pill {
+    display: block;
+    background: #fff;
+    border-left: 4px solid #E57200;
+    border-radius: 6px;
+    padding: 7px;
+    margin-bottom: 7px;
+    text-decoration: none;
+    color: #232D4B;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+}
+
+.weekly-event-pill strong {
+    display: block;
+    font-size: 0.78rem;
+    margin-bottom: 3px;
+}
+
+.weekly-event-pill span {
+    font-size: 0.72rem;
+    color: #666;
+}
+
+.weekly-no-events {
+    font-size: 0.75rem;
+    color: #aaa;
+    text-align: center;
+    margin-top: 22px;
+}
+
+@media (max-width: 800px) {
+    .weekly-calendar-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
 </style>
 </head>
 <body>
@@ -381,6 +499,55 @@ nav ul li a:hover { border-bottom: 3px solid #E57200; }
         <p style="color:#888;font-size:0.95rem;">{% if is_own_profile %}No details yet. Edit your profile to add more info.{% else %}No profile details to show yet.{% endif %}</p>
         {% endif %}
     </div>
+
+    <!-- Weekly RSVP Calendar -->
+    {% if is_own_profile %}
+    <div class="rsvp-calendar-card">
+        <div class="rsvp-calendar-header">
+            <h2>My RSVP Week</h2>
+            <span style="font-size:0.85rem;color:#888;">Events you RSVP’d to</span>
+        </div>
+
+        <div class="calendar-controls">
+            <a class="calendar-nav-btn" href="?week={{ prev_week_offset }}">← Previous Week</a>
+
+            <strong>
+                {{ week_start|date:"M j" }} - {{ week_end|date:"M j, Y" }}
+            </strong>
+
+            <a class="calendar-nav-btn" href="?week={{ next_week_offset }}">Next Week →</a>
+        </div>
+    
+
+        <div class="weekly-calendar-grid">
+            {% for day in weekly_calendar %}
+            <div class="weekly-calendar-day">
+                <div class="weekly-day-header">
+                    <span class="weekly-day-name">{{ day.day_name }}</span>
+                    <span class="weekly-day-date">{{ day.month }} {{ day.day }}</span>
+                </div>
+
+                {% if day.events %}
+                    {% for event in day.events %}
+                    <a href="{% url 'event_detail' event.id %}" class="weekly-event-pill">
+                        <strong>{{ event.title }}</strong>
+                        <span>
+                            {% if event.start_time %}
+                                {{ event.start_time|time:"g:i A" }}
+                            {% else %}
+                                {{ event.time|time:"g:i A" }}
+                            {% endif %}
+                        </span>
+                    </a>
+                    {% endfor %}
+                {% else %}
+                    <p class="weekly-no-events">No events</p>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
 
     <!-- Clubs / Events / Saved tabs -->
     <div class="tab-section">
@@ -681,6 +848,7 @@ function toggleSave(btn, slug) {
         }
     });
 }
+
 </script>
 
 {% include 'main/chat_widget.html' %}
