@@ -38,7 +38,7 @@ DEBUG = os.getenv("DEBUG", "True") == "True"
 DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 
 # Ensure heroku domain and custom domain works https://stackoverflow.com/questions/23252733/i-get-an-error-400-bad-request-on-custom-heroku-domain-but-works-fine-on-foo-h
-ALLOWED_HOSTS = ["clearinghouse.dev","clearinghouse-b05-48721624d34f.herokuapp.com", "127.0.0.1", "localhost"]
+ALLOWED_HOSTS = ["www.clearinghouse.dev","clearinghouse.dev","clearinghouse-b05-48721624d34f.herokuapp.com", "127.0.0.1", "localhost"]
 
 
 # Application definition
@@ -207,3 +207,6 @@ ACCOUNT_SIGNUP_FIELDS = ['email*', 'password1*', 'password2*']
 ACCOUNT_LOGIN_METHODS = {'email'}
 SOCIALACCOUNT_EMAIL_AUTHENTICATION = True
 SOCIALACCOUNT_EMAIL_AUTHENTICATION_AUTO_CONNECT = True
+
+
+MAILTRAP_API_TOKEN = os.environ.get("MAILTRAP_API_TOKEN")
