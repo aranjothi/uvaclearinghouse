@@ -1,3 +1,30 @@
-[![Review Assignment Due Date](https://classroom.github.com/assets/deadline-readme-button-22041afd0340ce965d47ae6ef1cefeee28c7c493a6346c4f15d667ab976d596c.svg)](https://classroom.github.com/a/F1hjDb63)
+# CIO Clearinghouse (Team B-05)
 
-This is a CIO Clearinghouse application aimed at giving students a better way to connect with CIOs, and leaders a better way to advertise their CIOs.
+This is a CIO Clearinghouse web application designed to help students discover and connect with CIOs, and help organization leaders promote their clubs and events.
+
+## Description
+
+The CIO Clearinghouse application is designed to improve how students discover and engage with student organizations (CIOs). The platform provides a centralized space where students can explore clubs, view upcoming events, and join organizations that match their interests.
+
+Users can browse detailed club profiles, search for organizations, and RSVP to events. The application also allows students to save clubs and communicate with other users through a built-in messaging system.
+
+For organization leaders, the platform provides tools to manage their clubs, verify executive roles using secure codes, and promote events to a wider audience. This helps streamline communication and improve visibility for student organizations.
+
+Overall, the system enhances the connection between students and CIOs by making information more accessible and interaction more efficient.
+
+## Live Application
+
+https://clearinghouse.dev/
+
+
+## Authors
+
+- Audrey Bediako  
+- Aran Jothi  
+- Yoyo Ni  
+- Love Joshi  
+- Peter Nenyuk  
+
+## Team
+
+Team B-05
