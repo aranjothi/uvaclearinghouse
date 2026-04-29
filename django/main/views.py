@@ -8,7 +8,7 @@ from django.contrib import messages
 from django.http import JsonResponse
 from django.utils import timezone
 from .models import User, Club, Membership, Event, Forum, ForumThread, ForumReply, DirectMessage, Announcement, ClubSettings, JoinRequest, Ban, PollOption, PollVote, Highlight
-from .models import User, Club, Membership, Event, EventNotificationSubscription, Forum, ForumThread, ForumReply, DirectMessage, Announcement, ClubSettings, JoinRequest, Ban, PollOption, PollVote, Highlight, ClubAd, AdBooking
+from .models import User, Club, Membership, Event, EventNotificationSubscription, Forum, ForumThread, ForumReply, DirectMessage, Announcement, ClubSettings, JoinRequest, Ban, PollOption, PollVote, Highlight, ClubAd, AdBooking, ClubDocument
 from clearinghouse.settings import MAILTRAP_API_TOKEN
 from .forms import EventForm
 from functools import wraps
@@ -1528,3 +1528,42 @@ def executive_club_ads(request, slug):
         'is_past_week': is_past_week,
         'is_current_week': is_current_week,
     })
+
+
+@login_required
+def executive_club_documents(request, slug):
+    club = get_object_or_404(Club, slug=slug)
+    if not Membership.objects.filter(user=request.user, club=club, role=Membership.EXECUTIVE).exists():
+        return redirect('executive_page')
+    exec_clubs = Club.objects.filter(membership__user=request.user, membership__role=Membership.EXECUTIVE)
+    if request.method == 'POST':
+        name = request.POST.get('name', '').strip()
+        f = request.FILES.get('file')
+        if name and f:
+            ClubDocument.objects.create(club=club, name=name, file=f, uploaded_by=request.user)
+            messages.success(request, 'Document uploaded.')
+        return redirect('executive_club_documents', slug=slug)
+    documents = club.documents.all()
+    return render(request, 'main/executive_club_documents.html', {
+        'club': club,
+        'all_exec_clubs': exec_clubs,
+        'documents': documents,
+    })
+
+
+@login_required
+def executive_delete_document(request, slug, doc_id):
+    club = get_object_or_404(Club, slug=slug)
+    if not Membership.objects.filter(user=request.user, club=club, role=Membership.EXECUTIVE).exists():
+        return redirect('executive_page')
+    doc = get_object_or_404(ClubDocument, id=doc_id, club=club)
+    if request.method == 'POST':
+        doc.file.delete(save=False)
+        doc.delete()
+    return redirect('executive_club_documents', slug=slug)
+
+
+@login_required
+def club_document_download(request, doc_id):
+    doc = get_object_or_404(ClubDocument, id=doc_id)
+    return redirect(doc.file.url)

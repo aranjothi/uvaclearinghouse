@@ -256,7 +256,23 @@
 
     {% if not is_past_week %}
     document.getElementById('adFileInput').addEventListener('change', function() {
-        document.getElementById('adFileName').textContent = this.files[0] ? this.files[0].name : 'No file chosen';
+        const file = this.files[0];
+        document.getElementById('adFileName').textContent = file ? file.name : 'No file chosen';
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                let img = document.querySelector('.ad-thumb img');
+                if (!img) {
+                    const thumb = document.querySelector('.ad-thumb');
+                    img = document.createElement('img');
+                    img.alt = 'Current ad';
+                    thumb.innerHTML = '';
+                    thumb.appendChild(img);
+                }
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
     });
 
     const MAX_SLOTS = {{ max_slots }};

@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ club.name }} – Documents</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Helvetica, Arial, sans-serif; background: #f4f5f7; color: #232D4B; display: flex; min-height: 100vh; flex-direction: column; }
+        .shell { display: flex; flex: 1; }
+        .sidebar { width: 210px; background: #232D4B; display: flex; flex-direction: column; flex-shrink: 0; min-height: 100vh; }
+        .club-switcher { padding: 0.75rem 1.25rem; border-bottom: 1px solid rgba(255,255,255,0.1); position: relative; }
+        .club-switcher-btn { width: 100%; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); border-radius: 6px; padding: 8px 10px; color: #fff; font-size: 12px; font-family: inherit; cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 6px; text-align: left; }
+        .club-switcher-btn:hover { background: rgba(255,255,255,0.12); }
+        .club-switcher-btn .club-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .club-dropdown { display: none; position: absolute; left: 1.25rem; right: 1.25rem; top: calc(100% - 4px); background: #fff; border: 1px solid #e0e0e0; border-radius: 6px; z-index: 100; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .club-dropdown.open { display: block; }
+        .club-dropdown a { display: block; padding: 9px 12px; font-size: 12px; color: #232D4B; text-decoration: none; border-bottom: 1px solid #f0f0f0; }
+        .club-dropdown a:last-child { border-bottom: none; }
+        .club-dropdown a:hover { background: #f4f5f7; }
+        .club-dropdown a.current { color: #E57200; font-weight: bold; }
+        .nav-item { display: flex; align-items: center; gap: 10px; padding: 11px 1.25rem; color: #8fa0be; font-size: 13px; text-decoration: none; border-left: 3px solid transparent; transition: all 0.15s; }
+        .nav-item:hover { color: #fff; background: rgba(255,255,255,0.05); }
+        .nav-item.active { color: #fff; background: rgba(255,255,255,0.08); border-left-color: #E57200; }
+        .sidebar-footer { margin-top: auto; padding: 1rem 1.25rem; border-top: 1px solid rgba(255,255,255,0.1); }
+        .sidebar-footer a { color: #8fa0be; font-size: 12px; text-decoration: none; display: flex; align-items: center; gap: 10px; }
+        .sidebar-footer a:hover { color: #fff; }
+        .main { flex: 1; display: flex; flex-direction: column; }
+        .topbar { background: #fff; padding: 0 1.5rem; height: 52px; display: flex; align-items: center; border-bottom: 1px solid #e0e0e0; }
+        .topbar h1 { font-size: 15px; font-weight: bold; color: #232D4B; }
+        .body { padding: 1.5rem; display: flex; flex-direction: column; gap: 1.25rem; }
+        .card { background: #fff; border-radius: 12px; border: 1px solid #e0e0e0; padding: 1.25rem; }
+        .card-title { font-size: 11px; font-weight: bold; color: #aaa; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 1rem; }
+        .upload-row { display: flex; gap: 10px; align-items: flex-end; flex-wrap: wrap; }
+        .upload-field { display: flex; flex-direction: column; gap: 5px; flex: 1; min-width: 160px; }
+        .upload-field label { font-size: 11px; font-weight: bold; color: #888; text-transform: uppercase; letter-spacing: 0.05em; }
+        .upload-field input[type="text"] { padding: 7px 10px; border: 1px solid #e0e0e0; border-radius: 6px; font-size: 13px; font-family: inherit; color: #232D4B; }
+        .upload-field input[type="text"]:focus { outline: none; border-color: #232D4B; }
+        .file-input-label { display: inline-flex; align-items: center; gap: 10px; cursor: pointer; }
+        .file-btn-span { background: #232D4B; color: #fff; padding: 7px 13px; border-radius: 5px; font-size: 12px; font-weight: bold; white-space: nowrap; }
+        .file-name-display { font-size: 12px; color: #888; }
+        .btn-upload { background: #E57200; color: #fff; border: none; padding: 8px 18px; border-radius: 6px; font-size: 13px; font-weight: bold; cursor: pointer; font-family: inherit; white-space: nowrap; }
+        .btn-upload:hover { background: #c96400; }
+        .search-bar { width: 100%; padding: 8px 12px; border: 1px solid #e0e0e0; border-radius: 8px; font-size: 13px; font-family: inherit; color: #232D4B; }
+        .search-bar:focus { outline: none; border-color: #232D4B; }
+        .doc-list { display: flex; flex-direction: column; }
+        .doc-row { display: flex; align-items: center; gap: 12px; padding: 11px 0; border-bottom: 1px solid #f0f0f0; }
+        .doc-row:last-child { border-bottom: none; }
+        .doc-icon { color: #888; flex-shrink: 0; }
+        .doc-info { flex: 1; min-width: 0; }
+        .doc-name { font-size: 13px; font-weight: bold; color: #232D4B; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .doc-meta { font-size: 11px; color: #aaa; margin-top: 2px; }
+        .doc-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+        .btn-download { display: flex; align-items: center; gap: 5px; color: #232D4B; text-decoration: none; font-size: 12px; font-weight: bold; padding: 5px 10px; border: 1px solid #232D4B; border-radius: 4px; transition: all 0.15s; }
+        .btn-download:hover { background: #232D4B; color: #fff; }
+        .btn-delete { background: none; border: none; cursor: pointer; color: #ccc; padding: 4px; display: flex; align-items: center; transition: color 0.15s; }
+        .btn-delete:hover { color: #e53e3e; }
+        .empty { padding: 1.5rem 0; font-size: 13px; color: #aaa; font-style: italic; text-align: center; }
+        .count-badge { display: inline-block; background: #f0f0f0; color: #888; font-size: 11px; font-weight: bold; padding: 2px 8px; border-radius: 99px; margin-left: 6px; }
+    </style>
+</head>
+<body>
+
+{% include 'main/navbar.html' %}
+
+<div class="shell">
+    <aside class="sidebar">
+        <div class="club-switcher">
+            <button class="club-switcher-btn" onclick="document.getElementById('clubDropdown').classList.toggle('open')">
+                <span class="club-name">{{ club.name }}</span>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <div class="club-dropdown" id="clubDropdown">
+                {% for c in all_exec_clubs %}
+                <a href="{% url 'executive_club_page' c.slug %}" class="{% if c.slug == club.slug %}current{% endif %}">{{ c.name }}</a>
+                {% endfor %}
+            </div>
+        </div>
+
+        <a class="nav-item" href="{% url 'executive_club_page' club.slug %}">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+            Dashboard
+        </a>
+        <a class="nav-item" href="{% url 'executive_club_events' club.slug %}">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            Events
+        </a>
+        <a class="nav-item" href="{% url 'executive_club_manage' club.slug %}">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a10 10 0 1 0 0 20A10 10 0 0 0 12 2z"/><path d="M12 8v4l3 3"/></svg>
+            Club Management
+        </a>
+        <a class="nav-item" href="{% url 'executive_club_people' club.slug %}">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            Contacts
+        </a>
+        <a class="nav-item active" href="{% url 'executive_club_documents' club.slug %}">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" /></svg>
+            Documents
+        </a>
+        <a class="nav-item" href="{% url 'executive_club_ads' club.slug %}">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 7.5h1.5m-1.5 3h1.5m-7.5 3h7.5m-7.5 3h7.5m3-9h3.375c.621 0 1.125.504 1.125 1.125V18a2.25 2.25 0 0 1-2.25 2.25M16.5 7.5V18a2.25 2.25 0 0 0 2.25 2.25M16.5 7.5V4.875c0-.621-.504-1.125-1.125-1.125H4.125C3.504 3.75 3 4.254 3 4.875V18a2.25 2.25 0 0 0 2.25 2.25h13.5M6 7.5h3v3H6v-3Z"/></svg>
+            Ads
+        </a>
+
+        <div class="sidebar-footer">
+            <a href="{% url 'logout' %}">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                Sign out
+            </a>
+        </div>
+    </aside>
+
+    <div class="main">
+        <div class="topbar">
+            <h1>{{ club.name }} – Documents</h1>
+        </div>
+
+        <div class="body">
+
+            <!-- Upload form -->
+            <div class="card">
+                <div class="card-title">Upload Document</div>
+                <form method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="upload-row">
+                        <div class="upload-field">
+                            <label for="docName">Display Name</label>
+                            <input type="text" id="docName" name="name" placeholder="e.g. Constitution, Meeting Minutes" required>
+                        </div>
+                        <div class="upload-field">
+                            <label>File</label>
+                            <label class="file-input-label" for="docFileInput">
+                                <input type="file" name="file" id="docFileInput" required style="opacity:0;width:0;height:0;">
+                                <span class="file-btn-span">Choose File</span>
+                                <span class="file-name-display" id="docFileName">No file chosen</span>
+                            </label>
+                        </div>
+                        <button type="submit" class="btn-upload">Upload</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Document list -->
+            <div class="card">
+                <div class="card-title">
+                    All Documents
+                    <span class="count-badge" id="docCount">{{ documents.count }}</span>
+                </div>
+                <input type="text" class="search-bar" id="docSearch" placeholder="Search documents..." style="margin-bottom: 1rem;">
+                <div class="doc-list" id="docList">
+                    {% for doc in documents %}
+                    <div class="doc-row" data-name="{{ doc.name|lower }}">
+                        <svg class="doc-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" /></svg>
+                        <div class="doc-info">
+                            <div class="doc-name">{{ doc.name }}</div>
+                            <div class="doc-meta">Uploaded {{ doc.uploaded_at|date:"M d, Y" }}{% if doc.uploaded_by %} by {{ doc.uploaded_by.first_name }} {{ doc.uploaded_by.last_name }}{% endif %}</div>
+                        </div>
+                        <div class="doc-actions">
+                            <a href="{% url 'club_document_download' doc.id %}" class="btn-download" target="_blank">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3"/></svg>
+                                Download
+                            </a>
+                            <form method="POST" action="{% url 'executive_delete_document' club.slug doc.id %}" style="display:inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn-delete" title="Delete document" onclick="return confirm('Delete this document?')">
+                                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M19 6l-1 14H6L5 6M10 11v6M14 11v6M9 6V4h6v2"/></svg>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <p class="empty" id="emptyMsg">No documents uploaded yet.</p>
+                    {% endfor %}
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('click', function(e) {
+        const switcher = document.querySelector('.club-switcher');
+        if (switcher && !switcher.contains(e.target)) document.getElementById('clubDropdown').classList.remove('open');
+    });
+
+    document.getElementById('docFileInput').addEventListener('change', function() {
+        document.getElementById('docFileName').textContent = this.files[0] ? this.files[0].name : 'No file chosen';
+    });
+
+    document.getElementById('docSearch').addEventListener('input', function() {
+        const q = this.value.toLowerCase();
+        const rows = document.querySelectorAll('.doc-row');
+        let visible = 0;
+        rows.forEach(function(row) {
+            const match = row.dataset.name.includes(q);
+            row.style.display = match ? '' : 'none';
+            if (match) visible++;
+        });
+        document.getElementById('docCount').textContent = visible;
+        const empty = document.getElementById('emptyMsg');
+        if (empty) empty.style.display = visible === 0 ? '' : 'none';
+    });
+</script>
+
+{% include 'main/chat_widget.html' %}
+</body>
+</html>

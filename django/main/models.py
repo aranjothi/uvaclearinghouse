@@ -329,3 +329,17 @@ class AdBooking(models.Model):
 
     class Meta:
         unique_together = ('ad', 'hour_of_week')
+
+
+class ClubDocument(models.Model):
+    club = models.ForeignKey(Club, on_delete=models.CASCADE, related_name='documents')
+    name = models.CharField(max_length=255)
+    file = models.FileField(upload_to='club_documents/')
+    uploaded_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-uploaded_at']
+
+    def __str__(self):
+        return f"{self.club.name} – {self.name}"
