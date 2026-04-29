@@ -16,7 +16,7 @@ Overall, the system enhances the connection between students and CIOs by making 
 
 https://clearinghouse.dev/
 
-*Note: For ads to be visible and interactable, the user must have any adblockers disabled. Uploading ad images to the executive dashboard will still function properly, viewing is just restricting with adblocker usage.*
+*Note: For the ads to be visible and interactable, the user must have any adblockers disabled. Uploading ad images to the executive dashboard will still function properly, viewing is just restricting with adblocker usage. In some browsers, you may need to disable your adblocker to see the entire profile and inbox pages, so take action accordingly.*
 
 **Executive Codes**
 
@@ -34,6 +34,20 @@ To gain access to executive permissions of a club, you must verify using a code.
 - 3D Printing Club at The University of Virginia: 391c79a1
 - Charlottesville Book Club: d5b701e7
 
+**User Administrator**
+
+To see the user administrator panel, you need login information. Use the following login info to gain access:
+
+- User (email): aranadmin@example.com
+- Password: oregonftw349
+
+**Django Administrator Panel**
+
+If you need to see the database for any reason, navigate to https://clearinghouse.dev/admin/login/?next=/admin/ and use the following login:
+
+- Username: aranj
+- Password: aran
+
 ## Navigating the Website
 
 The live application at https://clearinghouse.dev/ supports three types of users:
@@ -42,7 +56,7 @@ The live application at https://clearinghouse.dev/ supports three types of users
 
 **Executive members** — after joining a club, verify your executive role using the club's code (see codes above). This unlocks an Exec EZ-Access panel on the club page for posting announcements, creating events, editing club info, and uploading media. The full executive dashboard (`/executives/`) gives access to event management, member contacts, club management (approvals, bans), documents, and ads.
 
-**User admins** — created via the Django admin panel; can view all users and change membership roles site-wide.
+**User admins** — created via the Django admin panel; can view all users and change membership roles site-wide. you can find 
 
 ## Navigating the Codebase
 
