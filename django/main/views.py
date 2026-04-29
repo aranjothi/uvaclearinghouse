@@ -1535,7 +1535,7 @@ def executive_club_documents(request, slug):
     club = get_object_or_404(Club, slug=slug)
     if not Membership.objects.filter(user=request.user, club=club, role=Membership.EXECUTIVE).exists():
         return redirect('executive_page')
-    exec_clubs = Club.objects.filter(membership__user=request.user, membership__role=Membership.EXECUTIVE)
+    exec_clubs = Club.objects.filter(memberships__user=request.user, memberships__role=Membership.EXECUTIVE)
     if request.method == 'POST':
         name = request.POST.get('name', '').strip()
         f = request.FILES.get('file')
