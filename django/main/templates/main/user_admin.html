@@ -96,6 +96,19 @@ tr:hover td { background-color: #f0f0f0; }
 
 .no-memberships { color: #999; font-style: italic; }
 
+.search-bar {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1.5px solid #e0e0e0;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 0.95rem;
+    color: #232D4B;
+    margin-bottom: 20px;
+}
+.search-bar:focus { outline: none; border-color: #232D4B; }
+.no-results { padding: 16px; color: #999; font-style: italic; font-size: 0.95rem; }
+
 .logout-btn {
     background: none;
     border: none;
@@ -136,6 +149,8 @@ tr:hover td { background-color: #f0f0f0; }
         {% endfor %}
     {% endif %}
 
+    <input type="text" class="search-bar" id="userSearch" placeholder="Search by name or email...">
+
     <table>
         <thead>
             <tr>
@@ -146,45 +161,59 @@ tr:hover td { background-color: #f0f0f0; }
                 <th>Change Role</th>
             </tr>
         </thead>
-        <tbody>
-            {% for user in users %}
-                {% if user.memberships.all %}
-                    {% for membership in user.memberships.all %}
-                    <tr>
-                        {% if forloop.first %}
-                        <td rowspan="{{ user.memberships.all|length }}">{{ user.first_name }} {{ user.last_name }}</td>
-                        <td rowspan="{{ user.memberships.all|length }}">{{ user.email }}</td>
-                        {% endif %}
-                        <td>{{ membership.club.name }}</td>
-                        <td>{{ membership.get_role_display }}</td>
-                        <td>
-                            <form method="post" action="{% url 'user_admin_change_role' %}" class="role-form">
-                                {% csrf_token %}
-                                <input type="hidden" name="membership_id" value="{{ membership.id }}">
-                                <select name="role" class="role-select">
-                                    <option value="member" {% if membership.role == "member" %}selected{% endif %}>General Member</option>
-                                    <option value="executive" {% if membership.role == "executive" %}selected{% endif %}>Executive</option>
-                                </select>
-                                <button type="submit" class="save-btn">Save</button>
-                            </form>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                {% else %}
-                    <tr>
-                        <td>{{ user.first_name }} {{ user.last_name }}</td>
-                        <td>{{ user.email }}</td>
-                        <td colspan="3" class="no-memberships">No club memberships</td>
-                    </tr>
-                {% endif %}
-            {% empty %}
+        {% for user in users %}
+        <tbody class="user-group" data-search="{{ user.first_name }} {{ user.last_name }} {{ user.email }}">
+            {% if user.memberships.all %}
+                {% for membership in user.memberships.all %}
                 <tr>
-                    <td colspan="5" class="no-memberships">No users found.</td>
+                    {% if forloop.first %}
+                    <td rowspan="{{ user.memberships.all|length }}">{{ user.first_name }} {{ user.last_name }}</td>
+                    <td rowspan="{{ user.memberships.all|length }}">{{ user.email }}</td>
+                    {% endif %}
+                    <td>{{ membership.club.name }}</td>
+                    <td>{{ membership.get_role_display }}</td>
+                    <td>
+                        <form method="post" action="{% url 'user_admin_change_role' %}" class="role-form">
+                            {% csrf_token %}
+                            <input type="hidden" name="membership_id" value="{{ membership.id }}">
+                            <select name="role" class="role-select">
+                                <option value="member" {% if membership.role == "member" %}selected{% endif %}>General Member</option>
+                                <option value="executive" {% if membership.role == "executive" %}selected{% endif %}>Executive</option>
+                            </select>
+                            <button type="submit" class="save-btn">Save</button>
+                        </form>
+                    </td>
                 </tr>
-            {% endfor %}
+                {% endfor %}
+            {% else %}
+                <tr>
+                    <td>{{ user.first_name }} {{ user.last_name }}</td>
+                    <td>{{ user.email }}</td>
+                    <td colspan="3" class="no-memberships">No club memberships</td>
+                </tr>
+            {% endif %}
         </tbody>
+        {% empty %}
+        <tbody>
+            <tr><td colspan="5" class="no-memberships">No users found.</td></tr>
+        </tbody>
+        {% endfor %}
     </table>
+    <p class="no-results" id="noResults" style="display:none;">No users match your search.</p>
 </div>
 
+<script>
+document.getElementById('userSearch').addEventListener('input', function() {
+    const q = this.value.toLowerCase();
+    const groups = document.querySelectorAll('.user-group');
+    let visible = 0;
+    groups.forEach(function(g) {
+        const match = g.dataset.search.toLowerCase().includes(q);
+        g.style.display = match ? '' : 'none';
+        if (match) visible++;
+    });
+    document.getElementById('noResults').style.display = (visible === 0 && q) ? '' : 'none';
+});
+</script>
 </body>
 </html>

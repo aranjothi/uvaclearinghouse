@@ -1541,7 +1541,6 @@ def executive_club_documents(request, slug):
         f = request.FILES.get('file')
         if name and f:
             ClubDocument.objects.create(club=club, name=name, file=f, uploaded_by=request.user)
-            messages.success(request, 'Document uploaded.')
         return redirect('executive_club_documents', slug=slug)
     documents = club.documents.all()
     return render(request, 'main/executive_club_documents.html', {
