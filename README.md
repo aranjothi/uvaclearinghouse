@@ -16,6 +16,46 @@ Overall, the system enhances the connection between students and CIOs by making 
 
 https://clearinghouse.dev/
 
+*Note: For ads to be visible and interactable, the user must have any adblockers disabled. Uploading ad images to the executive dashboard will still function properly, viewing is just restricting with adblocker usage.*
+
+**Executive Codes**
+
+To gain access to executive permissions of a club, you must verify using a code. Below are the codes for all the clubs on the application:
+
+- Mind&Body at UVA: 4c9c2b06
+- Asambé (formerly known as Afro-Hoos): 33957149
+- Community Alliance of South Americans: 2c60c3d3
+- Aero Design Team at UVa/Hoos Flying: 998f1d1a
+- The Occultation Group: 24ab9c6d
+- Biomedical Engineering Society: f65f14cb
+- APEX Dance Crew: d6ef7c11
+- Accounting Society at McIntire: 866bbc85
+- A Moment of Magic at UVA: 87550d2a
+- 3D Printing Club at The University of Virginia: 391c79a1
+- Charlottesville Book Club: d5b701e7
+
+## Navigating the Website
+
+The live application at https://clearinghouse.dev/ supports three types of users:
+
+**General users** — create an account, browse clubs on the Clubs page, view club profiles (highlights, announcements, events, discussions), join clubs, RSVP to events, save clubs, message other users, and manage your profile.
+
+**Executive members** — after joining a club, verify your executive role using the club's code (see codes above). This unlocks an Exec EZ-Access panel on the club page for posting announcements, creating events, editing club info, and uploading media. The full executive dashboard (`/executives/`) gives access to event management, member contacts, club management (approvals, bans), documents, and ads.
+
+**User admins** — created via the Django admin panel; can view all users and change membership roles site-wide.
+
+## Navigating the Codebase
+
+The Django app lives in `django/`. Key locations:
+
+- **Models** — `django/main/models.py` — all database models (`User`, `Club`, `Membership`, `Event`, `Announcement`, `PollOption`, `PollVote`, `DirectMessage`, `Highlight`, `ClubAd`, `ClubDocument`, etc.)
+- **Views** — `django/main/views.py` — all view functions and the `ClubDetailView` class-based view
+- **URLs** — `django/main/urls.py` — all URL patterns
+- **Templates** — `django/main/templates/main/` — one HTML file per page; exec dashboard pages are prefixed `executive_`
+- **Static assets** — `django/main/assets/` — images and icons served via WhiteNoise
+- **Migrations** — `django/main/migrations/` — database migration history
+- **Settings** — `django/clearinghouse/settings.py` — Django settings including S3, auth, and database config
+- **OAuth adapters** — `django/main/adapters.py` — custom allauth adapters for Google sign-in
 
 ## Authors
 
@@ -28,3 +68,21 @@ https://clearinghouse.dev/
 ## Team
 
 Team B-05
+
+## AI Usage
+
+This project used Claude (by Anthropic) as an AI coding assistant throughout development. Key example areas where Claude was used include:
+
+- **Direct messaging system** — chat widget, inbox, and conversation views with real-time JSON API endpoints
+- **Announcements and polls** — post/vote/unvote/delete flow, poll percentage rendering, and syncing between the latest-announcement preview and the tab
+- **Club highlights** — image upload, drag-to-reorder, lightbox viewer, and caption management
+- **Club management features** — join request approval flow, ban/unban, member removal, and the `ClubSettings` model
+- **Executive dashboard** — the full sidebar layout, events management pages, and the edit event form
+- **Global search** — live suggest API and the search results page
+- **Google OAuth integration** — custom allauth adapters for suppressing toasts, handling exec codes on signup, and overriding error/cancellation pages
+- **Email notifications** — event subscription model and email dispatch for RSVPs
+- **Ads feature** — `ClubAd`/`AdBooking` models, weekly scheduling grid with per-slot locking, and ad display on profile, forum, and messages pages
+- **Documents feature** — `ClubDocument` model, executive file upload/delete, and the Documents tab
+- **Bug fixes and deployment** — migration conflict resolution, timezone fixes, responsive layout adjustments, and Heroku deployment troubleshooting
+
+During the development process, we accounted for potential errors while using AI as a tool. We ensured that changes assisted with AI were thoroughly reviewed and implementations met requirements to ensure a quality final product.
