@@ -33,15 +33,15 @@ nav ul li a:hover { border-bottom: 3px solid #E57200; }
     justify-content: center;
 }
 .ad-col {
-    flex: 1;
+    width: 264px;
+    flex-shrink: 0;
     display: flex;
-    min-width: 0;
     padding-top: 40px;
 }
 .ad-col-left  { justify-content: flex-end;   padding-right: 64px; }
 .ad-col-right { justify-content: flex-start; padding-left:  64px; }
 .ad-col a img { width: 200px; height: auto; display: block; border-radius: 8px; }
-@media (max-width: 1400px) { .ad-col { display: none; } }
+@media (max-width: 900px) { .ad-col { display: none; } }
 
 .page-content {
     flex: 0 1 860px;
