@@ -62,14 +62,14 @@ The live application at https://clearinghouse.dev/ supports three types of users
 
 The Django app lives in `django/`. Key locations:
 
-- **Models** — `django/main/models.py` — all database models (`User`, `Club`, `Membership`, `Event`, `Announcement`, `PollOption`, `PollVote`, `DirectMessage`, `Highlight`, `ClubAd`, `ClubDocument`, etc.)
-- **Views** — `django/main/views.py` — all view functions and the `ClubDetailView` class-based view
-- **URLs** — `django/main/urls.py` — all URL patterns
-- **Templates** — `django/main/templates/main/` — one HTML file per page; exec dashboard pages are prefixed `executive_`
-- **Static assets** — `django/main/assets/` — images and icons served via WhiteNoise
-- **Migrations** — `django/main/migrations/` — database migration history
+- **Models** — `django/main/models.py` — All database models (`User`, `Club`, `Membership`, `Event`, `Announcement`, `PollOption`, `PollVote`, `DirectMessage`, `Highlight`, `ClubAd`, `ClubDocument`, etc.)
+- **Views** — `django/main/views.py` — All view functions and the `ClubDetailView` class-based view
+- **URLs** — `django/main/urls.py` — All URL patterns
+- **Templates** — `django/main/templates/main/` — One HTML file per page; exec dashboard pages are prefixed `executive_`
+- **Static assets** — `django/main/assets/` — Images and icons served via WhiteNoise
+- **Migrations** — `django/main/migrations/` — Database migration history
 - **Settings** — `django/clearinghouse/settings.py` — Django settings including S3, auth, and database config
-- **OAuth adapters** — `django/main/adapters.py` — custom allauth adapters for Google sign-in
+- **OAuth adapters** — `django/main/adapters.py` — Custom allauth adapters for Google sign-in
 
 ## Authors
 
@@ -87,16 +87,16 @@ Team B-05
 
 This project used Claude (by Anthropic) as an AI coding assistant throughout development. Key example areas where Claude was used include:
 
-- **Direct messaging system** — chat widget, inbox, and conversation views with real-time JSON API endpoints
-- **Announcements and polls** — post/vote/unvote/delete flow, poll percentage rendering, and syncing between the latest-announcement preview and the tab
-- **Club highlights** — image upload, drag-to-reorder, lightbox viewer, and caption management
-- **Club management features** — join request approval flow, ban/unban, member removal, and the `ClubSettings` model
-- **Executive dashboard** — the full sidebar layout, events management pages, and the edit event form
-- **Global search** — live suggest API and the search results page
-- **Google OAuth integration** — custom allauth adapters for suppressing toasts, handling exec codes on signup, and overriding error/cancellation pages
-- **Email notifications** — event subscription model and email dispatch for RSVPs
+- **Direct messaging system** — Chat widget, inbox, and conversation views with real-time JSON API endpoints
+- **Announcements and polls** — Post/vote/unvote/delete flow, poll percentage rendering, and syncing between the latest-announcement preview and the tab
+- **Club highlights** — Image upload, drag-to-reorder, lightbox viewer, and caption management
+- **Club management features** — Join request approval flow, ban/unban, member removal, and the `ClubSettings` model
+- **Executive dashboard** — The full sidebar layout, events management pages, and the edit event form
+- **Global search** — Live suggest API and the search results page
+- **Google OAuth integration** — Custom allauth adapters for suppressing toasts, handling exec codes on signup, and overriding error/cancellation pages
+- **Email notifications** — Event subscription model and email dispatch for RSVPs
 - **Ads feature** — `ClubAd`/`AdBooking` models, weekly scheduling grid with per-slot locking, and ad display on profile, forum, and messages pages
 - **Documents feature** — `ClubDocument` model, executive file upload/delete, and the Documents tab
-- **Bug fixes and deployment** — migration conflict resolution, timezone fixes, responsive layout adjustments, and Heroku deployment troubleshooting
+- **Bug fixes and deployment** — Migration conflict resolution, timezone fixes, responsive layout adjustments, and Heroku deployment troubleshooting
 
 During the development process, we accounted for potential errors while using AI as a tool. We ensured that changes assisted with AI were thoroughly reviewed and implementations met requirements to ensure a quality final product.
