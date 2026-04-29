@@ -614,6 +614,42 @@ nav ul li a:hover {
     margin-bottom: 8px;
 }
 
+/*Location Dropdown*/
+.location-wrapper {
+    position: relative;
+}
+
+.location-dropdown {
+    display: none;
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    right: 0;
+    background: #fff;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    max-height: 180px;
+    overflow-y: auto;
+    z-index: 9999;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+}
+
+.location-dropdown.open {
+    display: block;
+}
+
+.location-option {
+    padding: 9px 12px;
+    font-size: 0.9rem;
+    color: #232D4B;
+    cursor: pointer;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.location-option:hover {
+    background: #f4f5f7;
+}
+
 </style>
 </head>
 
@@ -1724,10 +1760,21 @@ document.addEventListener('click', function(e) {
             <input type="date" name="date" id="id_date" required>
 
             <label for="id_time">Time</label>
-            <input type="time" name="time" id="id_time" required>
+            <input type="time" name="start_time" id="id_time" required>
 
-            <label for="id_location">Location</label>
-            <input type="text" name="location" id="id_location" required>
+            <label for="modalLocationSearch">Location</label>
+            <div class="location-wrapper">
+                <input type="text"
+                    class="location-search"
+                    id="modalLocationSearch"
+                    placeholder="Search UVA venues..."
+                    autocomplete="off"
+                    required>
+
+                <div class="location-dropdown" id="modalLocationDropdown"></div>
+            </div>
+
+            <input type="hidden" name="location" id="modal_id_location">
 
             <label>Instagram Post (optional)</label>
             <input type="url" name="instagram_url" placeholder="https://www.instagram.com/p/...">
@@ -1745,5 +1792,69 @@ document.addEventListener('click', function(e) {
 {% endif %}
 
 {% include 'main/chat_widget.html' %}
+<script>
+    const locations = [
+    "Alderman Library","Bavaro Hall","Brooks Hall","Bryan Hall","Cabell Hall",
+    "Campbell Hall","Clark Hall","Clemons Library","Cocke Hall","Dell 1","Dell 2",
+    "Garrett Hall","Gibson Hall","Gilmer Hall","Halsey Hall","Hotel C (Physics)",
+    "Kerchof Hall","Madison Hall","McLeod Hall","Memorial Gymnasium","Minor Hall",
+    "Monroe Hall","Newcomb Hall","Nau Hall","Observatory Hill Dining","Olsson Hall",
+    "O'Hill Commons","Pavilion I–X (The Lawn)","The Rotunda","Rice Hall",
+    "Robertson Hall","Ruffner Hall","Slaughter Recreation Center","Shannon Library",
+    "The Corner","Thornton Hall","University Hall","Warner Hall",
+    "Withers-Brown Hall","John Paul Jones Arena","Scott Stadium","Virtual / Online","Other"
+    ];
+    
+    const modalSearchInput = document.getElementById('modalLocationSearch');
+    const modalLocDropdown = document.getElementById('modalLocationDropdown');
+    const modalHiddenLoc = document.getElementById('modal_id_location');
+
+    function syncModalLocation() {
+        if (modalSearchInput && modalHiddenLoc && !modalHiddenLoc.value && modalSearchInput.value.trim()) {
+            modalHiddenLoc.value = modalSearchInput.value.trim();
+        }
+    }
+
+    function renderModalLocDropdown(filter) {
+        const filtered = locations.filter(loc =>
+            loc.toLowerCase().includes(filter.toLowerCase())
+        );
+
+        modalLocDropdown.innerHTML = '';
+
+        if (filtered.length === 0) {
+            modalLocDropdown.innerHTML = '<div class="no-results">No venues found</div>';
+        } else {
+            filtered.forEach(loc => {
+                const div = document.createElement('div');
+                div.className = 'location-option';
+                div.textContent = loc;
+
+                div.addEventListener('click', () => {
+                    modalSearchInput.value = loc;
+                    modalHiddenLoc.value = loc;
+                    modalLocDropdown.classList.remove('open');
+                });
+
+                modalLocDropdown.appendChild(div);
+            });
+        }
+
+        modalLocDropdown.classList.add('open');
+    }
+
+    if(modalSearchInput){
+        modalSearchInput.addEventListener('input', () => renderModalLocDropdown(modalSearchInput.value));
+        modalSearchInput.addEventListener('focus', () => renderModalLocDropdown(modalSearchInput.value));
+
+        document.addEventListener('click', function(e) {
+            const wrapper = modalSearchInput.closest('.location-wrapper');
+            if (wrapper && !wrapper.contains(e.target)) {
+                modalLocDropdown.classList.remove('open');
+            }    
+        });
+    }
+    
+</script>
 </body>
 </html>

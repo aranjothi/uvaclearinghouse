@@ -39,11 +39,12 @@
         .location-wrapper { position: relative; }
         .location-search { width: 100%; padding: 10px 12px; border: 1px solid #e0e0e0; border-radius: 6px; font-size: 14px; font-family: inherit; color: #232D4B; }
         .location-search:focus { outline: none; border-color: #E57200; }
-        .location-dropdown { display: none; position: absolute; top: calc(100% + 4px); left: 0; right: 0; background: #fff; border: 1px solid #e0e0e0; border-radius: 6px; max-height: 220px; overflow-y: auto; z-index: 50; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
         .location-dropdown.open { display: block; }
-        .location-option { padding: 9px 12px; font-size: 13px; color: #232D4B; cursor: pointer; border-bottom: 1px solid #f0f0f0; }
+        .location-option { padding: 9px 12px; font-size: 0.9rem; color: #232D4B; cursor: pointer; border-bottom: 1px solid #f0f0f0; }
         .location-option:last-child { border-bottom: none; }
-        .location-option:hover { background: #f4f5f7; }
+        .location-wrapper {position: relative;}
+        .location-dropdown {display: none; position: absolute; top: calc(100% + 4px); left: 0; right: 0; background: #fff; border: 1px solid #ccc; border-radius: 6px; max-height: 180px; overflow-y: auto; z-index: 9999; box-shadow: 0 4px 12px rgba(0,0,0,0.12);}
+        .location-option:hover {background: #f4f5f7;}
         .no-results { padding: 9px 12px; font-size: 13px; color: #aaa; font-style: italic; }
         .form-actions { margin-top: 1.5rem; display: flex; gap: 0.75rem; }
         .btn-orange { display: inline-block; padding: 10px 24px; border-radius: 6px; font-size: 14px; font-weight: bold; background: #E57200; color: #fff; border: none; cursor: pointer; transition: background 0.15s; }
