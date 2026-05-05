@@ -12,42 +12,35 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        # Forum, ForumThread, ForumReply already exist in the DB — update Django's
-        # state only, skip the CREATE TABLE SQL.
-        migrations.SeparateDatabaseAndState(
-            state_operations=[
-                migrations.CreateModel(
-                    name='Forum',
-                    fields=[
-                        ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                        ('club', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='forums', to='main.club')),
-                    ],
-                ),
-                migrations.CreateModel(
-                    name='ForumThread',
-                    fields=[
-                        ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                        ('title', models.CharField(max_length=200)),
-                        ('content', models.TextField()),
-                        ('created_at', models.DateTimeField(auto_now_add=True)),
-                        ('author', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
-                        ('forum', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='threads', to='main.forum')),
-                        ('likes', models.ManyToManyField(blank=True, related_name='liked_threads', to=settings.AUTH_USER_MODEL)),
-                    ],
-                ),
-                migrations.CreateModel(
-                    name='ForumReply',
-                    fields=[
-                        ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                        ('content', models.TextField()),
-                        ('created_at', models.DateTimeField(auto_now_add=True)),
-                        ('author', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
-                        ('likes', models.ManyToManyField(blank=True, related_name='liked_replies', to=settings.AUTH_USER_MODEL)),
-                        ('thread', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='replies', to='main.forumthread')),
-                    ],
-                ),
+        migrations.CreateModel(
+            name='Forum',
+            fields=[
+                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('club', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='forums', to='main.club')),
             ],
-            database_operations=[],
+        ),
+        migrations.CreateModel(
+            name='ForumThread',
+            fields=[
+                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('title', models.CharField(max_length=200)),
+                ('content', models.TextField()),
+                ('created_at', models.DateTimeField(auto_now_add=True)),
+                ('author', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
+                ('forum', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='threads', to='main.forum')),
+                ('likes', models.ManyToManyField(blank=True, related_name='liked_threads', to=settings.AUTH_USER_MODEL)),
+            ],
+        ),
+        migrations.CreateModel(
+            name='ForumReply',
+            fields=[
+                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('content', models.TextField()),
+                ('created_at', models.DateTimeField(auto_now_add=True)),
+                ('author', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
+                ('likes', models.ManyToManyField(blank=True, related_name='liked_replies', to=settings.AUTH_USER_MODEL)),
+                ('thread', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='replies', to='main.forumthread')),
+            ],
         ),
         # profile_picture does not exist yet — run normally.
         migrations.AddField(
