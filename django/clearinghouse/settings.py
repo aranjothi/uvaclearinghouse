@@ -138,7 +138,6 @@ USE_TZ = True
 STATIC_URL = 'static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_DIRS = [BASE_DIR / 'main' / 'assets']
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Media / user-uploaded files — stored on S3
 AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
@@ -161,13 +160,8 @@ STORAGES = {
            "region_name":AWS_S3_REGION_NAME
         }
     },
-    # https://stackoverflow.com/questions/78608996/django-storages-staticfiles-storage-key-attribute-error
     "staticfiles": {
-        "BACKEND": "storages.backends.s3.S3Storage",
-        "OPTIONS": {
-          "bucket_name":AWS_STORAGE_BUCKET_NAME,
-           "region_name":AWS_S3_REGION_NAME
-        }
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
     }
 }
 
