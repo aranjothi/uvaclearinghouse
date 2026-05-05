@@ -14,7 +14,7 @@ Overall, the system enhances the connection between students and CIOs by making 
 
 ## Live Application
 
-https://clearinghouse.dev/
+https://hooslinked-07883ee36d63.herokuapp.com/
 
 *Note: For the ads to be visible and interactable, the user must have any adblockers disabled. Uploading ad images to the executive dashboard will still function properly, viewing is just restricting with adblocker usage. In some browsers, you may need to disable your adblocker to see the entire profile and inbox pages, so take action accordingly.*
 
@@ -43,14 +43,14 @@ To see the user administrator panel, you need login information. Use the followi
 
 **Django Administrator Panel**
 
-If you need to see the database for any reason, navigate to https://clearinghouse.dev/admin/login/?next=/admin/ and use the following login:
+If you need to see the database for any reason, navigate to https://hooslinked-07883ee36d63.herokuapp.com/admin/login/?next=/admin/ and use the following login:
 
 - Username: aranj
 - Password: aran
 
 ## Navigating the Website
 
-The live application at https://clearinghouse.dev/ supports three types of users:
+The live application at https://hooslinked-07883ee36d63.herokuapp.com/ supports three types of users:
 
 **General users** — create an account, browse clubs on the Clubs page, view club profiles (highlights, announcements, events, discussions), join clubs, RSVP to events, save clubs, message other users, and manage your profile.
 
