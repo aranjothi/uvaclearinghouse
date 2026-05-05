@@ -25,12 +25,8 @@ class Migration(migrations.Migration):
                     field=models.CharField(blank=True, max_length=8),
                 ),
             ],
-            database_operations=[
-                migrations.AddField(
-                    model_name='club',
-                    name='executive_code',
-                    field=models.CharField(blank=True, max_length=8, default=''),
-                ),
-            ],
+            # executive_code already exists in DB from 0002 on a fresh database;
+            # only update Django state, skip the ADD COLUMN.
+            database_operations=[],
         ),
     ]
