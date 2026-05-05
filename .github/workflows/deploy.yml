@@ -13,9 +13,5 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Deploy to Heroku
-        uses: akhileshns/heroku-deploy@v3.13.15
-        with:
-          heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
-          heroku_app_name: hooslinked
-          heroku_email: aran.jothi@gmail.com
+      - name: Push to Heroku
+        run: git push https://heroku:${{ secrets.HEROKU_API_KEY }}@git.heroku.com/hooslinked.git main --force
