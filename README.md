@@ -1,6 +1,8 @@
-# CIO Clearinghouse (Team B-05)
+# UVA CIO (Club) Clearinghouse
 
-This is a CIO Clearinghouse web application designed to help students discover and connect with CIOs, and help organization leaders promote their clubs and events.
+This is a published variant of a CIO Clearinghouse web application designed to help students discover and connect with CIOs, and help organization leaders promote their clubs and events.
+
+*DISCLAIMER: This website serves as a mockup for a club-finding website for UVA students. By no means am I guaranteeing that all of the information and content on the website are accurate and/or representative of the clubs listed.*
 
 ## Description
 
@@ -34,19 +36,7 @@ To gain access to executive permissions of a club, you must verify using a code.
 - 3D Printing Club at The University of Virginia: 391c79a1
 - Charlottesville Book Club: d5b701e7
 
-**User Administrator**
-
-To see the user administrator panel, you need login information. Use the following login info to gain access:
-
-- User (email): aranadmin@example.com
-- Password: oregonftw349
-
-**Django Administrator Panel**
-
-If you need to see the database for any reason, navigate to https://hooslinked-07883ee36d63.herokuapp.com/admin/login/?next=/admin/ and use the following login:
-
-- Username: aranj
-- Password: aran
+*If you decide to utilize the executive member features, please be mindful of the content and media you upload to the site.*
 
 ## Navigating the Website
 
@@ -56,32 +46,16 @@ The live application at https://hooslinked-07883ee36d63.herokuapp.com/ supports 
 
 **Executive members** — after joining a club, verify your executive role using the club's code (see codes above). This unlocks an Exec EZ-Access panel on the club page for posting announcements, creating events, editing club info, and uploading media. The full executive dashboard (`/executives/`) gives access to event management, member contacts, club management (approvals, bans), documents, and ads.
 
-**User admins** — created via the Django admin panel; can view all users and change membership roles site-wide. you can find 
+**User admins** — created via the Django admin panel; can view all users and change membership roles site-wide. In this published version, you cannot access the webite as an administrator to prevent misuse. 
 
-## Navigating the Codebase
+## Co-Authors
 
-The Django app lives in `django/`. Key locations:
+While I served as the main development lead, commits were made by fellow contributors:
 
-- **Models** — `django/main/models.py` — All database models (`User`, `Club`, `Membership`, `Event`, `Announcement`, `PollOption`, `PollVote`, `DirectMessage`, `Highlight`, `ClubAd`, `ClubDocument`, etc.)
-- **Views** — `django/main/views.py` — All view functions and the `ClubDetailView` class-based view
-- **URLs** — `django/main/urls.py` — All URL patterns
-- **Templates** — `django/main/templates/main/` — One HTML file per page; exec dashboard pages are prefixed `executive_`
-- **Static assets** — `django/main/assets/` — Images and icons served via WhiteNoise
-- **Migrations** — `django/main/migrations/` — Database migration history
-- **Settings** — `django/clearinghouse/settings.py` — Django settings including S3, auth, and database config
-- **OAuth adapters** — `django/main/adapters.py` — Custom allauth adapters for Google sign-in
-
-## Authors
-
-- Audrey Bediako  
-- Aran Jothi  
-- Yoyo Ni  
-- Love Joshi  
-- Peter Nenyuk  
-
-## Team
-
-Team B-05
+- Audrey Bediako (Scrum Lead)
+- Yoyo Ni (Requirements Lead)  
+- Love Joshi (QA Lead)  
+- Peter Nenyuk (DevOps Lead)  
 
 ## AI Usage
 
