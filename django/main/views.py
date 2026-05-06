@@ -9,7 +9,6 @@ from django.http import JsonResponse
 from django.utils import timezone
 from .models import User, Club, Membership, Event, Forum, ForumThread, ForumReply, DirectMessage, Announcement, ClubSettings, JoinRequest, Ban, PollOption, PollVote, Highlight
 from .models import User, Club, Membership, Event, EventNotificationSubscription, Forum, ForumThread, ForumReply, DirectMessage, Announcement, ClubSettings, JoinRequest, Ban, PollOption, PollVote, Highlight, ClubAd, AdBooking, ClubDocument
-from clearinghouse.settings import MAILTRAP_API_TOKEN
 from .forms import EventForm
 from functools import wraps
 import datetime
@@ -18,7 +17,6 @@ from datetime import date, timedelta
 from django.core.exceptions import ValidationError
 from django.core.serializers.json import DjangoJSONEncoder
 from django.urls import reverse
-import mailtrap as mt
 import pytz
 
 class ClubDetailView(DetailView):
@@ -918,17 +916,6 @@ def dm_conversation(request, username):
                 recipient=other_user,
                 content=content,
             )
-             #https://mailtrap.io/blog/django-send-email/#Send-emails-in-Django-using-email-API
-            #https://devcenter.heroku.com/articles/mailtrap#local-setup
-            #https://docs.mailtrap.io/developers
-            client = mt.MailtrapClient(token=MAILTRAP_API_TOKEN)
-            mail = mt.Mail(
-                        sender=mt.Address(email="messages@clearinghouse.dev", name="HoosLinked"),
-                        to=[mt.Address(email=other_user.username)],
-                        subject="You have a message!",
-                        text=f"Hi {other_user.username}, {request.user.username} just sent you a message! Go to HoosLinked to continue the chat.\n\n{request.user.username}: {content}"
-                    )
-            response = client.send(mail)
         return redirect('dm_conversation', username=username)
 
     DirectMessage.objects.filter(
