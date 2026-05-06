@@ -1,7 +1,9 @@
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+{% load static %}
 <style>
+@font-face { font-family: 'Montserrat'; src: url('{% static "fonts/Montserrat-400.woff2" %}') format('woff2'); font-weight: 400; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Montserrat'; src: url('{% static "fonts/Montserrat-500.woff2" %}') format('woff2'); font-weight: 500; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Montserrat'; src: url('{% static "fonts/Montserrat-600.woff2" %}') format('woff2'); font-weight: 600; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Montserrat'; src: url('{% static "fonts/Montserrat-700.woff2" %}') format('woff2'); font-weight: 700; font-style: normal; font-display: swap; }
 *, *::before, *::after { font-family: 'Montserrat', sans-serif; }
 nav {
     background-color: #232D4B;
