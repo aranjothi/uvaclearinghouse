@@ -18,6 +18,9 @@ from django.core.exceptions import ValidationError
 from django.core.serializers.json import DjangoJSONEncoder
 from django.urls import reverse
 import pytz
+from PIL import Image
+from io import BytesIO
+from django.core.files.uploadedfile import InMemoryUploadedFile
 
 class ClubDetailView(DetailView):
     model = Club
@@ -1458,7 +1461,28 @@ def executive_club_ads(request, slug):
 
     if request.method == 'POST' and not is_past_week:
         if request.FILES.get('ad_image'):
-            ad.ad_image = request.FILES['ad_image']
+            raw = request.FILES['ad_image']
+            img = Image.open(raw).convert('RGB')
+            target_w, target_h = 160, 600
+            src_ratio = img.width / img.height
+            target_ratio = target_w / target_h
+            if src_ratio > target_ratio:
+                # wider than target — scale to height, crop width
+                scale_h = target_h
+                scale_w = int(img.width * target_h / img.height)
+            else:
+                # taller than target — scale to width, crop height
+                scale_w = target_w
+                scale_h = int(img.height * target_w / img.width)
+            img = img.resize((scale_w, scale_h), Image.LANCZOS)
+            left = (scale_w - target_w) // 2
+            top = (scale_h - target_h) // 2
+            img = img.crop((left, top, left + target_w, top + target_h))
+            buf = BytesIO()
+            img.save(buf, format='JPEG', quality=90)
+            buf.seek(0)
+            fname = raw.name.rsplit('.', 1)[0] + '.jpg'
+            ad.ad_image = InMemoryUploadedFile(buf, 'ad_image', fname, 'image/jpeg', buf.getbuffer().nbytes, None)
             ad.save()
 
         selected = set(
